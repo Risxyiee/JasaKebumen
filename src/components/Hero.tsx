@@ -78,22 +78,8 @@ export default function Hero() {
             <span className="w" style={{ "--i": 1 } as CSSProperties}>jasa</span>{" "}
             <span className="w" style={{ "--i": 2 } as CSSProperties}>lokal</span>{" "}
             <span className="w" style={{ "--i": 3 } as CSSProperties}>Kebumen,</span>{" "}
-            <span className="w relative inline-block whitespace-nowrap" style={{ "--i": 4 } as CSSProperties}>
+            <span className="w inline-block whitespace-nowrap" style={{ "--i": 4 } as CSSProperties}>
               <em className="italic text-green">tanpa ribet.</em>
-              <svg
-                className="swoosh absolute -bottom-1.5 left-0 w-full"
-                viewBox="0 0 200 12"
-                preserveAspectRatio="none"
-                aria-hidden
-              >
-                <path
-                  d="M3 9 C 60 2, 140 2, 197 7"
-                  stroke="#F59E0B"
-                  strokeWidth="4.5"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </svg>
             </span>
           </h1>
 

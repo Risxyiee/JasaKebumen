@@ -190,13 +190,6 @@ body::after {
 .rise { opacity: 0; animation: riseK 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
 @keyframes riseK { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
 
-.swoosh path {
-  stroke-dasharray: 230;
-  stroke-dashoffset: 230;
-  animation: swooshK 0.8s ease 0.95s forwards;
-}
-@keyframes swooshK { to { stroke-dashoffset: 0; } }
-
 /* ===== Fitur: demo pencarian + chat ===== */
 .demo-caret {
   display: inline-block; width: 2px; height: 1em; background: #fbbf24;
@@ -501,7 +494,6 @@ body::after {
   html { scroll-behavior: auto; }
   [data-reveal] { opacity: 1; transform: none; }
   .w, .rise { opacity: 1 !important; transform: none !important; }
-  .swoosh path { stroke-dashoffset: 0 !important; }
   .hm { opacity: 1 !important; transform: none !important; }
   .cw-type { width: 9ch !important; }
   .f-seal { opacity: 1 !important; transform: rotate(-4deg) !important; }
