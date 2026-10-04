@@ -25,17 +25,6 @@ const easeOutBack = (x: number) => {
   return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2);
 };
 
-function archMesh(w: number, h: number, color: number) {
-  const r = w / 2;
-  const s = new THREE.Shape();
-  s.moveTo(-r, -h / 2);
-  s.lineTo(-r, h / 2 - r);
-  s.absarc(0, h / 2 - r, r, Math.PI, 0, true);
-  s.lineTo(r, -h / 2);
-  s.closePath();
-  return new THREE.Mesh(new THREE.ShapeGeometry(s, 24), mat(color));
-}
-
 function house(w: number, h: number, d: number, wall: number, roof: number, roofH = 1) {
   const g = new THREE.Group();
   const b = box(w, h, d, wall);
@@ -156,10 +145,6 @@ export default function HeroDiorama() {
     Object.assign(sun.shadow.camera, { left: -9, right: 9, top: 9, bottom: -9, near: 2, far: 32 });
     sun.shadow.bias = -0.0004;
     scene.add(sun);
-
-    const backArch = archMesh(12.5, 7.2, 0xe7f0ea);
-    backArch.position.set(0, 2.6, -4.2);
-    scene.add(backArch);
 
     /* --- Pegunungan low-poly (latar statis) --- */
     const mountain = (x: number, z: number, r: number, h: number, color: number) => {
