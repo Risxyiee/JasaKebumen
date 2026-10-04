@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { MapPin, Menu, X } from "lucide-react";
+import Link from "next/link";
 import { waAdminLink } from "@/lib/data";
 
 const LINKS = [
@@ -57,13 +58,12 @@ export default function Header() {
                 {l.label}
               </a>
             ))}
-            <a
-              href={waAdminLink("Halo Admin JasaKebumen, saya ingin mendaftarkan usaha jasa.")}
-              target="_blank" rel="noopener noreferrer"
+            <Link
+              href="/daftar"
               className="rounded-lg bg-green px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-dark"
             >
               Daftar usaha
-            </a>
+            </Link>
           </div>
 
           <button
@@ -84,14 +84,13 @@ export default function Header() {
                 {l.label}
               </a>
             ))}
-            <a
-              href={waAdminLink("Halo Admin JasaKebumen, saya ingin mendaftarkan usaha jasa.")}
-              target="_blank" rel="noopener noreferrer"
+            <Link
+              href="/daftar"
               onClick={() => setOpen(false)}
               className="js-mnav mt-2 rounded-lg bg-green px-4 py-3 text-center font-semibold text-white"
             >
               Daftar usaha
-            </a>
+            </Link>
           </nav>
         </div>
       </header>

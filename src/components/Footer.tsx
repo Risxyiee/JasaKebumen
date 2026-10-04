@@ -1,4 +1,5 @@
 import { MapPin } from "lucide-react";
+import Link from "next/link";
 import { waAdminLink } from "@/lib/data";
 
 export default function Footer() {
@@ -30,7 +31,8 @@ export default function Footer() {
           <div>
             <h4 className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/40">Mitra &amp; bantuan</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-white/70">
-              <li><a href="#daftar" className="transition hover:text-white">Daftar usaha</a></li>
+              <li><Link href="/daftar" className="transition hover:text-white">Daftar usaha</Link></li>
+              <li><Link href="/admin" className="transition hover:text-white">Admin</Link></li>
               <li><a href="#" className="transition hover:text-white">Syarat &amp; ketentuan</a></li>
               <li><a href={waAdminLink("Halo Admin JasaKebumen.")} target="_blank" rel="noopener noreferrer" className="transition hover:text-white">Hubungi admin</a></li>
               <li><a href="mailto:halo@jasakebumen.id" className="transition hover:text-white">halo@jasakebumen.id</a></li>
