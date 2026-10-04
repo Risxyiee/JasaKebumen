@@ -1,5 +1,5 @@
-import { MapPin } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { waAdminLink } from "@/lib/data";
 
 export default function Footer() {
@@ -8,10 +8,14 @@ export default function Footer() {
       <div className="mx-auto max-w-6xl px-5 pt-14">
         <div className="grid gap-10 md:grid-cols-4">
           <div className="md:col-span-2">
-            <a href="#" className="flex items-center gap-2.5">
-              <span className="grid h-7 w-7 place-items-center rounded-[7px] bg-white/10">
-                <MapPin className="h-3.5 w-3.5" />
-              </span>
+            <a href="#" className="flex items-center gap-2">
+              <Image
+                src="/logo-sm.png"
+                alt="JasaKebumen"
+                width={28}
+                height={28}
+                className="h-7 w-7"
+              />
               <span className="font-semibold tracking-tight">JasaKebumen</span>
             </a>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/60">

@@ -12,6 +12,13 @@ export const metadata: Metadata = {
   title: "JasaKebumen — Direktori Jasa Lokal Kabupaten Kebumen",
   description:
     "Direktori teknisi, tukang, dan penyedia jasa terverifikasi di 28 kecamatan Kabupaten Kebumen. Hubungi langsung lewat WhatsApp.",
+  icons: {
+    icon: [
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     title: "JasaKebumen — Cari & Panggil Jasa Lokal Kebumen",
     description: "Teknisi & tukang terverifikasi di 28 kecamatan. Langsung chat WhatsApp, tanpa biaya.",
@@ -19,8 +26,7 @@ export const metadata: Metadata = {
     siteName: "JasaKebumen",
     locale: "id_ID",
     type: "website",
-    // TODO: buat og.jpg 1200x630 di folder public/
-    images: [{ url: "/og.jpg", width: 1200, height: 630 }],
+    images: [{ url: "/logo.png", width: 2048, height: 2048 }],
   },
 };
 

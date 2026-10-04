@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { MapPin, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { waAdminLink } from "@/lib/data";
 
 const LINKS = [
@@ -45,10 +46,15 @@ export default function Header() {
 
       <header id="siteHeader" ref={headerRef} className="fixed inset-x-0 top-0 z-50 bg-paper/90 backdrop-blur-sm">
         <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-          <a href="#" className="flex items-center gap-2.5">
-            <span className="grid h-7 w-7 place-items-center rounded-[7px] bg-green text-white">
-              <MapPin className="h-3.5 w-3.5" />
-            </span>
+          <a href="#" className="flex items-center gap-2">
+            <Image
+              src="/logo-sm.png"
+              alt="JasaKebumen"
+              width={32}
+              height={32}
+              className="h-8 w-8"
+              priority
+            />
             <span className="font-semibold tracking-tight">JasaKebumen</span>
           </a>
 
