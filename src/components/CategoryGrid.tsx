@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import { useReducedMotion } from "framer-motion";
 import { AirVent, ArrowUpRight, Camera, Car, Hammer, Laptop, Scissors, Sparkles, Zap, type LucideIcon } from "lucide-react";
 import Reveal from "./Reveal";
 import { CATS, type CategoryIcon } from "@/lib/data";
@@ -12,8 +14,15 @@ const ICONS: Record<CategoryIcon, LucideIcon> = {
 
 export default function CategoryGrid() {
   const { setQuery } = useSearch();
+  const reduce = useReducedMotion();
+  const hoverable = useRef(false);
+
+  useEffect(() => {
+    hoverable.current = window.matchMedia("(hover:hover)").matches;
+  }, []);
 
   const onMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!hoverable.current || reduce) return;
     const el = e.currentTarget;
     const r = el.getBoundingClientRect();
     const px = (e.clientX - r.left) / r.width - 0.5;
@@ -37,7 +46,7 @@ export default function CategoryGrid() {
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div>
               <p className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-                <span className="h-3 w-3 text-amber-500">✳</span>02 — Kategori
+                <span className="text-amber-500">✳</span>02 — Kategori
               </p>
               <h2 className="mt-3 font-serif text-3xl md:text-4xl">Kategori terpopuler</h2>
             </div>
@@ -51,7 +60,7 @@ export default function CategoryGrid() {
           {CATS.map((c, i) => {
             const Icon = ICONS[c.icon];
             return (
-              <Reveal key={c.n} delay={(i % 4) * 0.07} className={c.wide ? "lg:col-span-2" : ""}>
+              <Reveal key={c.n} delay={(i % 4) * 0.07} className={c.wide ? "sm:col-span-2 lg:col-span-2" : ""}>
                 <button
                   type="button"
                   onClick={() => pick(c.q)}

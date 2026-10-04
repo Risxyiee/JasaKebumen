@@ -1,25 +1,39 @@
 "use client";
 
 import { useMemo } from "react";
-import { MapPin, RotateCcw, Star } from "lucide-react";
+import { BadgeCheck, RotateCcw, Star } from "lucide-react";
 import { PROVIDERS, initials, type Provider } from "@/lib/data";
 import { useSearch } from "./search-context";
-import WhatsAppButton from "./WhatsAppButton";
 import Reveal from "./Reveal";
+import WhatsAppButton from "./WhatsAppButton";
+
+const pad2 = (i: number) => String(i + 1).padStart(2, "0");
 
 function ProviderRow({ p, i }: { p: Provider; i: number }) {
   const verified = p.rating !== null;
   return (
-    <Reveal delay={Math.min(i * 0.04, 0.3)}>
-      <article className="grid items-center gap-2 border-b border-line py-5 md:grid-cols-[1fr_auto_auto] md:gap-6">
-        <div className="flex items-center gap-4">
+    <Reveal delay={Math.min(i, 7) * 0.06}>
+      <article className="group border-b border-line px-1 py-5 transition-colors hover:bg-paper md:grid md:grid-cols-[2rem_minmax(0,1fr)_auto_auto] md:items-center md:gap-x-8 md:px-2">
+        <span className="hidden font-mono text-xs tabular-nums text-faint transition-colors group-hover:text-amber-500 md:block">
+          {pad2(i)}
+        </span>
+
+        <div className="flex min-w-0 items-center gap-4">
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-green/10 bg-green-tint text-sm font-semibold text-green">
             {initials(p.name)}
           </span>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <p className="truncate text-sm font-semibold tracking-tight">{p.name}</p>
-              {verified && <MapPin className="h-3.5 w-3.5 shrink-0 text-green" aria-label="Terverifikasi" />}
+              <h3 className="truncate font-semibold tracking-tight transition-transform duration-300 group-hover:translate-x-0.5">
+                {p.name}
+              </h3>
+              {verified ? (
+                <BadgeCheck className="h-4 w-4 shrink-0 text-green" aria-label="Terverifikasi" />
+              ) : (
+                <span className="shrink-0 rounded border border-amber-500/40 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-amber-600">
+                  Baru
+                </span>
+              )}
             </div>
             <p className="mt-0.5 truncate text-sm text-mute">
               {p.cat} · Kec. {p.district}
@@ -47,7 +61,6 @@ function ProviderRow({ p, i }: { p: Provider; i: number }) {
   );
 }
 
-/* ===== Section utama ===== */
 export default function ProviderDirectory() {
   const { query, district, reset } = useSearch();
 
@@ -82,7 +95,7 @@ export default function ProviderDirectory() {
               </p>
             </div>
             <p className="font-mono text-xs tabular-nums text-faint">
-              <span>{filtered.length}</span> / {PROVIDERS.length} mitra
+              {filtered.length} / {PROVIDERS.length} mitra
             </p>
           </div>
         </Reveal>

@@ -130,108 +130,147 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html { scroll-behavior: smooth; }
   body {
-    @apply bg-paper text-ink;
+    @apply bg-paper font-sans text-ink antialiased;
+  }
+  ::selection { background: #dbe8e0; color: #064e3b; }
+  h1, h2 { font-weight: 590; letter-spacing: -0.01em; }
+  :focus-visible { outline: 2px solid #064e3b; outline-offset: 2px; border-radius: 4px; }
+}
+
+@layer utilities {
+  .font-serif { font-optical-sizing: auto; font-variation-settings: "SOFT" 0, "WONK" 1; }
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgba(15, 23, 42, 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(15, 23, 42, 0.06) 1px, transparent 1px);
+    background-size: 22px 22px;
   }
 }
 
-/* ===== Grid pattern for map background ===== */
-.bg-grid {
-  background-image:
-    linear-gradient(rgba(6,78,59,0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(6,78,59,0.06) 1px, transparent 1px);
-  background-size: 24px 24px;
+/* Grain halus */
+body::after {
+  content: ""; position: fixed; inset: 0; z-index: 90; pointer-events: none; opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
 }
 
-/* ===== 3D Diorama Map ===== */
-.diorama {
-  perspective: 900px;
-  perspective-origin: 50% 30%;
-}
-.diorama-surface {
-  transform: rotateX(52deg) rotateZ(-6deg);
-  transform-style: preserve-3d;
-  transition: transform .6s cubic-bezier(.22,1,.36,1);
-}
-.diorama-surface:hover {
-  transform: rotateX(48deg) rotateZ(-4deg);
-}
+@keyframes blink { 50% { opacity: 0; } }
 
-/* 3D pin yang nancap ke permukaan */
-.pin3d {
-  transform-style: preserve-3d;
-  position: absolute;
-}
-.pin3d-stem {
-  position: absolute;
-  bottom: 0; left: 50%;
-  width: 2px; height: 28px;
-  margin-left: -1px;
-  transform: translateZ(0);
-  border-radius: 1px;
-}
-.pin3d-head {
-  position: absolute;
-  bottom: 26px; left: 50%;
-  width: 14px; height: 14px;
-  margin-left: -7px;
-  border-radius: 50%;
-  transform: translateZ(8px) rotateX(-52deg) rotateZ(6deg);
-  box-shadow: 0 2px 8px rgba(0,0,0,.25);
-}
-.pin3d-shadow {
-  position: absolute;
-  bottom: -2px; left: 50%;
-  width: 10px; height: 6px;
-  margin-left: -5px;
-  border-radius: 50%;
-  transform: translateZ(-1px);
-  opacity: .35;
-}
-
-/* Pulse ripple di permukaan */
-.pin3d-ripple {
-  position: absolute;
-  bottom: -4px; left: 50%;
-  width: 24px; height: 24px;
-  margin-left: -12px;
-  border-radius: 50%;
-  transform: translateZ(-1px) scaleY(.45);
-  border: 1.5px solid currentColor;
+/* ===== Hero entrance — CSS murni, jalan sebelum hydration ===== */
+.w {
+  display: inline-block;
   opacity: 0;
-  animation: ripple3d 3s ease-out infinite;
+  transform: translateY(0.55em);
+  animation: wordK 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: calc(var(--i) * 70ms + 0.05s);
 }
-@keyframes ripple3d {
-  0% { transform: translateZ(-1px) scaleY(.45) scale(.5); opacity: .7; }
-  100% { transform: translateZ(-1px) scaleY(.45) scale(2.2); opacity: 0; }
+@keyframes wordK { to { opacity: 1; transform: none; } }
+
+.rise { opacity: 0; animation: riseK 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+@keyframes riseK { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+
+.swoosh path {
+  stroke-dasharray: 230;
+  stroke-dashoffset: 230;
+  animation: swooshK 0.8s ease 0.95s forwards;
+}
+@keyframes swooshK { to { stroke-dashoffset: 0; } }
+
+/* ===== Fitur: demo pencarian + chat ===== */
+.demo-caret {
+  display: inline-block; width: 2px; height: 1em; background: #fbbf24;
+  vertical-align: -0.15em; animation: blink 1s steps(1) infinite;
+}
+.chip { animation: chipIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes chipIn { from { opacity: 0; transform: translateY(6px) scale(0.96); } to { opacity: 1; transform: none; } }
+
+.cb { opacity: 0; animation: cbA 7s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+.cb-2 { animation-delay: 0.9s; }
+.cb-3 { animation-delay: 1.8s; }
+@keyframes cbA {
+  0% { opacity: 0; transform: translateY(10px) scale(0.95); }
+  9%, 88% { opacity: 1; transform: none; }
+  96%, 100% { opacity: 0; transform: translateY(-6px); }
 }
 
-/* Jalan-jalan di peta 3D */
-.road3d {
-  position: absolute;
-  border-radius: 1px;
-  transform: translateZ(1px);
+/* ===== Fitur: stage mini (amber = proses, mint = hasil) ===== */
+.stage {
+  position: relative; height: 56px; width: 80px; flex-shrink: 0; overflow: hidden;
+  border-radius: 10px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.idc { position: absolute; left: 10px; top: 14px; width: 44px; height: 28px; border-radius: 5px;
+  background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.18); }
+.idc .iav { position: absolute; left: 4px; top: 5px; width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.4); }
+.idc .il1 { position: absolute; left: 17px; top: 8px; width: 17px; height: 2.5px; border-radius: 2px; background: rgba(255,255,255,.35); }
+.idc .il2 { position: absolute; left: 17px; top: 14px; width: 12px; height: 2.5px; border-radius: 2px; background: rgba(255,255,255,.22); }
+.iscan { position: absolute; left: 10px; width: 44px; top: 27px; height: 2px; background: #fbbf24; opacity: .7;
+  animation: iscanK 3s ease-in-out infinite; }
+@keyframes iscanK {
+  0% { transform: translateY(-13px); opacity: 0; }
+  12% { opacity: .75; }
+  42% { transform: translateY(13px); opacity: .75; }
+  55%, 100% { opacity: 0; }
+}
+.ick { position: absolute; right: 8px; top: 8px; width: 16px; height: 16px; border-radius: 50%;
+  background: #34d399; color: #04382b; font: 700 9px/16px Inter, sans-serif; text-align: center;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, .18); animation: ickK 3s cubic-bezier(.34, 1.56, .64, 1) infinite; }
+@keyframes ickK { 0%, 42% { transform: scale(0); opacity: 0; } 52%, 86% { transform: scale(1); opacity: 1; } 94%, 100% { transform: scale(0); opacity: 0; } }
+
+.tagn { position: absolute; left: 50%; top: 5px; margin-left: -1px; width: 2px; height: 7px;
+  border-radius: 1px; background: rgba(255,255,255,.35); }
+.tagp { position: absolute; left: 50%; top: 12px; margin-left: -13px; width: 26px; height: 16px;
+  border-radius: 4px; background: #fbbf24; color: #062a20;
+  font: 700 8px/16px var(--font-jbmono), monospace; text-align: center;
+  transform-origin: 50% -6px; animation: tagK 3.4s ease-in-out infinite; }
+@keyframes tagK { 0%, 100% { transform: rotate(-9deg); } 50% { transform: rotate(9deg); } }
+
+.mmap { position: absolute; inset: 8px 10px; border-radius: 6px;
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.14); }
+.mmap i { position: absolute; background: rgba(255,255,255,.18); border-radius: 1px; }
+.mmap .r1 { left: 4px; right: 4px; top: 9px; height: 1.5px; }
+.mmap .r2 { left: 4px; right: 4px; bottom: 9px; height: 1.5px; }
+.mmap .v1 { top: 4px; bottom: 4px; left: 14px; width: 1.5px; }
+.mp { position: absolute; width: 5px; height: 5px; margin: -2.5px; border-radius: 50%;
+  --lit: #fbbf24; --halo: rgba(251, 191, 36, .22);
+  background: var(--lit); box-shadow: 0 0 0 2.5px var(--halo);
+  animation: mpK 3.6s ease infinite; animation-delay: var(--d); }
+.mp.near { --lit: #34d399; --halo: rgba(52, 211, 153, .25); }
+@keyframes mpK {
+  0%, 8% { background: rgba(255,255,255,.28); box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+  14%, 80% { background: var(--lit); box-shadow: 0 0 0 2.5px var(--halo); }
+  88%, 100% { background: rgba(255,255,255,.28); box-shadow: 0 0 0 0 rgba(0,0,0,0); }
 }
 
-/* Kartu mitra floating di atas diorama */
-.float-card {
-  transform: translateZ(40px) rotateX(-8deg);
-  transform-style: preserve-3d;
+.brw { position: absolute; left: 9px; top: 10px; width: 62px; height: 36px; border-radius: 6px;
+  background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.18); overflow: hidden; }
+.brw .bbar { height: 10px; background: rgba(255,255,255,.12); display: flex; align-items: center; gap: 2.5px; padding: 0 4px; }
+.brw .bbar b { width: 3.5px; height: 3.5px; border-radius: 50%; background: rgba(255,255,255,.35); }
+.brw .u { flex: 1; height: 5px; margin-left: 2px; border-radius: 2px; background: rgba(255,255,255,.22); position: relative; overflow: hidden; }
+.brw .u::after { content: ""; position: absolute; left: 2px; top: 1.5px; width: 1px; height: 2px;
+  background: #fbbf24; animation: blink 1s steps(1) infinite; }
+.brw .bl { position: absolute; left: 5px; height: 2.5px; border-radius: 2px; background: rgba(255,255,255,.3);
+  animation: blK 3.4s ease infinite; }
+.bl1 { top: 16px; width: 34px; } .bl2 { top: 22px; width: 24px; animation-delay: .25s; }
+.bl3 { top: 28px; width: 29px; animation-delay: .5s; }
+@keyframes blK { 0% { opacity: 0; transform: translateX(-6px); } 15%, 85% { opacity: 1; transform: none; } 95%, 100% { opacity: 0; } }
+
+/* ===== Keuntungan: vignette loop ===== */
+.vig { position: relative; height: 96px; width: 96px; flex-shrink: 0; border-radius: 12px;
+  background: #fff; border: 1px solid #e7e4de; overflow: hidden; }
+
+.vc { position: absolute; top: 8px; left: 50%; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%;
+  background: #f59e0b; box-shadow: inset 0 -2px 0 rgba(0,0,0,.14);
+  animation: coinK 2.7s ease-in infinite; }
+.vc-2 { left: 30%; animation-delay: .9s; } .vc-3 { left: 70%; animation-delay: 1.8s; }
+@keyframes coinK {
+  0% { transform: translateY(-16px) scale(.6); opacity: 0; }
+  12% { transform: translateY(-5px) scale(1); opacity: 1; }
+  48% { transform: translateY(34px); } 60% { transform: translateY(23px); }
+  72% { transform: translateY(34px); opacity: 1; }
+  92%, 100% { transform: translateY(36px); opacity: 0; }
 }
 
-/* ===== 3D Diorama: roads, regions ===== */
-.diorama-road-h { background: rgba(6,78,59,.12); height: 3px; left: 0; right: 0; }
-.diorama-road-v { background: rgba(6,78,59,.12); width: 3px; top: 0; bottom: 0; }
-.diorama-road-main { background: rgba(6,78,59,.18); }
-.diorama-region {
-  position: absolute;
-  border-radius: 40%;
-  background: rgba(6,78,59,.04);
-  border: 1px dashed rgba(6,78,59,.08);
-  transform: translateZ(1px);
-}
-
-/* ===== Rolling keyword animation ===== */
 .rollCol { animation: rollK 6s cubic-bezier(.3, .7, .3, 1) infinite; }
 .rollCol span { display: block; height: 28px; line-height: 28px; }
 @keyframes rollK {
@@ -239,7 +278,6 @@
   60%, 84% { transform: translateY(-56px); } 90%, 100% { transform: translateY(-84px); }
 }
 
-/* ===== Kebumen dot check animation ===== */
 .kdot { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; position: relative;
   border: 1.5px solid #064e3b; animation: kfillK 4.8s ease-in-out infinite; animation-delay: var(--d); }
 .kdot::after { content: "✓"; position: absolute; inset: 0; display: grid; place-items: center;
@@ -251,7 +289,6 @@
 }
 @keyframes kpopK { 0%, 8% { transform: scale(0); opacity: 0; } 16%, 86% { transform: scale(1); opacity: 1; } 94%, 100% { transform: scale(0); opacity: 0; } }
 
-/* ===== Chat bubble animations ===== */
 .bub { animation: bubK 4.2s ease infinite; }
 @keyframes bubK { 0% { opacity: 0; transform: translateY(8px) scale(.92); } 8%, 52% { opacity: 1; transform: none; } 58%, 100% { opacity: 0; transform: translateY(-4px); } }
 .dt, .hdt { width: 5px; height: 5px; border-radius: 50%; animation: dotK 1.1s ease-in-out infinite; animation-delay: var(--pd); }
@@ -260,19 +297,16 @@
 .chk { animation: chkK 4.2s cubic-bezier(.34, 1.56, .64, 1) infinite; }
 @keyframes chkK { 0%, 56% { opacity: 0; transform: scale(.7); } 64%, 88% { opacity: 1; transform: scale(1); } 96%, 100% { opacity: 0; transform: scale(.9); } }
 
-/* ===== Mini card & stamp animations ===== */
 .mcardA { animation: mcardK 4s ease infinite; }
 @keyframes mcardK { 0% { opacity: 0; transform: translateY(12px); } 14%, 82% { opacity: 1; transform: none; } 92%, 100% { opacity: 0; transform: translateY(-6px); } }
 .stampA { animation: stampK 4s cubic-bezier(.34, 1.56, .64, 1) infinite; }
 @keyframes stampK { 0%, 24% { opacity: 0; transform: rotate(-9deg) scale(2); } 32%, 84% { opacity: 1; transform: rotate(-9deg) scale(1); } 94%, 100% { opacity: 0; transform: rotate(-9deg) scale(1.1); } }
 
-/* ===== Ring progress animation ===== */
 .ringA { animation: ringK 4.4s cubic-bezier(.3, .7, .3, 1) infinite; }
 @keyframes ringK { 0% { stroke-dashoffset: 100.53; } 46%, 86% { stroke-dashoffset: 0; } 94%, 100% { stroke-dashoffset: 100.53; } }
 .ringTxt { animation: txtK 4.4s ease infinite; }
 @keyframes txtK { 0%, 38% { opacity: 0; } 48%, 86% { opacity: 1; } 94%, 100% { opacity: 0; } }
 
-/* ===== Pin travel animation ===== */
 .pinT { animation: pinK 3.8s cubic-bezier(.45, 0, .25, 1) infinite; }
 @keyframes pinK {
   0% { transform: translateX(4px); opacity: 0; } 10% { opacity: 1; }
@@ -282,14 +316,13 @@
 .waPing { opacity: 0; animation: pingK 3.8s ease-out infinite; }
 @keyframes pingK { 0%, 54% { transform: scale(.4); opacity: 0; } 64% { transform: scale(1); opacity: .7; } 84%, 100% { transform: scale(1.7); opacity: 0; } }
 
-/* ===== Bar chart animation ===== */
 .bar { transform-origin: bottom; animation: barK 3.8s cubic-bezier(.34, 1.3, .5, 1) infinite; }
 .bar2 { animation-delay: .12s; } .bar3 { animation-delay: .24s; }
 @keyframes barK { 0% { transform: scaleY(0); } 52%, 86% { transform: scaleY(1); } 94%, 100% { transform: scaleY(0); } }
-.starA { animation: starA-k 3.8s cubic-bezier(.34, 1.56, .64, 1) infinite; animation-delay: .3s; }
-@keyframes starA-k { 0%, 46% { transform: translateX(-50%) scale(0); } 58%, 86% { transform: translateX(-50%) scale(1); } 94%, 100% { transform: translateX(-50%) scale(0); } }
+.starA { animation: starK 3.8s cubic-bezier(.34, 1.56, .64, 1) infinite; animation-delay: .3s; }
+@keyframes starK { 0%, 46% { transform: translateX(-50%) scale(0); } 58%, 86% { transform: translateX(-50%) scale(1); } 94%, 100% { transform: translateX(-50%) scale(0); } }
 
-/* ===== CARA KERJA: scene pengganti 3D ===== */
+/* ===== Cara kerja: CSS scene (pengganti 3D) ===== */
 .hiw-scene { position: relative; height: 11rem; overflow: hidden; border-radius: 12px;
   background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); }
 
@@ -310,7 +343,6 @@
 .hiw-p1 { left: 22%; top: 30%; animation-delay: 3.1s; }
 .hiw-p2 { left: 58%; top: 45%; background: #34d399; box-shadow: 0 0 0 3px rgba(52,211,153,.25); animation-delay: 3.35s; }
 @keyframes popLoopK { 0% { opacity: 0; transform: scale(.5); } 6%, 82% { opacity: 1; transform: scale(1); } 92%, 100% { opacity: 0; transform: scale(.95); } }
-@keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
 
 .hiw-flip { position: absolute; left: 50%; top: 50%; width: 96px; height: 124px;
   margin: -62px 0 0 -48px; perspective: 600px; }
@@ -339,57 +371,9 @@
 .faq-item .faq-x { transition: transform .25s ease; }
 .faq-item.open .faq-x { transform: rotate(45deg); }
 
-/* ===== Features mini-scenes ===== */
-.stage { width: 44px; height: 44px; border-radius: 10px; background: rgba(255,255,255,.06); position: relative; flex-shrink: 0; overflow: hidden; }
-
-/* ID card scene */
-.idc { position: absolute; left: 7px; top: 6px; width: 30px; height: 22px; border-radius: 3px; background: rgba(255,255,255,.12); overflow: hidden; }
-.iav { position: absolute; left: 3px; top: 4px; width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.2); }
-.il1 { position: absolute; left: 14px; top: 5px; width: 13px; height: 3px; border-radius: 1.5px; background: rgba(255,255,255,.18); }
-.il2 { position: absolute; left: 14px; top: 11px; width: 9px; height: 2px; border-radius: 1px; background: rgba(255,255,255,.12); }
-.iscan { position: absolute; left: 0; top: 0; width: 100%; height: 3px; background: linear-gradient(90deg, transparent, #fbbf24, transparent);
-  opacity: 0; animation: scanK 4.2s ease-in-out infinite; }
-@keyframes scanK { 0%, 20% { opacity: 0; transform: translateY(0); } 30%, 50% { opacity: 1; transform: translateY(38px); } 60%, 100% { opacity: 0; transform: translateY(38px); } }
-.ick { position: absolute; bottom: 4px; right: 4px; color: #34d399; font-size: 12px; font-weight: 700;
-  opacity: 0; animation: ickK 4.2s cubic-bezier(.34,1.56,.64,1) infinite; }
-@keyframes ickK { 0%, 50% { opacity: 0; transform: scale(0); } 60%, 85% { opacity: 1; transform: scale(1); } 95%, 100% { opacity: 0; transform: scale(.9); } }
-
-/* Tag scene */
-.tagn { position: absolute; left: 8px; top: 10px; width: 28px; height: 14px; border-radius: 3px; background: rgba(255,255,255,.12); }
-.tagp { position: absolute; left: 14px; bottom: 10px; width: 16px; height: 8px; border-radius: 2px; background: #fbbf24; color: #062a20;
-  font: 700 5px/8px var(--font-jbmono), monospace; text-align: center; }
-
-/* Mini map scene */
-.mmap { position: absolute; left: 5px; top: 5px; right: 5px; bottom: 5px; border-radius: 4px; background: rgba(255,255,255,.06); overflow: hidden; }
-.mmap i { position: absolute; border-radius: 2px; background: rgba(255,255,255,.08); }
-.r1 { left: 0; top: 35%; width: 100%; height: 2px; }
-.r2 { left: 60%; top: 0; width: 2px; height: 100%; }
-.v1 { left: 60%; top: 35%; width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,.2); }
-.mp { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #fbbf24; box-shadow: 0 0 0 2px rgba(251,191,36,.2);
-  opacity: 0; animation: mpK 4s ease infinite; animation-delay: var(--d); }
-.mp.near { background: #34d399; box-shadow: 0 0 0 2px rgba(52,211,153,.2); }
-@keyframes mpK { 0% { opacity: 0; transform: scale(.5); } 10%, 80% { opacity: 1; transform: scale(1); } 92%, 100% { opacity: 0; } }
-
-/* Browser scene */
-.brw { position: absolute; left: 3px; top: 3px; right: 3px; bottom: 3px; border-radius: 4px; background: rgba(255,255,255,.06); overflow: hidden; }
-.bbar { position: absolute; left: 0; top: 0; right: 0; height: 8px; background: rgba(255,255,255,.08); display: flex; align-items: center; gap: 3px; padding: 0 4px; }
-.bbar b { width: 3px; height: 3px; border-radius: 50%; background: rgba(255,255,255,.25); }
-.bbar .u { flex: 1; height: 2px; border-radius: 1px; background: rgba(255,255,255,.15); margin: 0 2px; }
-.bl { position: absolute; left: 4px; right: 4px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.08);
-  opacity: 0; animation: blK 3.8s ease infinite; }
-.bl1 { top: 14px; animation-delay: .3s; } .bl2 { top: 22px; animation-delay: .5s; } .bl3 { top: 30px; animation-delay: .7s; }
-@keyframes blK { 0%, 10% { opacity: 0; } 20%, 80% { opacity: 1; } 90%, 100% { opacity: 0; } }
-
-/* ===== Benefits bar chart scene ===== */
-.ben-bar { border-radius: 3px 3px 0 0; }
-
-/* ===== Chat bubble styles ===== */
-.cb { opacity: 0; animation: cbK 6s ease infinite; }
-.cb-2 { animation-delay: 1.4s; }
-.cb-3 { animation-delay: 2.8s; }
-@keyframes cbK { 0%, 8% { opacity: 0; transform: translateY(6px); } 14%, 82% { opacity: 1; transform: none; } 92%, 100% { opacity: 0; transform: translateY(-3px); } }
-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   html { scroll-behavior: auto; }
+  .w, .rise { opacity: 1 !important; transform: none !important; }
+  .swoosh path { stroke-dashoffset: 0 !important; }
 }

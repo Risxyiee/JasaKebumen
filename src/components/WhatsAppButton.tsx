@@ -11,7 +11,8 @@ interface Props {
 
 export default function WhatsAppButton({ provider, className, label = "WhatsApp" }: Props) {
   const handleClick = () => {
-    // TODO: Send tracking ping to analytics: providerId clicked
+    // TODO: Send tracking ping to Supabase: providerId clicked
+    // await supabase.from("wa_clicks").insert({ provider_id: provider.id, clicked_at: new Date() });
   };
 
   return (

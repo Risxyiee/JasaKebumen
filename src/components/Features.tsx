@@ -1,27 +1,107 @@
 "use client";
 
-import { MessageCircle, ShieldCheck, Tag, MapPin, Globe } from "lucide-react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useInView } from "framer-motion";
+import { Globe, MapPin, MessageCircle, Search, ShieldCheck, Tag } from "lucide-react";
 import Reveal from "./Reveal";
+import { PROVIDERS, type Provider } from "@/lib/data";
+
+const DEMO_QUERIES = ["servis ac", "tukang listrik", "fotografer", "laundry"];
+const chipsFor = (q: string) =>
+  PROVIDERS.filter((p) => (p.keywords + " " + p.cat).toLowerCase().includes(q)).slice(0, 3);
+
+const vd = (v: string) => ({ "--d": v }) as CSSProperties;
 
 export default function Features() {
+  const secRef = useRef<HTMLElement>(null);
+  const inView = useInView(secRef, { margin: "200px 0px" });
+  const startedRef = useRef(false);
+  const [typed, setTyped] = useState("");
+  const [chips, setChips] = useState<Provider[]>([]);
+
+  useEffect(() => {
+    if (!inView || startedRef.current) return;
+    startedRef.current = true;
+
+    let cancelled = false;
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    (async () => {
+      let i = 0;
+      while (!cancelled) {
+        const q = DEMO_QUERIES[i % DEMO_QUERIES.length];
+        setTyped("");
+        for (const ch of q) {
+          if (cancelled) return;
+          setTyped((t) => t + ch);
+          await sleep(70 + Math.random() * 55);
+        }
+        await sleep(400);
+        if (cancelled) return;
+        setChips(chipsFor(q));
+        await sleep(2800);
+        if (cancelled) return;
+        setChips([]);
+        for (let k = q.length; k >= 0; k--) {
+          if (cancelled) return;
+          setTyped(q.slice(0, k));
+          await sleep(32);
+        }
+        await sleep(280);
+        i++;
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [inView]);
+
   return (
-    <section id="fitur" className="scroll-mt-20 bg-[#062A20] text-white">
+    <section id="fitur" ref={secRef} className="scroll-mt-20 bg-green-dark text-white">
       <div className="relative mx-auto max-w-6xl px-5 py-16 md:py-24">
         <span aria-hidden className="pointer-events-none absolute right-4 top-8 hidden select-none font-serif text-[9rem] leading-none text-white/[0.04] lg:block">01</span>
 
         <Reveal>
-          <p className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-white/40">
-            <span className="text-amber-300">✳</span>01 — Fitur
-          </p>
-          <h2 className="mt-3 font-serif text-3xl md:text-4xl">Kenapa JasaKebumen?</h2>
-          <p className="mt-4 max-w-lg text-sm leading-relaxed text-white/55">
-            Tanpa aplikasi. Tanpa akun. Tanpa biaya. Cukup browser dan WhatsApp.
-          </p>
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-white/40">
+                <span className="text-amber-300">✳</span>01 — Fitur
+              </p>
+              <h2 className="mt-3 font-serif text-3xl md:text-4xl">Semua yang bikin cari jasa tenang.</h2>
+            </div>
+            <p className="max-w-xs text-sm leading-relaxed text-white/60">
+              Bukan cuma daftar nomor — platform ini punya mekanisme yang membuat kamu yakin sebelum menghubungi.
+            </p>
+          </div>
         </Reveal>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Demo chat WA */}
-          <Reveal>
+        <div className="mt-10 grid gap-3 lg:grid-cols-3">
+          <Reveal className="lg:col-span-2">
+            <div className="h-full rounded-xl border border-white/10 bg-white/5 p-5">
+              <div className="flex items-center gap-2.5">
+                <Search className="h-4 w-4 text-amber-300" />
+                <h3 className="font-semibold tracking-tight">Pencarian yang hidup</h3>
+              </div>
+              <div className="mt-4 flex items-center gap-2.5 rounded-lg bg-white/10 px-3.5 py-3">
+                <Search className="h-4 w-4 shrink-0 text-white/40" />
+                <span className="font-mono text-sm text-white/90">{typed}</span>
+                <span className="demo-caret" aria-hidden />
+              </div>
+              <div className="mt-3 flex min-h-[4.4rem] flex-wrap content-start gap-2">
+                {chips.map((p, j) => (
+                  <span
+                    key={p.id}
+                    className="chip rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs text-white/85"
+                    style={{ animationDelay: `${j * 110}ms` }}
+                  >
+                    {p.name} · Kec. {p.district}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-3 text-sm leading-relaxed text-white/50">
+                Hasil muncul seketika saat kamu mengetik — tanpa reload, tanpa akun. Coba versi aslinya di kolom pencarian atas.
+              </p>
+            </div>
+          </Reveal>
+
+          <Reveal delay={0.08}>
             <div className="h-full rounded-xl border border-white/10 bg-white/5 p-5">
               <div className="flex items-center gap-2.5">
                 <MessageCircle className="h-4 w-4 text-amber-300" />
@@ -38,10 +118,9 @@ export default function Features() {
             </div>
           </Reveal>
 
-          {/* 4 kartu dengan stage mini (CSS) */}
-          <Reveal delay={0.04}>
+          <Reveal>
             <div className="group flex h-full items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5">
-              <div className="stage" aria-hidden="true">
+              <div className="stage" aria-hidden>
                 <div className="idc"><span className="iav" /><span className="il1" /><span className="il2" /></div>
                 <span className="iscan" />
                 <span className="ick">✓</span>
@@ -58,7 +137,7 @@ export default function Features() {
 
           <Reveal delay={0.07}>
             <div className="group flex h-full items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5">
-              <div className="stage" aria-hidden="true">
+              <div className="stage" aria-hidden>
                 <span className="tagn" />
                 <span className="tagp">Rp75</span>
               </div>
@@ -72,15 +151,14 @@ export default function Features() {
             </div>
           </Reveal>
 
-          <Reveal delay={0.1}>
+          <Reveal delay={0.14}>
             <div className="group flex h-full items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5">
-              <div className="stage" aria-hidden="true">
-                <div className="mmap">
-                  <i className="r1" /><i className="r2" /><i className="v1" />
-                  <span className="mp" style={{ left: "24%", top: "30%", "--d": "0s" } as React.CSSProperties} />
-                  <span className="mp" style={{ left: "62%", top: "24%", "--d": ".35s" } as React.CSSProperties} />
-                  <span className="mp" style={{ left: "40%", top: "66%", "--d": ".7s" } as React.CSSProperties} />
-                  <span className="mp near" style={{ left: "76%", top: "62%", "--d": "1.05s" } as React.CSSProperties} />
+              <div className="stage" aria-hidden>
+                <div className="mmap"><i className="r1" /><i className="r2" /><i className="v1" />
+                  <span className="mp" style={{ left: "24%", top: "30%", ...vd("0s") }} />
+                  <span className="mp" style={{ left: "62%", top: "24%", ...vd(".35s") }} />
+                  <span className="mp" style={{ left: "40%", top: "66%", ...vd(".7s") }} />
+                  <span className="mp near" style={{ left: "76%", top: "62%", ...vd("1.05s") }} />
                 </div>
               </div>
               <div className="min-w-0">
@@ -93,10 +171,9 @@ export default function Features() {
             </div>
           </Reveal>
 
-          {/* Banner lebar */}
-          <Reveal className="lg:col-span-3" delay={0.14}>
+          <Reveal className="lg:col-span-3">
             <div className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-5">
-              <div className="stage" aria-hidden="true">
+              <div className="stage" aria-hidden>
                 <div className="brw">
                   <div className="bbar"><b /><b /><b /><span className="u" /></div>
                   <span className="bl bl1" /><span className="bl bl2" /><span className="bl bl3" />

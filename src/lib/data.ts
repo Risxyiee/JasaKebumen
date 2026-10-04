@@ -1,11 +1,9 @@
-/* ===== Types ===== */
-
 export interface Provider {
   id: string;
   name: string;
   cat: string;
   district: string;
-  rating: number | null;
+  rating: number | null; // null = mitra baru, belum ada ulasan
   reviews: number;
   price: string;
   keywords: string;
@@ -13,7 +11,9 @@ export interface Provider {
   msg: string;
 }
 
-export type CategoryIcon = "air-vent" | "laptop" | "car" | "sparkles" | "camera" | "hammer" | "scissors" | "zap";
+export type CategoryIcon =
+  | "air-vent" | "laptop" | "car" | "sparkles"
+  | "camera" | "hammer" | "scissors" | "zap";
 
 export interface Category {
   n: string;
@@ -25,50 +25,32 @@ export interface Category {
   desc?: string;
 }
 
-/* ===== Constants ===== */
+export const WA_ADMIN = "6281234567890"; // TODO: ganti nomor admin asli
 
-export const WA_ADMIN = "6281270010000";
-
-export const KECAMATAN_DIPETAKAN = 28;
-
-export const DISTRICTS = [
-  "all",
-  "Kebumen",
-  "Gombong",
-  "Karanganyar",
-  "Sruweng",
-  "Pejagoan",
-  "Kutowinangun",
-  "Prembun",
-  "Ambal",
-  "Buluspesantren",
-  "Mrebet",
-  "Puring",
-  "Klirong",
-  "Petanahan",
-  "Ayah",
-  "Rowokele",
-  "Buayan",
-  "Kecamatan 18",
-  "Kecamatan 19",
-  "Kecamatan 20",
+export const DISTRICTS: string[] = [
+  "all", "Kebumen", "Gombong", "Karanganyar", "Kutowinangun", "Prembun",
+  "Sruweng", "Petanahan", "Puring", "Klirong", "Buluspesantren", "Alian",
+  "Pejagoan", "Adimulyo", "Poncowarno", "Rowokele", "Ambal", "Kuwarasan",
+  "Mirit", "Bonorowo", "Panjer", "Sadang", "Buayan", "Ayah", "Sempor",
+  "Somagede", "Kalibangkang", "Karangsambung", "Karanggayam", "Padureso",
 ];
 
-/* ===== Provider data ===== */
+// TODO: verifikasi daftar kecamatan resmi Kabupaten Kebumen sebelum rilis
+export const KECAMATAN_DIPETAKAN = DISTRICTS.length - 1;
 
 export const PROVIDERS: Provider[] = [
   {
-    id: "kebumen-ac-pro",
-    name: "Kebumen AC Pro", cat: "Servis AC & elektronik", district: "Kebumen",
-    rating: 4.8, reviews: 112, price: "Rp40.000",
-    keywords: "servis ac isi freon cuci bongkar pasang elektronik",
-    wa: "6281270010001",
-    msg: "Halo Kebumen AC Pro, AC saya perlu diservis. Bisa hari ini?",
+    id: "ac-sejahtera",
+    name: "AC Sejahtera", cat: "Servis AC & elektronik", district: "Kebumen",
+    rating: 4.9, reviews: 127, price: "Rp75.000",
+    keywords: "servis ac cuci ac isi freon elektronik kulkas mesin cuci tv",
+    wa: "6281270010001", // TODO: nomor mitra asli
+    msg: "Halo AC Sejahtera, saya menemukan usaha Anda di JasaKebumen. Boleh tanya harga servis AC?",
   },
   {
-    id: "laptopfix",
-    name: "LaptopFix", cat: "Servis laptop & HP", district: "Karanganyar",
-    rating: 4.6, reviews: 87, price: "Rp50.000",
+    id: "laptopfix-karanganyar",
+    name: "LaptopFix Karanganyar", cat: "Servis laptop & HP", district: "Karanganyar",
+    rating: 4.8, reviews: 89, price: "Rp40.000",
     keywords: "servis laptop hp ganti lcd install ulang software mati total",
     wa: "6281270010002",
     msg: "Halo LaptopFix, laptop saya perlu dicek. Bisa dibantu?",
@@ -123,8 +105,6 @@ export const PROVIDERS: Provider[] = [
   },
 ];
 
-/* ===== Category data ===== */
-
 export const CATS: Category[] = [
   { n: "01", label: "Servis AC & elektronik", count: 18, q: "servis ac", icon: "air-vent", wide: true,
     desc: "Cuci, isi freon, bongkar-pasang. Teknisi datang ke rumah." },
@@ -140,8 +120,6 @@ export const CATS: Category[] = [
     desc: "Potong rambut & cukur, juga melayani panggilan." },
 ];
 
-/* ===== Helpers ===== */
-
 export const initials = (name: string) =>
   name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 
@@ -151,7 +129,6 @@ export const waLink = (p: Provider) =>
 export const waAdminLink = (text: string) =>
   `https://wa.me/${WA_ADMIN}?text=${encodeURIComponent(text)}`;
 
-/** Stats dihitung dari data — tidak pernah bisa bohong. */
 export function directoryStats() {
   const rated = PROVIDERS.filter((p): p is Provider & { rating: number } => p.rating !== null);
   const rating = rated.length ? rated.reduce((s, p) => s + p.rating, 0) / rated.length : 0;

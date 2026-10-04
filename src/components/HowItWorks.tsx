@@ -1,6 +1,10 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import Reveal from "./Reveal";
+
+const vd = (v: string) => ({ "--d": v }) as CSSProperties;
+const pd = (v: string) => ({ "--pd": v }) as CSSProperties;
 
 export default function HowItWorks() {
   return (
@@ -16,12 +20,11 @@ export default function HowItWorks() {
         </Reveal>
 
         <div className="mt-12 grid gap-10 md:grid-cols-3 md:gap-6">
-          {/* 01 — Cari */}
           <Reveal>
-            <div className="hiw-scene" aria-hidden="true">
+            <div className="hiw-scene" aria-hidden>
               <div className="hiw-input">
                 {[0, 1, 2, 3, 4, 5, 6, 7].map((n) => (
-                  <span key={n} className="hiw-ch" style={{ "--d": `${n * 0.28}s` } as React.CSSProperties} />
+                  <span key={n} className="hiw-ch" style={vd(`${n * 0.28}s`)} />
                 ))}
                 <span className="hiw-caret" />
               </div>
@@ -41,9 +44,8 @@ export default function HowItWorks() {
             </div>
           </Reveal>
 
-          {/* 02 — Pilih (kartu flip) */}
           <Reveal delay={0.12}>
-            <div className="hiw-scene" aria-hidden="true">
+            <div className="hiw-scene" aria-hidden>
               <div className="hiw-flip">
                 <div className="hiw-flipin">
                   <div className="hiw-face">
@@ -70,14 +72,13 @@ export default function HowItWorks() {
             </div>
           </Reveal>
 
-          {/* 03 — Chat */}
           <Reveal delay={0.24}>
-            <div className="hiw-scene grid place-items-center" aria-hidden="true">
+            <div className="hiw-scene grid place-items-center" aria-hidden>
               <div className="relative">
                 <div className="bub flex items-center gap-1 rounded-xl rounded-bl-sm bg-white/10 px-2.5 py-2">
-                  <span className="hdt" style={{ "--pd": "0s" } as React.CSSProperties} />
-                  <span className="hdt" style={{ "--pd": ".15s" } as React.CSSProperties} />
-                  <span className="hdt" style={{ "--pd": ".3s" } as React.CSSProperties} />
+                  <span className="hdt" style={pd("0s")} />
+                  <span className="hdt" style={pd(".15s")} />
+                  <span className="hdt" style={pd(".3s")} />
                 </div>
                 <div className="chk absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#25D366] px-2 py-0.5 font-mono text-[9px] font-bold text-white">
                   ✓ terkirim

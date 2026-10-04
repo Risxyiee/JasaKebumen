@@ -4,7 +4,7 @@ import { useState } from "react";
 import Reveal from "./Reveal";
 import { waAdminLink } from "@/lib/data";
 
-const ITEMS = [
+export const FAQ_ITEMS = [
   { q: "Apakah ada biaya untuk pengguna?", a: "Tidak ada. JasaKebumen gratis untuk pencari jasa. Semua negosiasi harga terjadi langsung antara kamu dan mitra lewat WhatsApp." },
   { q: "Apa arti label \"terverifikasi\"?", a: "Mitra sudah melewati kurasi tim: identitas dan usaha dicek, portofolio pekerjaan dilihat, dan nomor WhatsApp dipastikan aktif sebelum profil tayang." },
   { q: "Bagaimana kalau hasil kerja tidak sesuai?", a: "Semua pekerjaan adalah kesepakatan langsung dengan mitra. Kalau ada masalah, laporkan ke admin — mitra dengan laporan berulang kami cabut dari direktori." },
@@ -33,7 +33,7 @@ export default function Faq() {
 
         <Reveal delay={0.1}>
           <div className="border-t border-line">
-            {ITEMS.map((item, i) => (
+            {FAQ_ITEMS.map((item, i) => (
               <div key={i} className={`faq-item border-b border-line ${open === i ? "open" : ""}`}>
                 <button
                   type="button"

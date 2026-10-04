@@ -18,15 +18,19 @@ export default function Header() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    let raf = 0;
     const onScroll = () => {
-      setScrolled(window.scrollY > 4);
-      const h = document.documentElement;
-      const max = h.scrollHeight - h.clientHeight;
-      setProgress(max > 0 ? h.scrollTop / max : 0);
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        setScrolled(window.scrollY > 4);
+        const h = document.documentElement;
+        const max = h.scrollHeight - h.clientHeight;
+        setProgress(max > 0 ? h.scrollTop / max : 0);
+      });
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => { window.removeEventListener("scroll", onScroll); cancelAnimationFrame(raf); };
   }, []);
 
   return (
@@ -35,7 +39,6 @@ export default function Header() {
         scrolled ? "border-b border-line" : "border-b border-transparent"
       }`}
     >
-      {/* progress bar */}
       <div
         className="absolute inset-x-0 top-0 h-0.5 origin-left bg-amber-400"
         style={{ transform: `scaleX(${progress})` }}

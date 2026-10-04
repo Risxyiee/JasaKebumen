@@ -25,7 +25,6 @@ export default function Page() {
         <HowItWorks />
         <Benefits />
 
-        {/* CTA pemilik usaha */}
         <section id="daftar" className="scroll-mt-20 border-t border-line">
           <div className="mx-auto max-w-6xl px-5 py-16 md:py-24">
             <div className="relative overflow-hidden rounded-2xl bg-green px-6 py-12 text-white md:p-16">
@@ -60,7 +59,6 @@ export default function Page() {
       </main>
       <Footer />
 
-      {/* FAB WhatsApp */}
       <a
         href={waAdminLink("Halo Admin JasaKebumen, saya butuh bantuan.")}
         target="_blank" rel="noopener noreferrer" aria-label="Chat admin"

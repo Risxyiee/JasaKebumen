@@ -9,18 +9,19 @@ function CountUp({ to, decimals = 0 }: { to: number; decimals?: number }) {
   const inView = useInView(ref, { once: true, margin: "-60px" });
   const reduce = useReducedMotion();
   const [val, setVal] = useState(0);
-  const rafRef = useRef(0);
 
   useEffect(() => {
     if (!inView) return;
     const dur = 1400, t0 = performance.now();
+    let raf = 0;
     const tick = (now: number) => {
+      if (reduce) { setVal(to); return; }
       const x = Math.min((now - t0) / dur, 1);
-      setVal(reduce ? to : to * (1 - Math.pow(1 - x, 3)));
-      if (x < 1) rafRef.current = requestAnimationFrame(tick);
+      setVal(to * (1 - Math.pow(1 - x, 3)));
+      if (x < 1) raf = requestAnimationFrame(tick);
     };
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [inView, to, reduce]);
 
   return <span ref={ref}>{val.toFixed(decimals)}</span>;
@@ -39,7 +40,7 @@ export default function Stats() {
 
   return (
     <section id="stats" className="border-y border-line bg-green-tint">
-      <div className="mx-auto grid max-w-6xl grid-cols-2 divide-x divide-line px-5 md:grid-cols-4">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 divide-line px-5 md:grid-cols-4 md:divide-x">
         {cells.map((c, i) => (
           <motion.div
             key={c.label}
