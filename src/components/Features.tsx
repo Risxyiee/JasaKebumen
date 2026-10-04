@@ -110,7 +110,7 @@ export default function Features() {
               <div className="mt-4 space-y-2 text-sm">
                 <div className="cb max-w-[85%] rounded-2xl rounded-bl-sm bg-white/10 px-3.5 py-2">Bang, AC saya bocor. Bisa dicek hari ini?</div>
                 <div className="cb cb-2 max-w-[85%] rounded-2xl rounded-bl-sm bg-white/10 px-3.5 py-2">Bisa. Jam 9 pagi sampai rumah ya.</div>
-                <div className="cb cb-3 ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-[#25D366] px-3.5 py-2 text-white">Siap bang, ditunggu.</div>
+                <div className="cb cb-3 ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-green px-3.5 py-2 text-white">Siap bang, ditunggu.</div>
               </div>
               <p className="mt-4 text-sm leading-relaxed text-white/50">
                 Nego harga dan jadwal langsung dengan mitra. Kami tidak di tengah, tidak ambil potongan.

@@ -94,8 +94,8 @@ const MITRA: Item[] = [
       <div className="vig grid place-items-center" aria-hidden>
         <div className="text-center">
           <svg viewBox="0 0 40 40" className="mx-auto h-12 w-12 -rotate-90">
-            <circle cx="20" cy="20" r="16" fill="none" stroke="#E7E4DE" strokeWidth="4" />
-            <circle className="ringA" cx="20" cy="20" r="16" fill="none" stroke="#064E3B" strokeWidth="4" strokeLinecap="round" strokeDasharray="100.53" strokeDashoffset="0" />
+            <circle cx="20" cy="20" r="16" fill="none" stroke="var(--color-line)" strokeWidth="4" />
+            <circle className="ringA" cx="20" cy="20" r="16" fill="none" stroke="var(--color-green)" strokeWidth="4" strokeLinecap="round" strokeDasharray="100.53" strokeDashoffset="0" />
           </svg>
           <p className="ringTxt mt-0.5 font-mono text-[9px] font-bold text-green">100% milikmu</p>
         </div>
@@ -108,13 +108,13 @@ const MITRA: Item[] = [
     vig: (
       <div className="vig" aria-hidden>
         <div className="absolute left-4 right-9 top-1/2 border-t border-dashed border-line" />
-        <svg className="pinT absolute left-4 top-1/2 -mt-2.5 h-5 w-5" viewBox="0 0 24 24" fill="#064E3B">
+        <svg className="pinT absolute left-4 top-1/2 -mt-2.5 h-5 w-5" viewBox="0 0 24 24" fill="var(--color-green)">
           <path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7z" />
           <circle cx="12" cy="9" r="2.6" fill="#fff" />
         </svg>
         <span className="absolute right-3 top-1/2 -mt-2 h-4 w-4">
-          <span className="waPing absolute inset-0 rounded-full bg-[#25D366]" />
-          <span className="absolute inset-0 rounded-full bg-[#25D366]" />
+          <span className="waPing absolute inset-0 rounded-full bg-green" />
+          <span className="absolute inset-0 rounded-full bg-green" />
         </span>
       </div>
     ),
@@ -128,8 +128,8 @@ const MITRA: Item[] = [
           <span className="starA absolute -top-4 left-1/2 text-sm text-amber-500">★</span>
           <div className="bar h-14 w-4 rounded-t-md bg-green" />
         </div>
-        <div className="bar bar2 h-10 w-4 rounded-t-md bg-[#DDE8E1]" />
-        <div className="bar bar3 h-7 w-4 rounded-t-md bg-[#EAE6DC]" />
+        <div className="bar bar2 h-10 w-4 rounded-t-md bg-green-tint" />
+        <div className="bar bar3 h-7 w-4 rounded-t-md bg-line" />
       </div>
     ),
   },

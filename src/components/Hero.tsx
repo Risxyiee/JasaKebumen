@@ -97,7 +97,7 @@ export default function Hero() {
               >
                 <path
                   d="M3 9 C 60 2, 140 2, 197 7"
-                  stroke="#F59E0B"
+                  stroke="var(--color-amber, #F59E0B)"
                   strokeWidth="4.5"
                   fill="none"
                   strokeLinecap="round"

@@ -8,7 +8,7 @@ const pd = (v: string) => ({ "--pd": v }) as CSSProperties;
 
 export default function HowItWorks() {
   return (
-    <section id="cara" className="scroll-mt-20 border-t border-line bg-[#062A20] text-white">
+    <section id="cara" className="scroll-mt-20 border-t border-line bg-green-dark text-white">
       <div className="relative mx-auto max-w-6xl px-5 py-16 md:py-24">
         <span aria-hidden className="pointer-events-none absolute right-4 top-8 hidden select-none font-serif text-[9rem] leading-none text-white/[0.04] lg:block">04</span>
 
@@ -80,7 +80,7 @@ export default function HowItWorks() {
                   <span className="hdt" style={pd(".15s")} />
                   <span className="hdt" style={pd(".3s")} />
                 </div>
-                <div className="chk absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#25D366] px-2 py-0.5 font-mono text-[9px] font-bold text-white">
+                <div className="chk absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-green px-2 py-0.5 font-mono text-[9px] font-bold text-white">
                   ✓ terkirim
                 </div>
               </div>
