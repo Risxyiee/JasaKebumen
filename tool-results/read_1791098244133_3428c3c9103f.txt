@@ -1,0 +1,1345 @@
+     1→iap. Konversinya kubuat modular penuh. Keputusan penting yang kuambil:
+     2→
+     3→ 3D diganti CSS/Framer Motion — diorama hero jadi live preview card (mini-map + pin mengambang + kartu mitra asli), panggung "cara kerja" jadi 3 kartu dengan CSS scene yang loop (mengetik → pin, kartu flip verifikasi, chat pop). Nol WebGL, stabil di semua HP.
+     4→ Reveal/counter/tab indicator → Framer Motion (whileInView, useInView, layoutId) — mengganti IntersectionObserver + class toggling manual.
+     5→ faint dinaikkan ke #78716C (fix WCAG dari audit kemarin), OG meta + next/font terpasang di layout.tsx.
+     6→ Shared search state via SearchProvider (context) — Hero dan Directory memakai sumber state yang sama.
+     7→Struktur
+     8→
+     9→text
+    10→
+    11→src/
+    12→├── app/
+    13→│   ├── layout.tsx          # font, metadata, OG
+    14→│   ├── page.tsx            # Server Component, komposisi section
+    15→│   └── globals.css
+    16→├── lib/
+    17→│   └── data.ts
+    18→└── components/
+    19→    ├── search-context.tsx  # state pencarian bersama
+    20→    ├── Reveal.tsx           # helper motion scroll-reveal
+    21→    ├── WhatsAppButton.tsx   # tracking hook
+    22→    ├── Header.tsx  Hero.tsx  Stats.tsx  Features.tsx
+    23→    ├── CategoryGrid.tsx  ProviderDirectory.tsx  HowItWorks.tsx
+    24→    ├── Benefits.tsx  Faq.tsx  Footer.tsx
+    25→bash
+    26→
+    27→npx create-next-app@latest jasakebumen --typescript --tailwind --app --src-dir
+    28→npm i framer-motion lucide-react
+    29→tailwind.config.ts
+    30→
+    31→ts
+    32→
+    33→import type { Config } from "tailwindcss";
+    34→
+    35→const config: Config = {
+    36→  content: ["./src/**/*.{ts,tsx,mdx}"],
+    37→  theme: {
+    38→    extend: {
+    39→      colors: {
+    40→        paper: "#FAF9F6",
+    41→        ink: "#1C1917",
+    42→        mute: "#57534E",
+    43→        faint: "#78716C", // fix WCAG: sebelumnya #A6A199 (gagal kontras)
+    44→        line: "#E7E4DE",
+    45→        green: { DEFAULT: "#064E3B", dark: "#04382B", tint: "#EDF3EF" },
+    46→      },
+    47→      fontFamily: {
+    48→        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+    49→        serif: ["var(--font-fraunces)", "Georgia", "serif"],
+    50→        mono: ["var(--font-jbmono)", "ui-monospace", "monospace"],
+    51→      },
+    52→    },
+    53→  },
+    54→  plugins: [],
+    55→};
+    56→export default config;
+    57→src/app/layout.tsx
+    58→
+    59→tsx
+    60→
+    61→import type { Metadata, Viewport } from "next";
+    62→import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+    63→import "./globals.css";
+    64→
+    65→const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+    66→// Kalau build error soal axes, hapus baris `axes` — WONK fallback ke default axis.
+    67→const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", axes: ["SOFT", "WONK"], display: "swap" });
+    68→const jbmono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jbmono", display: "swap" });
+    69→
+    70→export const metadata: Metadata = {
+    71→  metadataBase: new URL("https://jasakebumen.id"),
+    72→  title: "JasaKebumen — Direktori Jasa Lokal Kabupaten Kebumen",
+    73→  description:
+    74→    "Direktori teknisi, tukang, dan penyedia jasa terverifikasi di 28 kecamatan Kabupaten Kebumen. Hubungi langsung lewat WhatsApp.",
+    75→  openGraph: {
+    76→    title: "JasaKebumen — Cari & Panggil Jasa Lokal Kebumen",
+    77→    description: "Teknisi & tukang terverifikasi di 28 kecamatan. Langsung chat WhatsApp, tanpa biaya.",
+    78→    url: "/",
+    79→    siteName: "JasaKebumen",
+    80→    locale: "id_ID",
+    81→    type: "website",
+    82→    images: [{ url: "/og.jpg", width: 1200, height: 630 }], // TODO: buat og.jpg 1200x630
+    83→  },
+    84→};
+    85→
+    86→export const viewport: Viewport = { themeColor: "#064E3B" };
+    87→
+    88→export default function RootLayout({ children }: { children: React.ReactNode }) {
+    89→  return (
+    90→    <html lang="id">
+    91→      <body className={`${inter.variable} ${fraunces.variable} ${jbmono.variable}`}>
+    92→        {children}
+    93→      </body>
+    94→    </html>
+    95→  );
+    96→}
+    97→src/app/globals.css
+    98→
+    99→css
+   100→
+   101→
+   102→.rollCol { animation: rollK 6s cubic-bezier(.3, .7, .3, 1) infinite; }
+   103→.rollCol span { display: block; height: 28px; line-height: 28px; }
+   104→@keyframes rollK {
+   105→  0%, 24% { transform: translateY(0); } 30%, 54% { transform: translateY(-28px); }
+   106→  60%, 84% { transform: translateY(-56px); } 90%, 100% { transform: translateY(-84px); }
+   107→}
+   108→
+   109→.kdot { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; position: relative;
+   110→  border: 1.5px solid #064e3b; animation: kfillK 4.8s ease-in-out infinite; animation-delay: var(--d); }
+   111→.kdot::after { content: "✓"; position: absolute; inset: 0; display: grid; place-items: center;
+   112→  color: #fff; font-size: 8px; font-weight: 700; animation: kpopK 4.8s cubic-bezier(.34, 1.56, .64, 1) infinite; animation-delay: var(--d); }
+   113→@keyframes kfillK {
+   114→  0%, 6% { background: transparent; border-color: #dad5c8; }
+   115→  14%, 86% { background: #064e3b; border-color: #064e3b; }
+   116→  94%, 100% { background: transparent; border-color: #dad5c8; }
+   117→}
+   118→@keyframes kpopK { 0%, 8% { transform: scale(0); opacity: 0; } 16%, 86% { transform: scale(1); opacity: 1; } 94%, 100% { transform: scale(0); opacity: 0; } }
+   119→
+   120→.bub { animation: bubK 4.2s ease infinite; }
+   121→@keyframes bubK { 0% { opacity: 0; transform: translateY(8px) scale(.92); } 8%, 52% { opacity: 1; transform: none; } 58%, 100% { opacity: 0; transform: translateY(-4px); } }
+   122→.dt, .hdt { width: 5px; height: 5px; border-radius: 50%; animation: dotK 1.1s ease-in-out infinite; animation-delay: var(--pd); }
+   123→.dt { background: #064e3b; opacity: .55; } .hdt { background: #fbbf24; opacity: .7; }
+   124→@keyframes dotK { 0%, 100% { transform: translateY(0); opacity: .4; } 40% { transform: translateY(-3px); opacity: .95; } }
+   125→.chk { animation: chkK 4.2s cubic-bezier(.34, 1.56, .64, 1) infinite; }
+   126→@keyframes chkK { 0%, 56% { opacity: 0; transform: scale(.7); } 64%, 88% { opacity: 1; transform: scale(1); } 96%, 100% { opacity: 0; transform: scale(.9); } }
+   127→
+   128→.mcardA { animation: mcardK 4s ease infinite; }
+   129→@keyframes mcardK { 0% { opacity: 0; transform: translateY(12px); } 14%, 82% { opacity: 1; transform: none; } 92%, 100% { opacity: 0; transform: translateY(-6px); } }
+   130→.stampA { animation: stampK 4s cubic-bezier(.34, 1.56, .64, 1) infinite; }
+   131→@keyframes stampK { 0%, 24% { opacity: 0; transform: rotate(-9deg) scale(2); } 32%, 84% { opacity: 1; transform: rotate(-9deg) scale(1); } 94%, 100% { opacity: 0; transform: rotate(-9deg) scale(1.1); } }
+   132→
+   133→.ringA { animation: ringK 4.4s cubic-bezier(.3, .7, .3, 1) infinite; }
+   134→@keyframes ringK { 0% { stroke-dashoffset: 100.53; } 46%, 86% { stroke-dashoffset: 0; } 94%, 100% { stroke-dashoffset: 100.53; } }
+   135→.ringTxt { animation: txtK 4.4s ease infinite; }
+   136→@keyframes txtK { 0%, 38% { opacity: 0; } 48%, 86% { opacity: 1; } 94%, 100% { opacity: 0; } }
+   137→
+   138→.pinT { animation: pinK 3.8s cubic-bezier(.45, 0, .25, 1) infinite; }
+   139→@keyframes pinK {
+   140→  0% { transform: translateX(4px); opacity: 0; } 10% { opacity: 1; }
+   141→  56% { transform: translateX(52px); } 78% { transform: translateX(52px); opacity: 1; }
+   142→  88%, 100% { opacity: 0; transform: translateX(52px); }
+   143→}
+   144→.waPing { opacity: 0; animation: pingK 3.8s ease-out infinite; }
+   145→@keyframes pingK { 0%, 54% { transform: scale(.4); opacity: 0; } 64% { transform: scale(1); opacity: .7; } 84%, 100% { transform: scale(1.7); opacity: 0; } }
+   146→
+   147→.bar { transform-origin: bottom; animation: barK 3.8s cubic-bezier(.34, 1.3, .5, 1) infinite; }
+   148→.bar2 { animation-delay: .12s; } .bar3 { animation-delay: .24s; }
+   149→@keyframes barK { 0% { transform: scaleY(0); } 52%, 86% { transform: scaleY(1); } 94%, 100% { transform: scaleY(0); } }
+   150→.starA { animation: starK 3.8s cubic-bezier(.34, 1.56, .64, 1) infinite; animation-delay: .3s; }
+   151→@keyframes starA-k { 0%, 46% { transform: translateX(-50%) scale(0); } 58%, 86% { transform: translateX(-50%) scale(1); } 94%, 100% { transform: translateX(-50%) scale(0); } }
+   152→.starA { animation-name: starA-k; }
+   153→
+   154→/* ===== CARA KERJA: scene pengganti 3D ===== */
+   155→.hiw-scene { position: relative; height: 11rem; overflow: hidden; border-radius: 12px;
+   156→  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); }
+   157→
+   158→.hiw-input { position: absolute; left: 14px; right: 14px; top: 16px; height: 26px; border-radius: 6px;
+   159→  background: rgba(255,255,255,.1); display: flex; align-items: center; gap: 5px; padding: 0 8px; }
+   160→.hiw-ch { width: 5px; height: 10px; border-radius: 1.5px; background: #fbbf24;
+   161→  opacity: 0; animation: popLoopK 6s cubic-bezier(.34, 1.56, .64, 1) infinite; animation-delay: var(--d); }
+   162→.hiw-caret { width: 2px; height: 13px; background: #fbbf24; animation: blink 1s steps(1) infinite; }
+   163→.hiw-row { position: absolute; left: 14px; right: 14px; height: 20px; border-radius: 6px;
+   164→  background: rgba(255,255,255,.08); display: flex; align-items: center; gap: 6px; padding: 0 7px;
+   165→  opacity: 0; animation: popLoopK 6s ease infinite; }
+   166→.hiw-row i { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,.25); flex-shrink: 0; }
+   167→.hiw-row b { height: 4px; border-radius: 2px; background: rgba(255,255,255,.28); flex: 1; }
+   168→.hiw-r1 { top: 52px; animation-delay: 2.2s; } .hiw-r2 { top: 78px; animation-delay: 2.45s; }
+   169→.hiw-map { position: absolute; left: 14px; right: 14px; top: 108px; bottom: 14px; border-radius: 6px; background: rgba(255,255,255,.08); }
+   170→.hiw-pin { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: #fbbf24;
+   171→  box-shadow: 0 0 0 3px rgba(251,191,36,.25); opacity: 0; animation: popLoopK 6s ease infinite; }
+   172→.hiw-p1 { left: 22%; top: 30%; animation-delay: 3.1s; }
+   173→.hiw-p2 { left: 58%; top: 45%; background: #34d399; box-shadow: 0 0 0 3px rgba(52,211,153,.25); animation-delay: 3.35s; }
+   174→@keyframes popLoopK { 0% { opacity: 0; transform: scale(.5); } 6%, 82% { opacity: 1; transform: scale(1); } 92%, 100% { opacity: 0; transform: scale(.95); } }
+   175→
+   176→.hiw-flip { position: absolute; left: 50%; top: 50%; width: 96px; height: 124px;
+   177→  margin: -62px 0 0 -48px; perspective: 600px; }
+   178→.hiw-flipin { position: absolute; inset: 0; transform-style: preserve-3d; animation: flipK 6s cubic-bezier(.4, 0, .2, 1) infinite; }
+   179→@keyframes flipK { 0%, 12% { transform: rotateY(0); } 40%, 58% { transform: rotateY(180deg); } 86%, 100% { transform: rotateY(360deg); } }
+   180→.hiw-face { position: absolute; inset: 0; border-radius: 10px; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+   181→  background: #fdfcf9; border: 1px solid rgba(255,255,255,.25); }
+   182→.hiw-back { transform: rotateY(180deg); background: #0f4536; }
+   183→.hiw-fav { position: absolute; left: 50%; top: 16px; width: 22px; height: 22px; margin-left: -11px; border-radius: 50%; background: #116a4e; }
+   184→.hiw-fn { position: absolute; left: 18px; right: 18px; top: 50px; height: 5px; border-radius: 3px; background: #d9d4c7; }
+   185→.hiw-fc { position: absolute; left: 28px; right: 28px; top: 62px; height: 4px; border-radius: 2px; background: #e7e4de; }
+   186→.hiw-price { position: absolute; left: 50%; bottom: 14px; width: 44px; height: 16px; margin-left: -22px;
+   187→  border-radius: 5px; background: #fbbf24; color: #062a20;
+   188→  font: 700 8px/16px var(--font-jbmono), monospace; text-align: center; }
+   189→.hiw-bt { position: absolute; left: 50%; top: 14px; width: 40px; height: 5px; margin-left: -20px; border-radius: 3px; background: rgba(255,255,255,.5); }
+   190→.hiw-brow { position: absolute; left: 14px; right: 14px; height: 14px; border-radius: 4px;
+   191→  background: rgba(255,255,255,.1); display: flex; align-items: center; gap: 5px; padding: 0 6px; }
+   192→.hiw-brow i { width: 7px; height: 7px; border-radius: 50%; background: #34d399; flex-shrink: 0; }
+   193→.hiw-brow b { height: 3.5px; flex: 1; border-radius: 2px; background: rgba(255,255,255,.25); }
+   194→.hb1 { top: 36px; } .hb2 { top: 58px; } .hb3 { top: 80px; }
+   195→
+   196→/* ===== FAQ ===== */
+   197→.faq-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .3s ease; }
+   198→.faq-body > div { overflow: hidden; }
+   199→.faq-item.open .faq-body { grid-template-rows: 1fr; }
+   200→.faq-item .faq-x { transition: transform .25s ease; }
+   201→.faq-item.open .faq-x { transform: rotate(45deg); }
+   202→
+   203→@media (prefers-reduced-motion: reduce) {
+   204→  *, *::before, *::after { animation: none !important; transition: none !important; }
+   205→  html { scroll-behavior: auto; }
+   206→}
+   207→src/lib/data.ts
+   208→
+   209→ts
+   210→
+   211→    keywords: "servis laptop hp ganti lcd install ulang software mati total",
+   212→    wa: "6281270010002",
+   213→    msg: "Halo LaptopFix, laptop saya perlu dicek. Bisa dibantu?",
+   214→  },
+   215→  {
+   216→    id: "gombong-autocare",
+   217→    name: "Gombong AutoCare", cat: "Rental & cuci mobil", district: "Gombong",
+   218→    rating: 4.9, reviews: 156, price: "Rp50.000",
+   219→    keywords: "rental mobil lepas kunci sopir cuci mobil detailing antar jemput",
+   220→    wa: "6281270010003",
+   221→    msg: "Halo Gombong AutoCare, mau tanya harga rental mobil.",
+   222→  },
+   223→  {
+   224→    id: "bersihkilat",
+   225→    name: "BersihKilat", cat: "Cleaning service & laundry", district: "Kutowinangun",
+   226→    rating: 4.7, reviews: 64, price: "Rp15.000",
+   227→    keywords: "cleaning service laundry cuci sofa kasur karpet harian",
+   228→    wa: "6281270010004",
+   229→    msg: "Halo BersihKilat, mau tanya paket cuci sofa.",
+   230→  },
+   231→  {
+   232→    id: "ruang-lensa",
+   233→    name: "Ruang Lensa Studio", cat: "Fotografer & video", district: "Kebumen",
+   234→    rating: 5.0, reviews: 41, price: "Rp500.000",
+   235→    keywords: "fotografer video wedding pernikahan prewedding dokumentasi acara",
+   236→    wa: "6281270010005",
+   237→    msg: "Halo Ruang Lensa, mau tanya paket foto pernikahan.",
+   238→  },
+   239→  {
+   240→    id: "bangunan-jaya",
+   241→    name: "Bangunan Jaya", cat: "Tukang & renovasi rumah", district: "Gombong",
+   242→    rating: null, reviews: 0, price: "Rp120.000",
+   243→    keywords: "tukang bangunan renovasi rumah keramik genteng atap plesteran",
+   244→    wa: "6281270010006",
+   245→    msg: "Halo Bangunan Jaya, mau tanya jasa renovasi rumah.",
+   246→  },
+   247→  {
+   248→    id: "listrik-buwono",
+   249→    name: "Listrik Buwono", cat: "Tukang listrik & CCTV", district: "Prembun",
+   250→    rating: 4.8, reviews: 73, price: "Rp60.000",
+   251→    keywords: "tukang listrik instalasi kabel pasang cctv",
+   252→    wa: "6281270010007",
+   253→    msg: "Halo Listrik Buwono, mau tanya jasa pasang CCTV.",
+   254→  },
+   255→  {
+   256→    id: "kedai-gunting",
+   257→    name: "Kedai Gunting", cat: "Barbershop & salon", district: "Kebumen",
+   258→    rating: 4.6, reviews: 98, price: "Rp25.000",
+   259→    keywords: "barbershop salon potong rambut cukur panggilan",
+   260→    wa: "6281270010008",
+   261→    msg: "Halo Kedai Gunting, mau tanya layanan barbershop.",
+   262→  },
+   263→];
+   264→
+   265→export const CATS: Category[] = [
+   266→  { n: "01", label: "Servis AC & elektronik", count: 18, q: "servis ac", icon: "air-vent", wide: true,
+   267→    desc: "Cuci, isi freon, bongkar-pasang. Teknisi datang ke rumah." },
+   268→  { n: "02", label: "Servis laptop & HP", count: 24, q: "laptop", icon: "laptop" },
+   269→  { n: "03", label: "Rental & cuci mobil", count: 12, q: "rental mobil", icon: "car" },
+   270→  { n: "04", label: "Cleaning service & laundry", count: 21, q: "laundry", icon: "sparkles", wide: true,
+   271→    desc: "Sofa, kasur, karpet, dan laundry harian." },
+   272→  { n: "05", label: "Fotografer & video", count: 9, q: "fotografer", icon: "camera" },
+   273→  { n: "06", label: "Tukang listrik & CCTV", count: 14, q: "listrik", icon: "zap" },
+   274→  { n: "07", label: "Tukang & renovasi rumah", count: 31, q: "renovasi", icon: "hammer", wide: true,
+   275→    desc: "Keramik, atap, kamar mandi — tim tukang berpengalaman." },
+   276→  { n: "08", label: "Barbershop & salon", count: 17, q: "barbershop", icon: "scissors", wide: true,
+   277→    desc: "Potong rambut & cukur, juga melayani panggilan." },
+   278→];
+   279→
+   280→/* ===== Helpers ===== */
+   281→
+   282→export const initials = (name: string) =>
+   283→  name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
+   284→
+   285→export const waLink = (p: Provider) =>
+   286→  `https://wa.me/${p.wa}?text=${encodeURIComponent(p.msg)}`;
+   287→
+   288→export const waAdminLink = (text: string) =>
+   289→  `https://wa.me/${WA_ADMIN}?text=${encodeURIComponent(text)}`;
+   290→
+   291→/** Stats dihitung dari data — tidak pernah bisa bohong. */
+   292→export function directoryStats() {
+   293→  const rated = PROVIDERS.filter((p): p is Provider & { rating: number } => p.rating !== null);
+   294→  const rating = rated.length ? rated.reduce((s, p) => s + p.rating, 0) / rated.length : 0;
+   295→  const ulasan = PROVIDERS.reduce((s, p) => s + p.reviews, 0);
+   296→  return { mitra: PROVIDERS.length, kecamatan: KECAMATAN_DIPETAKAN, rating, ulasan };
+   297→}
+   298→src/components/search-context.tsx
+   299→
+   300→tsx
+   301→
+   302→"use client";
+   303→
+   304→import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+   305→
+   306→interface SearchState {
+   307→  query: string;
+   308→  setQuery: (q: string) => void;
+   309→  district: string;
+   310→  setDistrict: (d: string) => void;
+   311→  reset: () => void;
+   312→}
+   313→
+   314→const SearchCtx = createContext<SearchState | null>(null);
+   315→
+   316→export function SearchProvider({ children }: { children: ReactNode }) {
+   317→  const [query, setQuery] = useState("");
+   318→  const [district, setDistrict] = useState("all");
+   319→  const reset = useCallback(() => { setQuery(""); setDistrict("all"); }, []);
+   320→
+   321→  const value = useMemo(
+   322→    () => ({ query, setQuery, district, setDistrict, reset }),
+   323→    [query, district, reset],
+   324→  );
+   325→  return <SearchCtx.Provider value={value}>{children}</SearchCtx.Provider>;
+   326→}
+   327→
+   328→export function useSearch() {
+   329→  const ctx = useContext(SearchCtx);
+   330→  if (!ctx) throw new Error("useSearch harus dipakai di dalam <SearchProvider>");
+   331→  return ctx;
+   332→}
+   333→
+   334→export function scrollToDirectory() {
+   335→  document.getElementById("penyedia")?.scrollIntoView({ behavior: "smooth" });
+   336→}
+   337→src/components/Reveal.tsx
+   338→
+   339→tsx
+   340→
+   341→"use client";
+   342→
+   343→import { motion, useReducedMotion } from "framer-motion";
+   344→import type { ReactNode } from "react";
+   345→
+   346→export default function Reveal({
+   347→  children, delay = 0, className,
+   348→}: { children: ReactNode; delay?: number; className?: string }) {
+   349→  const reduce = useReducedMotion();
+   350→  return (
+   351→    <motion.div
+   352→      className={className}
+   353→      initial={reduce ? false : { opacity: 0, y: 24 }}
+   354→      whileInView={{ opacity: 1, y: 0 }}
+   355→      viewport={{ once: true, margin: "0px 0px -40px 0px" }}
+   356→      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+   357→    >
+   358→      {children}
+   359→    </motion.div>
+   360→  );
+   361→}
+   362→src/components/WhatsAppButton.tsx
+   363→
+   364→tsx
+   365→
+   366→"use client";
+   367→
+   368→import { MessageCircle } from "lucide-react";
+   369→import { waLink, type Provider } from "@/lib/data";
+   370→
+   371→interface Props {
+   372→  provider: Provider;
+   373→  className?: string;
+   374→  label?: string;
+   375→}
+   376→
+   377→export default function WhatsAppButton({ provider, className, label = "WhatsApp" }: Props) {
+   378→  const handleClick = () => {
+   379→    // TODO: Send tracking ping to Supabase: providerId clicked
+   380→    // contoh: await supabase.from("wa_clicks").insert({ provider_id: provider.id, clicked_at: new Date() });
+   381→    // Bisa juga fire-and-forget fetch("/api/track", { method: "POST", body: JSON.stringify({ providerId: provider.id }) })
+   382→  };
+   383→
+   384→  return (
+   385→    <a
+   386→      href={waLink(provider)}
+   387→      target="_blank"
+   388→      rel="noopener noreferrer"
+   389→      onClick={handleClick}
+   390→      aria-label={`Chat ${provider.name} via WhatsApp`}
+   391→      className={
+   392→        className ??
+   393→        "inline-flex items-center justify-center gap-2 rounded-lg border border-green/30 px-4 py-2 text-sm font-semibold text-green transition hover:border-green hover:bg-green hover:text-white"
+   394→      }
+   395→    >
+   396→      <MessageCircle className="h-4 w-4" /> {label}
+   397→    </a>
+   398→  );
+   399→}
+   400→src/components/Header.tsx
+   401→
+   402→tsx
+   403→
+   404→"use client";
+   405→
+   406→import { useEffect, useState } from "react";
+   407→import { MapPin, Menu, X } from "lucide-react";
+   408→import { waAdminLink } from "@/lib/data";
+   409→
+   410→const LINKS = [
+   411→  { href: "#fitur", label: "Fitur" },
+   412→  { href: "#kategori", label: "Kategori" },
+   413→  { href: "#penyedia", label: "Penyedia" },
+   414→  { href: "#cara", label: "Cara kerja" },
+   415→  { href: "#faq", label: "FAQ" },
+   416→];
+   417→
+   418→export default function Header() {
+   419→  const [open, setOpen] = useState(false);
+   420→  const [scrolled, setScrolled] = useState(false);
+   421→  const [progress, setProgress] = useState(0);
+   422→
+   423→  useEffect(() => {
+   424→    const onScroll = () => {
+   425→      setScrolled(window.scrollY > 4);
+   426→      const h = document.documentElement;
+   427→      const max = h.scrollHeight - h.clientHeight;
+   428→      setProgress(max > 0 ? h.scrollTop / max : 0);
+   429→    };
+   430→    onScroll();
+   431→    window.addEventListener("scroll", onScroll, { passive: true });
+   432→    return () => window.removeEventListener("scroll", onScroll);
+   433→  }, []);
+   434→
+   435→  return (
+   436→    <header
+   437→      className={`fixed inset-x-0 top-0 z-50 bg-paper/90 backdrop-blur-sm transition-colors ${
+   438→        scrolled ? "border-b border-line" : "border-b border-transparent"
+   439→      }`}
+   440→    >
+   441→      {/* progress bar */}
+   442→      <div
+   443→        className="absolute inset-x-0 top-0 h-0.5 origin-left bg-amber-400"
+   444→        style={{ transform: `scaleX(${progress})` }}
+   445→        aria-hidden
+   446→      />
+   447→
+   448→      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
+   449→        <a href="#" className="flex items-center gap-2.5">
+   450→          <span className="grid h-7 w-7 place-items-center rounded-[7px] bg-green text-white">
+   451→            <MapPin className="h-3.5 w-3.5" />
+   452→          </span>
+   453→          <span className="font-semibold tracking-tight">JasaKebumen</span>
+   454→        </a>
+   455→
+   456→        <div className="hidden items-center gap-7 md:flex">
+   457→          {LINKS.map((l) => (
+   458→            <a key={l.href} href={l.href} className="text-sm text-mute transition hover:text-ink">
+   459→              {l.label}
+   460→            </a>
+   461→          ))}
+   462→          <a
+   463→            href={waAdminLink("Halo Admin JasaKebumen, saya ingin mendaftarkan usaha jasa.")}
+   464→            target="_blank" rel="noopener noreferrer"
+   465→            className="rounded-lg bg-green px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-dark"
+   466→          >
+   467→            Daftar usaha
+   468→          </a>
+   469→        </div>
+   470→
+   471→        <button
+   472→          onClick={() => setOpen((v) => !v)}
+   473→          className="grid h-9 w-9 place-items-center rounded-lg border border-line md:hidden"
+   474→          aria-label={open ? "Tutup menu" : "Buka menu"}
+   475→          aria-expanded={open}
+   476→        >
+   477→          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+   478→        </button>
+   479→      </nav>
+   480→
+   481→      {open && (
+   482→        <nav className="border-t border-line bg-paper md:hidden">
+   483→          <div className="flex flex-col px-5 py-4 text-[15px]">
+   484→            {LINKS.map((l) => (
+   485→              <a key={l.href} href={l.href} onClick={() => setOpen(false)} className="py-2.5">
+   486→                {l.label}
+   487→              </a>
+   488→            ))}
+   489→            <a
+   490→              href={waAdminLink("Halo Admin JasaKebumen, saya ingin mendaftarkan usaha jasa.")}
+   491→              target="_blank" rel="noopener noreferrer"
+   492→              className="mt-2 rounded-lg bg-green px-4 py-3 text-center font-semibold text-white"
+   493→            >
+   494→              Daftar usaha
+   495→            </a>
+   496→          </div>
+   497→        </nav>
+   498→      )}
+   499→    </header>
+   500→  );
+   501→}
+   502→src/components/Hero.tsx
+   503→
+   504→tsx
+   505→
+   506→                onChange={(e) => setQuery(e.target.value)}
+   507→                type="text" aria-label="Cari jasa"
+   508→                placeholder="Butuh apa? Misal: servis AC, tukang listrik, fotografer"
+   509→                className="w-full bg-transparent px-3 py-2.5 text-[15px] outline-none placeholder:text-faint md:flex-1"
+   510→              />
+   511→              <div className="hidden w-px self-stretch bg-line md:block" />
+   512→              <div className="relative md:w-48">
+   513→                <select
+   514→                  value={district}
+   515→                  onChange={(e) => setDistrict(e.target.value)}
+   516→                  aria-label="Kecamatan"
+   517→                  className="w-full appearance-none bg-transparent py-2.5 pl-3 pr-9 text-[15px] text-mute outline-none"
+   518→                >
+   519→                  {DISTRICTS.map((d) => (
+   520→                    <option key={d} value={d}>{d === "all" ? "Semua kecamatan" : d}</option>
+   521→                  ))}
+   522→                </select>
+   523→                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-faint" />
+   524→              </div>
+   525→              <button
+   526→                type="submit"
+   527→                className="inline-flex items-center justify-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-dark"
+   528→              >
+   529→                <Search className="h-4 w-4" /> Cari
+   530→              </button>
+   531→            </div>
+   532→          </motion.form>
+   533→
+   534→          <motion.p
+   535→            variants={rise} initial="hidden" animate="show"
+   536→            className="mt-4 font-mono text-[11px] uppercase tracking-[0.16em] text-faint"
+   537→          >
+   538→            Gratis untuk pencari · Langsung WhatsApp · Mitra dikurasi tim
+   539→          </motion.p>
+   540→        </div>
+   541→
+   542→        {/* ===== Live preview — pengganti diorama 3D ===== */}
+   543→        <motion.div
+   544→          initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}
+   545→          transition={{ duration: 0.7, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+   546→          className="lg:mt-12"
+   547→        >
+   548→          <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_24px_60px_-32px_rgba(6,78,59,.28)]">
+   549→            {/* Mini map */}
+   550→            <div className="bg-grid relative h-52 sm:h-60">
+   551→              <span className="absolute left-4 top-4 rounded-md border border-line bg-paper/90 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-mute">
+   552→                Peta mitra · live
+   553→              </span>
+   554→              {[
+   555→                { left: "26%", top: "34%", mint: false, d: 0 },
+   556→                { left: "62%", top: "26%", mint: false, d: 0.6 },
+   557→                { left: "46%", top: "62%", mint: true, d: 1.2 },
+   558→              ].map((pin, i) => (
+   559→                <motion.span
+   560→                  key={i}
+   561→                  className={`absolute -ml-2 -mt-2 h-4 w-4 rounded-full ${
+   562→                    pin.mint ? "bg-emerald-400" : "bg-amber-400"
+   563→                  } ring-4 ${pin.mint ? "ring-emerald-400/20" : "ring-amber-400/20"}`}
+   564→                  style={{ left: pin.left, top: pin.top }}
+   565→                  animate={reduce ? undefined : { y: [0, -7, 0] }}
+   566→                  transition={{ duration: 3, repeat: Infinity, delay: pin.d, ease: "easeInOut" }}
+   567→                />
+   568→              ))}
+   569→            </div>
+   570→
+   571→            {/* Kartu mitra pertama */}
+   572→            <div className="flex items-center gap-4 border-t border-line p-4">
+   573→              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-green/10 bg-green-tint text-sm font-semibold text-green">
+   574→                {initials(featured.name)}
+   575→              </span>
+   576→              <div className="min-w-0 flex-1">
+   577→                <div className="flex items-center gap-1.5">
+   578→                  <p className="truncate text-sm font-semibold tracking-tight">{featured.name}</p>
+   579→                  <MapPin className="h-3.5 w-3.5 shrink-0 text-green" aria-label="Terverifikasi" />
+   580→                </div>
+   581→                <p className="mt-0.5 flex items-center gap-2 font-mono text-xs tabular-nums text-mute">
+   582→                  <span className="inline-flex items-center gap-1">
+   583→                    <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+   584→                    {featured.rating?.toFixed(1)}
+   585→                  </span>
+   586→                  <span>mulai {featured.price}</span>
+   587→                </p>
+   588→              </div>
+   589→              <WhatsAppButton
+   590→                provider={featured}
+   591→                label=""
+   592→                className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-green/30 text-green transition hover:bg-green hover:text-white"
+   593→              />
+   594→            </div>
+   595→
+   596→            <div className="flex items-center justify-between border-t border-line px-4 py-3">
+   597→              <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-faint">
+   598→                Data asli dari direktori
+   599→              </p>
+   600→              <p className="font-mono text-[11px] tabular-nums text-faint">
+   601→                {PROVIDERS.length} mitra tayang
+   602→              </p>
+   603→            </div>
+   604→          </div>
+   605→        </motion.div>
+   606→      </div>
+   607→    </section>
+   608→  );
+   609→}
+   610→src/components/Stats.tsx
+   611→
+   612→tsx
+   613→
+   614→"use client";
+   615→
+   616→import { useEffect, useRef, useState } from "react";
+   617→import { motion, useInView, useReducedMotion } from "framer-motion";
+   618→import { directoryStats } from "@/lib/data";
+   619→
+   620→function CountUp({ to, decimals = 0 }: { to: number; decimals?: number }) {
+   621→  const ref = useRef<HTMLSpanElement>(null);
+   622→  const inView = useInView(ref, { once: true, margin: "-60px" });
+   623→  const reduce = useReducedMotion();
+   624→  const [val, setVal] = useState(0);
+   625→
+   626→  useEffect(() => {
+   627→    if (!inView) return;
+   628→    if (reduce) { setVal(to); return; }
+   629→    const dur = 1400, t0 = performance.now();
+   630→    let raf = 0;
+   631→    const tick = (now: number) => {
+   632→      const x = Math.min((now - t0) / dur, 1);
+   633→      setVal(to * (1 - Math.pow(1 - x, 3)));
+   634→      if (x < 1) raf = requestAnimationFrame(tick);
+   635→    };
+   636→    raf = requestAnimationFrame(tick);
+   637→    return () => cancelAnimationFrame(raf);
+   638→  }, [inView, to, reduce]);
+   639→
+   640→  return <span ref={ref}>{val.toFixed(decimals)}</span>;
+   641→}
+   642→
+   643→const PAD = ["md:pr-8", "md:px-8", "md:px-8", "md:pl-8"];
+   644→
+   645→export default function Stats() {
+   646→  const s = directoryStats();
+   647→  const cells = [
+   648→    { v: s.mitra, d: 0, label: "Mitra terkurasi & tayang" },
+   649→    { v: s.kecamatan, d: 0, label: "Kecamatan dipetakan" },
+   650→    { v: s.rating, d: 1, label: "Rating rata-rata mitra" },
+   651→    { v: s.ulasan, d: 0, label: "Ulasan dari pelanggan" },
+   652→  ];
+   653→
+   654→  return (
+   655→    <section id="stats" className="border-y border-line bg-green-tint">
+   656→      <div className="mx-auto grid max-w-6xl grid-cols-2 divide-line px-5 md:grid-cols-4 md:divide-x">
+   657→        {cells.map((c, i) => (
+   658→          <motion.div
+   659→            key={c.label}
+   660→            initial={{ opacity: 0, y: 20 }}
+   661→            whileInView={{ opacity: 1, y: 0 }}
+   662→            viewport={{ once: true }}
+   663→            transition={{ duration: 0.7, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
+   664→            className={`py-8 md:py-10 ${PAD[i]}`}
+   665→          >
+   666→            <p className="font-mono text-3xl tabular-nums text-green md:text-4xl">
+   667→              <CountUp to={c.v} decimals={c.d} />
+   668→            </p>
+   669→            <p className="mt-1.5 text-sm text-mute">{c.label}</p>
+   670→          </motion.div>
+   671→        ))}
+   672→      </div>
+   673→      <div className="mx-auto max-w-6xl px-5 pb-5">
+   674→        <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">
+   675→          Angka dihitung langsung dari data mitra — ikut naik saat mitra baru bergabung.
+   676→        </p>
+   677→      </div>
+   678→    </section>
+   679→  );
+   680→}
+   681→src/components/Features.tsx
+   682→
+   683→tsx
+   684→
+   685→          {/* Demo chat WA */}
+   686→          <Reveal delay={0.08}>
+   687→            <div className="h-full rounded-xl border border-white/10 bg-white/5 p-5">
+   688→              <div className="flex items-center gap-2.5">
+   689→                <MessageCircle className="h-4 w-4 text-amber-300" />
+   690→                <h3 className="font-semibold tracking-tight">Langsung WhatsApp</h3>
+   691→              </div>
+   692→              <div className="mt-4 space-y-2 text-sm">
+   693→                <div className="cb max-w-[85%] rounded-2xl rounded-bl-sm bg-white/10 px-3.5 py-2">Bang, AC saya bocor. Bisa dicek hari ini?</div>
+   694→                <div className="cb cb-2 max-w-[85%] rounded-2xl rounded-bl-sm bg-white/10 px-3.5 py-2">Bisa. Jam 9 pagi sampai rumah ya.</div>
+   695→                <div className="cb cb-3 ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-[#25D366] px-3.5 py-2 text-white">Siap bang, ditunggu.</div>
+   696→              </div>
+   697→              <p className="mt-4 text-sm leading-relaxed text-white/50">
+   698→                Nego harga dan jadwal langsung dengan mitra. Kami tidak di tengah, tidak ambil potongan.
+   699→              </p>
+   700→            </div>
+   701→          </Reveal>
+   702→
+   703→          {/* 4 kartu dengan stage mini (CSS) */}
+   704→          <Reveal>
+   705→            <div className="group flex h-full items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5">
+   706→              <div className="stage" aria-hidden>
+   707→                <div className="idc"><span className="iav" /><span className="il1" /><span className="il2" /></div>
+   708→                <span className="iscan" />
+   709→                <span className="ick">✓</span>
+   710→              </div>
+   711→              <div className="min-w-0">
+   712→                <ShieldCheck className="h-4 w-4 text-amber-300" />
+   713→                <h3 className="mt-2 font-semibold tracking-tight">Kurasi manusia</h3>
+   714→                <p className="mt-1.5 text-sm leading-relaxed text-white/55">
+   715→                  Identitas, portofolio pekerjaan, dan nomor WA dicek tim sebelum profil tayang.
+   716→                </p>
+   717→              </div>
+   718→            </div>
+   719→          </Reveal>
+   720→
+   721→          <Reveal delay={0.07}>
+   722→            <div className="group flex h-full items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5">
+   723→              <div className="stage" aria-hidden>
+   724→                <span className="tagn" />
+   725→                <span className="tagp">Rp75</span>
+   726→              </div>
+   727→              <div className="min-w-0">
+   728→                <Tag className="h-4 w-4 text-amber-300" />
+   729→                <h3 className="mt-2 font-semibold tracking-tight">Harga mulai tertera</h3>
+   730→                <p className="mt-1.5 text-sm leading-relaxed text-white/55">
+   731→                  Tahu kisaran biaya dari profil — tidak ada kejutan harga saat chat pertama.
+   732→                </p>
+   733→              </div>
+   734→            </div>
+   735→          </Reveal>
+   736→
+   737→          <Reveal delay={0.14}>
+   738→            <div className="group flex h-full items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5">
+   739→              <div className="stage" aria-hidden>
+   740→                <div className="mmap"><i className="r1" /><i className="r2" /><i className="v1" />
+   741→                  <span className="mp" style={{ left: "24%", top: "30%", ["--d" as string]: "0s" } as React.CSSProperties} />
+   742→                  <span className="mp" style={{ left: "62%", top: "24%", ["--d" as string]: ".35s" } as React.CSSProperties} />
+   743→                  <span className="mp" style={{ left: "40%", top: "66%", ["--d" as string]: ".7s" } as React.CSSProperties} />
+   744→                  <span className="mp near" style={{ left: "76%", top: "62%", ["--d" as string]: "1.05s" } as React.CSSProperties} />
+   745→                </div>
+   746→              </div>
+   747→              <div className="min-w-0">
+   748→                <MapPin className="h-4 w-4 text-amber-300" />
+   749→                <h3 className="mt-2 font-semibold tracking-tight">Filter 28 kecamatan</h3>
+   750→                <p className="mt-1.5 text-sm leading-relaxed text-white/55">
+   751→                  Dari Kebumen kota sampai Ayah dan Rowokele — cari mitra yang paling dekat.
+   752→                </p>
+   753→              </div>
+   754→            </div>
+   755→          </Reveal>
+   756→
+   757→          {/* Banner lebar */}
+   758→          <Reveal className="lg:col-span-3">
+   759→            <div className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-5">
+   760→              <div className="stage" aria-hidden>
+   761→                <div className="brw">
+   762→                  <div className="bbar"><b /><b /><b /><span className="u" /></div>
+   763→                  <span className="bl bl1" /><span className="bl bl2" /><span className="bl bl3" />
+   764→                </div>
+   765→              </div>
+   766→              <p className="text-sm leading-relaxed text-white/70">
+   767→                <strong className="font-semibold text-white">Tanpa aplikasi &amp; tanpa akun.</strong>{" "}
+   768→                Buka browser, cari, chat — selesai. Halaman ini ringan, hemat kuota, dan jalan di HP kentang sekalipun.
+   769→              </p>
+   770→              <Globe className="ml-auto hidden h-5 w-5 shrink-0 text-amber-300 sm:block" />
+   771→            </div>
+   772→          </Reveal>
+   773→        </div>
+   774→      </div>
+   775→    </section>
+   776→  );
+   777→}
+   778→src/components/CategoryGrid.tsx
+   779→
+   780→tsx
+   781→
+   782→"use client";
+   783→
+   784→import { AirVent, ArrowUpRight, Camera, Car, Hammer, Laptop, Scissors, Sparkles, Zap, type LucideIcon } from "lucide-react";
+   785→import Reveal from "./Reveal";
+   786→import { CATS, type CategoryIcon } from "@/lib/data";
+   787→import { scrollToDirectory, useSearch } from "./search-context";
+   788→
+   789→const ICONS: Record<CategoryIcon, LucideIcon> = {
+   790→  "air-vent": AirVent, laptop: Laptop, car: Car, sparkles: Sparkles,
+   791→  camera: Camera, hammer: Hammer, scissors: Scissors, zap: Zap,
+   792→};
+   793→
+   794→export default function CategoryGrid() {
+   795→  const { setQuery } = useSearch();
+   796→
+   797→  const onMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+   798→    const el = e.currentTarget;
+   799→    const r = el.getBoundingClientRect();
+   800→    const px = (e.clientX - r.left) / r.width - 0.5;
+   801→    const py = (e.clientY - r.top) / r.height - 0.5;
+   802→    el.style.transition = "transform .08s linear, border-color .3s, box-shadow .3s";
+   803→    el.style.transform = `perspective(700px) rotateX(${(-py * 7).toFixed(2)}deg) rotateY(${(px * 9).toFixed(2)}deg) translateY(-2px)`;
+   804→  };
+   805→  const onLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
+   806→    e.currentTarget.style.transition = "transform .55s cubic-bezier(.22,1,.36,1), border-color .3s, box-shadow .3s";
+   807→    e.currentTarget.style.transform = "";
+   808→  };
+   809→
+   810→  const pick = (q: string) => { setQuery(q); scrollToDirectory(); };
+   811→
+   812→  return (
+   813→    <section id="kategori" className="scroll-mt-20">
+   814→      <div className="relative mx-auto max-w-6xl px-5 py-16 md:py-24">
+   815→        <span aria-hidden className="pointer-events-none absolute right-4 top-8 hidden select-none font-serif text-[9rem] leading-none text-green/[0.05] lg:block">02</span>
+   816→
+   817→        <Reveal>
+   818→          <div className="flex flex-wrap items-end justify-between gap-6">
+   819→            <div>
+   820→              <p className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
+   821→                <span className="h-3 w-3 text-amber-500">✳</span>02 — Kategori
+   822→              </p>
+   823→              <h2 className="mt-3 font-serif text-3xl md:text-4xl">Kategori terpopuler</h2>
+   824→            </div>
+   825→            <p className="max-w-xs text-sm leading-relaxed text-mute">
+   826→              Delapan kategori yang paling sering dicari pengguna bulan ini. Klik untuk memfilter daftar mitra.
+   827→            </p>
+   828→          </div>
+   829→        </Reveal>
+   830→
+   831→        <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+   832→          {CATS.map((c, i) => {
+   833→            const Icon = ICONS[c.icon];
+   834→            return (
+   835→              <Reveal key={c.n} delay={(i % 4) * 0.07} className={c.wide ? "lg:col-span-2" : ""}>
+   836→                <button
+   837→                  type="button"
+   838→                  onClick={() => pick(c.q)}
+   839→                  onMouseMove={onMove}
+   840→                  onMouseLeave={onLeave}
+   841→                  className="group h-full w-full rounded-xl border border-line bg-white text-left transition-colors duration-300 hover:border-green/40 hover:shadow-[0_20px_48px_-24px_rgba(6,78,59,.3)]"
+   842→                >
+   843→                  {c.wide ? (
+   844→                    <div className="flex items-center gap-5 p-5">
+   845→                      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-green-tint text-green transition-colors duration-300 group-hover:bg-amber-50 group-hover:text-amber-600">
+   846→                        <Icon className="h-5 w-5" />
+   847→                      </span>
+   848→                      <div className="min-w-0 flex-1">
+   849→                        <h3 className="text-[17px] font-semibold leading-snug tracking-tight transition-colors group-hover:text-green">{c.label}</h3>
+   850→                        <p className="mt-0.5 truncate text-sm text-mute">{c.desc}</p>
+   851→                      </div>
+   852→                      <div className="flex shrink-0 flex-col items-end gap-1.5">
+   853→                        <span className="font-mono text-[11px] text-faint">{c.n}</span>
+   854→                        <span className="font-mono text-[11px] tabular-nums text-mute">{c.count} mitra</span>
+   855→                        <ArrowUpRight className="h-4 w-4 -translate-x-1 text-green opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100" />
+   856→                      </div>
+   857→                    </div>
+   858→                  ) : (
+   859→                    <div className="p-5">
+   860→                      <div className="flex items-start justify-between">
+   861→                        <span className="grid h-11 w-11 place-items-center rounded-lg bg-green-tint text-green transition-colors duration-300 group-hover:bg-amber-50 group-hover:text-amber-600">
+   862→                          <Icon className="h-5 w-5" />
+   863→                        </span>
+   864→                        <span className="font-mono text-[11px] text-faint">{c.n}</span>
+   865→                      </div>
+   866→                      <h3 className="mt-4 text-[15px] font-semibold leading-snug tracking-tight transition-colors group-hover:text-green">{c.label}</h3>
+   867→                      <p className="mt-1 flex items-center justify-between font-mono text-[11px] tabular-nums text-mute">
+   868→                        {c.count} mitra
+   869→                        <ArrowUpRight className="h-3.5 w-3.5 -translate-x-1 text-green opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100" />
+   870→                      </p>
+   871→                    </div>
+   872→                  )}
+   873→                </button>
+   874→              </Reveal>
+   875→            );
+   876→          })}
+   877→        </div>
+   878→      </div>
+   879→    </section>
+   880→  );
+   881→}
+   882→src/components/ProviderDirectory.tsx ⭐
+   883→
+   884→tsx
+   885→
+   886→              )}
+   887→            </div>
+   888→            <p className="mt-0.5 truncate text-sm text-mute">
+   889→              {p.cat} · Kec. {p.district}
+   890→            </p>
+   891→          </div>
+   892→        </div>
+   893→
+   894→        <div className="mt-3 flex items-center gap-6 font-mono text-sm tabular-nums md:mt-0 md:justify-self-end">
+   895→          {verified ? (
+   896→            <span className="inline-flex items-center gap-1.5">
+   897→              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+   898→              {p.rating?.toFixed(1)} <span className="text-faint">({p.reviews})</span>
+   899→            </span>
+   900→          ) : (
+   901→            <span className="text-amber-600">Mitra baru</span>
+   902→          )}
+   903→          <span><span className="text-faint">mulai</span> {p.price}</span>
+   904→        </div>
+   905→
+   906→        <div className="mt-3 md:mt-0 md:justify-self-end">
+   907→          <WhatsAppButton provider={p} />
+   908→        </div>
+   909→      </article>
+   910→    </Reveal>
+   911→  );
+   912→}
+   913→
+   914→/* ===== Section utama ===== */
+   915→export default function ProviderDirectory() {
+   916→  const { query, district, reset } = useSearch();
+   917→
+   918→  const filtered = useMemo(() => {
+   919→    const tokens = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+   920→    return PROVIDERS.filter((p) => {
+   921→      const hay = `${p.name} ${p.cat} ${p.district} ${p.keywords}`.toLowerCase();
+   922→      return tokens.every((t) => hay.includes(t)) && (district === "all" || p.district === district);
+   923→    });
+   924→  }, [query, district]);
+   925→
+   926→  const active = query.trim() !== "" || district !== "all";
+   927→  const filterLabel = [
+   928→    query.trim() ? `"${query.trim()}"` : null,
+   929→    district !== "all" ? `Kec. ${district}` : null,
+   930→  ].filter(Boolean).join(" · ");
+   931→
+   932→  return (
+   933→    <section id="penyedia" className="scroll-mt-20 border-t border-line bg-white">
+   934→      <div className="relative mx-auto max-w-6xl px-5 py-16 md:py-24">
+   935→        <span aria-hidden className="pointer-events-none absolute right-4 top-8 hidden select-none font-serif text-[9rem] leading-none text-green/[0.05] lg:block">03</span>
+   936→
+   937→        <Reveal>
+   938→          <div className="flex flex-wrap items-end justify-between gap-6">
+   939→            <div>
+   940→              <p className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
+   941→                <span className="text-amber-500">✳</span>03 — Penyedia
+   942→              </p>
+   943→              <h2 className="mt-3 font-serif text-3xl md:text-4xl">Terverifikasi minggu ini</h2>
+   944→              <p className="mt-3 max-w-md text-sm leading-relaxed text-mute">
+   945→                Dipilih berdasarkan rating, kecepatan respon, dan kelengkapan profil.
+   946→              </p>
+   947→            </div>
+   948→            <p className="font-mono text-xs tabular-nums text-faint">
+   949→              <span>{filtered.length}</span> / {PROVIDERS.length} mitra
+   950→            </p>
+   951→          </div>
+   952→        </Reveal>
+   953→
+   954→        {active && (
+   955→          <div className="mt-8 flex flex-wrap items-center gap-x-2 text-sm text-mute">
+   956→            <span>Menampilkan hasil untuk</span>
+   957→            <span className="font-medium text-ink">{filterLabel}</span>
+   958→            <button
+   959→              onClick={reset}
+   960→              className="inline-flex items-center gap-1 font-medium text-green underline underline-offset-4 hover:text-green-dark"
+   961→            >
+   962→              <RotateCcw className="h-3.5 w-3.5" /> hapus filter
+   963→            </button>
+   964→          </div>
+   965→        )}
+   966→
+   967→        <div className="mt-10 border-t border-line">
+   968→          {filtered.map((p, i) => (
+   969→            <ProviderRow key={p.id} p={p} i={i} />
+   970→          ))}
+   971→        </div>
+   972→
+   973→        {filtered.length === 0 && (
+   974→          <div className="border-t border-line py-14 text-center">
+   975→            <p className="text-[15px] font-medium">Tidak ada mitra yang cocok.</p>
+   976→            <p className="mt-1.5 text-sm text-mute">Coba kata kunci lain, atau pilih &quot;Semua kecamatan&quot;.</p>
+   977→            <button
+   978→              onClick={reset}
+   979→              className="mt-4 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-dark"
+   980→            >
+   981→              Hapus filter
+   982→            </button>
+   983→          </div>
+   984→        )}
+   985→      </div>
+   986→    </section>
+   987→  );
+   988→}
+   989→src/components/HowItWorks.tsx
+   990→
+   991→tsx
+   992→
+   993→"use client";
+   994→
+   995→import Reveal from "./Reveal";
+   996→
+   997→export default function HowItWorks() {
+   998→  return (
+   999→    <section id="cara" className="scroll-mt-20 border-t border-line bg-[#062A20] text-white">
+  1000→      <div className="relative mx-auto max-w-6xl px-5 py-16 md:py-24">
+  1001→        <span aria-hidden className="pointer-events-none absolute right-4 top-8 hidden select-none font-serif text-[9rem] leading-none text-white/[0.04] lg:block">04</span>
+  1002→
+  1003→        <Reveal>
+  1004→          <p className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-white/40">
+  1005→            <span className="text-amber-300">✳</span>04 — Cara kerja
+  1006→          </p>
+  1007→          <h2 className="mt-3 font-serif text-3xl md:text-4xl">Tiga langkah, selesai.</h2>
+  1008→        </Reveal>
+  1009→
+  1010→        <div className="mt-12 grid gap-10 md:grid-cols-3 md:gap-6">
+  1011→          {/* 01 — Cari */}
+  1012→          <Reveal>
+  1013→            <div className="hiw-scene" aria-hidden>
+  1014→              <div className="hiw-input">
+  1015→                {[0, 1, 2, 3, 4, 5, 6, 7].map((n) => (
+  1016→                  <span key={n} className="hiw-ch" style={{ ["--d" as string]: `${n * 0.28}s` } as React.CSSProperties} />
+  1017→                ))}
+  1018→                <span className="hiw-caret" />
+  1019→              </div>
+  1020→              <div className="hiw-row hiw-r1"><i /><b /></div>
+  1021→              <div className="hiw-row hiw-r2"><i /><b /></div>
+  1022→              <div className="hiw-map">
+  1023→                <span className="hiw-pin hiw-p1" />
+  1024→                <span className="hiw-pin hiw-p2" />
+  1025→              </div>
+  1026→            </div>
+  1027→            <div className="pt-5">
+  1028→              <p className="font-mono text-xs text-amber-300/80">01</p>
+  1029→              <h3 className="mt-2.5 text-lg font-semibold tracking-tight">Cari jasa</h3>
+  1030→              <p className="mt-2 text-sm leading-relaxed text-white/60">
+  1031→                Ketik kebutuhanmu dan pilih kecamatan. Hasil muncul seketika, tanpa perlu daftar akun.
+  1032→              </p>
+  1033→            </div>
+  1034→          </Reveal>
+  1035→
+  1036→          {/* 02 — Pilih (kartu flip) */}
+  1037→          <Reveal delay={0.12}>
+  1038→            <div className="hiw-scene" aria-hidden>
+  1039→              <div className="hiw-flip">
+  1040→                <div className="hiw-flipin">
+  1041→                  <div className="hiw-face">
+  1042→                    <span className="hiw-fav" />
+  1043→                    <span className="hiw-fn" />
+  1044→                    <span className="hiw-fc" />
+  1045→                    <span className="hiw-price">Rp75rb</span>
+  1046→                  </div>
+  1047→                  <div className="hiw-face hiw-back">
+  1048→                    <span className="hiw-bt" />
+  1049→                    <div className="hiw-brow hb1"><i /><b /></div>
+  1050→                    <div className="hiw-brow hb2"><i /><b /></div>
+  1051→                    <div className="hiw-brow hb3"><i /><b /></div>
+  1052→                  </div>
+  1053→                </div>
+  1054→              </div>
+  1055→            </div>
+  1056→            <div className="pt-5">
+  1057→              <p className="font-mono text-xs text-amber-300/80">02</p>
+  1058→              <h3 className="mt-2.5 text-lg font-semibold tracking-tight">Pilih penyedia</h3>
+  1059→              <p className="mt-2 text-sm leading-relaxed text-white/60">
+  1060→                Bandingkan harga mulai, rating, dan lokasi. Semua profil sudah melewati kurasi tim.
+  1061→              </p>
+  1062→            </div>
+  1063→          </Reveal>
+  1064→
+  1065→          {/* 03 — Chat */}
+  1066→          <Reveal delay={0.24}>
+  1067→            <div className="hiw-scene grid place-items-center" aria-hidden>
+  1068→              <div className="relative">
+  1069→                <div className="bub flex items-center gap-1 rounded-xl rounded-bl-sm bg-white/10 px-2.5 py-2">
+  1070→                  <span className="hdt" style={{ ["--pd" as string]: "0s" } as React.CSSProperties} />
+  1071→                  <span className="hdt" style={{ ["--pd" as string]: ".15s" } as React.CSSProperties} />
+  1072→                  <span className="hdt" style={{ ["--pd" as string]: ".3s" } as React.CSSProperties} />
+  1073→                </div>
+  1074→                <div className="chk absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#25D366] px-2 py-0.5 font-mono text-[9px] font-bold text-white">
+  1075→                  ✓ terkirim
+  1076→                </div>
+  1077→              </div>
+  1078→            </div>
+  1079→            <div className="pt-5">
+  1080→              <p className="font-mono text-xs text-amber-300/80">03</p>
+  1081→              <h3 className="mt-2.5 text-lg font-semibold tracking-tight">Chat WhatsApp</h3>
+  1082→              <p className="mt-2 text-sm leading-relaxed text-white/60">
+  1083→                Nego harga dan janji ketemu langsung dengan mitra. Kami tidak ikut campur, tidak ambil potongan.
+  1084→              </p>
+  1085→            </div>
+  1086→          </Reveal>
+  1087→        </div>
+  1088→      </div>
+  1089→    </section>
+  1090→  );
+  1091→}
+  1092→src/components/Benefits.tsx
+  1093→
+  1094→tsx
+  1095→
+  1096→            )}
+  1097→            {tab === "mitra" && (
+  1098→              <motion.span layoutId="benInk" className="absolute bottom-1 left-1 top-1 rounded-lg bg-green"
+  1099→                transition={{ type: "spring", stiffness: 400, damping: 32 }} />
+  1100→            )}
+  1101→            {(["cari", "mitra"] as const).map((t) => (
+  1102→              <button
+  1103→                key={t}
+  1104→                role="tab" aria-selected={tab === t}
+  1105→                onClick={() => setTab(t)}
+  1106→                className={`relative z-10 rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors ${
+  1107→                  tab === t ? "text-white" : "text-mute"
+  1108→                }`}
+  1109→              >
+  1110→                {t === "cari" ? "Untuk pencari jasa" : "Untuk pemilik usaha"}
+  1111→              </button>
+  1112→            ))}
+  1113→          </div>
+  1114→        </Reveal>
+  1115→
+  1116→        <div className="mt-10">
+  1117→          <AnimatePresence mode="wait">
+  1118→            {tab === "cari" ? <Panel key="cari" items={CARI} /> : <Panel key="mitra" items={MITRA} />}
+  1119→          </AnimatePresence>
+  1120→        </div>
+  1121→      </div>
+  1122→    </section>
+  1123→  );
+  1124→}
+  1125→ Catatan: indikator tab pakai layoutId — Framer Motion yang menganimasikan posisi pil hijau antar tab (pengganti perhitungan getBoundingClientRect manual). Kedua motion.span bisa disederhanakan jadi satu; kubiar eksplisit biar jelas.
+  1126→
+  1127→src/components/Faq.tsx
+  1128→
+  1129→tsx
+  1130→
+  1131→"use client";
+  1132→
+  1133→import { useState } from "react";
+  1134→import Reveal from "./Reveal";
+  1135→import { waAdminLink } from "@/lib/data";
+  1136→
+  1137→const ITEMS = [
+  1138→  { q: "Apakah ada biaya untuk pengguna?", a: "Tidak ada. JasaKebumen gratis untuk pencari jasa. Semua negosiasi harga terjadi langsung antara kamu dan mitra lewat WhatsApp." },
+  1139→  { q: "Apa arti label \"terverifikasi\"?", a: "Mitra sudah melewati kurasi tim: identitas dan usaha dicek, portofolio pekerjaan dilihat, dan nomor WhatsApp dipastikan aktif sebelum profil tayang." },
+  1140→  { q: "Bagaimana kalau hasil kerja tidak sesuai?", a: "Semua pekerjaan adalah kesepakatan langsung dengan mitra. Kalau ada masalah, laporkan ke admin — mitra dengan laporan berulang kami cabut dari direktori." },
+  1141→  { q: "Saya punya usaha jasa, bagaimana cara ikut?", a: "Hubungi admin lewat WhatsApp. Siapkan nama usaha, kategori, wilayah kerja, dan beberapa contoh pekerjaan. Pendaftaran gratis, tanpa komisi." },
+  1142→];
+  1143→
+  1144→export default function Faq() {
+  1145→  const [open, setOpen] = useState<number | null>(null);
+  1146→
+  1147→  return (
+  1148→    <section id="faq" className="scroll-mt-20 border-t border-line bg-white">
+  1149→      <div className="relative mx-auto grid max-w-6xl gap-10 px-5 py-16 md:grid-cols-[1fr_1.5fr] md:py-24">
+  1150→        <Reveal>
+  1151→          <p className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
+  1152→            <span className="text-amber-500">✳</span>06 — FAQ
+  1153→          </p>
+  1154→          <h2 className="mt-3 font-serif text-3xl md:text-4xl">Pertanyaan umum</h2>
+  1155→          <p className="mt-4 max-w-xs text-sm leading-relaxed text-mute">
+  1156→            Masih ada yang mengganjal?{" "}
+  1157→            <a href={waAdminLink("Halo Admin JasaKebumen, saya punya pertanyaan.")} target="_blank" rel="noopener noreferrer" className="font-medium text-green underline underline-offset-4">
+  1158→              Chat admin
+  1159→            </a>
+  1160→            , dibalas di bawah 24 jam.
+  1161→          </p>
+  1162→        </Reveal>
+  1163→
+  1164→        <Reveal delay={0.1}>
+  1165→          <div className="border-t border-line">
+  1166→            {ITEMS.map((item, i) => (
+  1167→              <div key={i} className={`faq-item border-b border-line ${open === i ? "open" : ""}`}>
+  1168→                <button
+  1169→                  type="button"
+  1170→                  onClick={() => setOpen(open === i ? null : i)}
+  1171→                  aria-expanded={open === i}
+  1172→                  className="flex w-full items-center justify-between gap-4 py-5 text-left"
+  1173→                >
+  1174→                  <span className="text-[15px] font-medium">{item.q}</span>
+  1175→                  <span className="faq-x font-mono text-lg text-mute">+</span>
+  1176→                </button>
+  1177→                <div className="faq-body">
+  1178→                  <div>
+  1179→                    <p className="pb-5 pr-8 text-sm leading-relaxed text-mute">{item.a}</p>
+  1180→                  </div>
+  1181→                </div>
+  1182→              </div>
+  1183→            ))}
+  1184→          </div>
+  1185→        </Reveal>
+  1186→      </div>
+  1187→    </section>
+  1188→  );
+  1189→}
+  1190→src/components/Footer.tsx
+  1191→
+  1192→tsx
+  1193→
+  1194→import { Facebook, Instagram, Mail, MapPin } from "lucide-react";
+  1195→import { waAdminLink } from "@/lib/data";
+  1196→
+  1197→export default function Footer() {
+  1198→  return (
+  1199→    <footer className="bg-green-dark text-white">
+  1200→      <div className="mx-auto max-w-6xl px-5 pt-14">
+  1201→        <div className="grid gap-10 md:grid-cols-4">
+  1202→          <div className="md:col-span-2">
+  1203→            <a href="#" className="flex items-center gap-2.5">
+  1204→              <span className="grid h-7 w-7 place-items-center rounded-[7px] bg-white/10">
+  1205→                <MapPin className="h-3.5 w-3.5" />
+  1206→              </span>
+  1207→              <span className="font-semibold tracking-tight">JasaKebumen</span>
+  1208→            </a>
+  1209→            <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/60">
+  1210→              Direktori jasa lokal untuk Kabupaten Kebumen. Dikelola dari Kebumen sejak 2025.
+  1211→            </p>
+  1212→            <div className="mt-5 flex gap-2.5">
+  1213→              {[Instagram, Facebook, Mail].map((Icon, i) => (
+  1214→                <a key={i} href="#" aria-label="Media sosial"
+  1215→                  className="grid h-9 w-9 place-items-center rounded-lg bg-white/5 text-white/60 ring-1 ring-white/10 transition hover:bg-green hover:text-white">
+  1216→                  <Icon className="h-4 w-4" />
+  1217→                </a>
+  1218→              ))}
+  1219→            </div>
+  1220→          </div>
+  1221→          <div>
+  1222→            <h4 className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/40">Jelajah</h4>
+  1223→            <ul className="mt-4 space-y-2.5 text-sm text-white/70">
+  1224→              <li><a href="#fitur" className="transition hover:text-white">Fitur</a></li>
+  1225→              <li><a href="#kategori" className="transition hover:text-white">Kategori jasa</a></li>
+  1226→              <li><a href="#penyedia" className="transition hover:text-white">Penyedia terverifikasi</a></li>
+  1227→              <li><a href="#cara" className="transition hover:text-white">Cara kerja</a></li>
+  1228→              <li><a href="#faq" className="transition hover:text-white">FAQ</a></li>
+  1229→            </ul>
+  1230→          </div>
+  1231→          <div>
+  1232→            <h4 className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/40">Mitra &amp; bantuan</h4>
+  1233→            <ul className="mt-4 space-y-2.5 text-sm text-white/70">
+  1234→              <li><a href="#daftar" className="transition hover:text-white">Daftar usaha</a></li>
+  1235→              <li><a href="#" className="transition hover:text-white">Syarat &amp; ketentuan</a></li>
+  1236→              <li><a href={waAdminLink("Halo Admin JasaKebumen.")} target="_blank" rel="noopener noreferrer" className="transition hover:text-white">Hubungi admin</a></li>
+  1237→              <li><a href="mailto:halo@jasakebumen.id" className="transition hover:text-white">halo@jasakebumen.id</a></li>
+  1238→            </ul>
+  1239→          </div>
+  1240→        </div>
+  1241→
+  1242→        <div className="flex flex-col justify-between gap-2 border-t border-white/10 pt-6 font-mono text-[11px] text-white/40 sm:flex-row">
+  1243→          <p>© 2026 JasaKebumen — Direktori jasa lokal Kabupaten Kebumen.</p>
+  1244→          <p>Dikelola dari Kebumen, Jawa Tengah</p>
+  1245→        </div>
+  1246→      </div>
+  1247→
+  1248→      <div aria-hidden className="mt-8 h-[10vw] overflow-hidden">
+  1249→        <p className="select-none whitespace-nowrap text-center font-serif font-medium leading-none text-white/[0.07]" style={{ fontSize: "15vw" }}>
+  1250→          JasaKebumen
+  1251→        </p>
+  1252→      </div>
+  1253→    </footer>
+  1254→  );
+  1255→}
+  1256→src/app/page.tsx
+  1257→
+  1258→tsx
+  1259→
+  1260→import { ArrowUpRight, Asterisk, MessageCircle } from "lucide-react";
+  1261→import Header from "@/components/Header";
+  1262→import Hero from "@/components/Hero";
+  1263→import Stats from "@/components/Stats";
+  1264→import Features from "@/components/Features";
+  1265→import CategoryGrid from "@/components/CategoryGrid";
+  1266→import ProviderDirectory from "@/components/ProviderDirectory";
+  1267→import HowItWorks from "@/components/HowItWorks";
+  1268→import Benefits from "@/components/Benefits";
+  1269→import Faq from "@/components/Faq";
+  1270→import Footer from "@/components/Footer";
+  1271→import { SearchProvider } from "@/components/search-context";
+  1272→import { waAdminLink } from "@/lib/data";
+  1273→
+  1274→export default function Page() {
+  1275→  return (
+  1276→    <SearchProvider>
+  1277→      <Header />
+  1278→      <main>
+  1279→        <Hero />
+  1280→        <Stats />
+  1281→        <Features />
+  1282→        <CategoryGrid />
+  1283→        <ProviderDirectory />
+  1284→        <HowItWorks />
+  1285→        <Benefits />
+  1286→
+  1287→        {/* CTA pemilik usaha */}
+  1288→        <section id="daftar" className="scroll-mt-20 border-t border-line">
+  1289→          <div className="mx-auto max-w-6xl px-5 py-16 md:py-24">
+  1290→            <div className="relative overflow-hidden rounded-2xl bg-green px-6 py-12 text-white md:p-16">
+  1291→              <span aria-hidden className="pointer-events-none absolute -bottom-9 right-2 select-none font-serif italic leading-none text-white/[0.06] [font-size:9rem] md:[font-size:11rem]">
+  1292→                gratis
+  1293→              </span>
+  1294→              <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/50">
+  1295→                <Asterisk className="h-3.5 w-3.5 animate-[spin_14s_linear_infinite] text-amber-300" />
+  1296→                Untuk pemilik usaha jasa
+  1297→              </p>
+  1298→              <h2 className="mt-4 max-w-2xl font-serif text-3xl leading-tight md:text-[2.6rem]">
+  1299→                Punya usaha di Kebumen? <em className="italic text-amber-300">Dapatkan pelanggan baru.</em>
+  1300→              </h2>
+  1301→              <p className="mt-4 max-w-xl leading-relaxed text-white/70">
+  1302→                Daftarkan usahamu, tim kami kurasi dan verifikasi, lalu profilmu tayang di direktori.
+  1303→                Pelanggan menghubungi WhatsApp-mu langsung — tanpa komisi per transaksi.
+  1304→              </p>
+  1305→              <div className="mt-8">
+  1306→                <a
+  1307→                  href={waAdminLink("Halo Admin JasaKebumen, saya ingin mendaftarkan usaha jasa.")}
+  1308→                  target="_blank" rel="noopener noreferrer"
+  1309→                  className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-semibold text-green transition-colors hover:bg-amber-50"
+  1310→                >
+  1311→                  Daftarkan usaha — gratis <ArrowUpRight className="h-4 w-4" />
+  1312→                </a>
+  1313→              </div>
+  1314→            </div>
+  1315→          </div>
+  1316→        </section>
+  1317→
+  1318→        <Faq />
+  1319→      </main>
+  1320→      <Footer />
+  1321→
+  1322→      {/* FAB WhatsApp */}
+  1323→      <a
+  1324→        href={waAdminLink("Halo Admin JasaKebumen, saya butuh bantuan.")}
+  1325→        target="_blank" rel="noopener noreferrer" aria-label="Chat admin"
+  1326→        className="fixed bottom-5 right-5 z-40 grid h-11 w-11 place-items-center rounded-full bg-green text-white shadow-lg shadow-black/10 ring-1 ring-white/20 transition hover:bg-green-dark"
+  1327→      >
+  1328→        <MessageCircle className="h-5 w-5" />
+  1329→      </a>
+  1330→    </SearchProvider>
+  1331→  );
+  1332→}
+  1333→Ringkasan keputusan konversi
+  1334→
+  1335→VANILLA
+  1336→NEXT.JS
+  1337→document.getElementById / classList.toggle      useState, useMemo, context useSearch
+  1338→IntersectionObserver + [data-reveal]    <Reveal> (Framer whileInView, once: true) — konten tetap ter-render di SSR untuk SEO
+  1339→Counter manual rAF      useInView + useEffect rAF (hook CountUp)
+  1340→Tab ink diukur manual   layoutId spring Framer
+  1341→Three.js diorama + panggung (4 WebGL context)   Live-preview card + CSS scenes (popLoopK, flipK) — 0 WebGL, mobile aman
+  1342→faint #A6A199   #78716C (WCAG AA)
+  1343→<a> WA polos    <WhatsAppButton> + TODO Supabase tracking
+  1344→ 
+  1345→Yang masih perlu kamu kerjakan: buat public/og.jpg (1200×630), ganti semua nomor WA di data.ts, implementasikan ping Supabase di WhatsAppButton.tsx, dan tambah halaman /syarat-ketentuan. Kalau mau lanjut, langkah berikutnya yang paling bernilai: app/api/track/route.ts untuk mencatat klik WA + halaman dinamis /mitra/[id] per provider (big win untuk SEO lokal). Mau kubuatkan?
