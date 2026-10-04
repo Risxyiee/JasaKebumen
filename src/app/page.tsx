@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowUpRight, Asterisk, MessageCircle } from "lucide-react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -25,12 +27,14 @@ export default function Page() {
         <HowItWorks />
         <Benefits />
 
+        {/* CTA section */}
         <section id="daftar" className="scroll-mt-20 border-t border-line">
           <div className="mx-auto max-w-6xl px-5 py-16 md:py-24">
-            <div className="relative overflow-hidden rounded-2xl bg-green px-6 py-12 text-white md:p-16">
+            <div className="relative overflow-hidden rounded-2xl bg-green px-6 py-12 text-white md:p-16" data-reveal>
               <span aria-hidden className="pointer-events-none absolute -bottom-9 right-2 select-none font-serif italic leading-none text-white/[0.06] [font-size:9rem] md:[font-size:11rem]">
                 gratis
               </span>
+
               <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/50">
                 <Asterisk className="h-3.5 w-3.5 animate-[spin_14s_linear_infinite] text-amber-300" />
                 Untuk pemilik usaha jasa
@@ -42,14 +46,23 @@ export default function Page() {
                 Daftarkan usahamu, tim kami kurasi dan verifikasi, lalu profilmu tayang di direktori.
                 Pelanggan menghubungi WhatsApp-mu langsung — tanpa komisi per transaksi.
               </p>
-              <div className="mt-8">
+              <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
                 <a
                   href={waAdminLink("Halo Admin JasaKebumen, saya ingin mendaftarkan usaha jasa.")}
                   target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-semibold text-green transition-colors hover:bg-amber-50"
+                  className="magnet inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-semibold text-green transition-colors hover:bg-amber-50"
                 >
                   Daftarkan usaha — gratis <ArrowUpRight className="h-4 w-4" />
                 </a>
+                <div className="flex items-center gap-3">
+                  <div className="flex -space-x-2">
+                    <span className="grid h-8 w-8 place-items-center rounded-full bg-white/15 text-[11px] font-bold ring-2 ring-green">AS</span>
+                    <span className="grid h-8 w-8 place-items-center rounded-full bg-white/25 text-[11px] font-bold ring-2 ring-green">GJ</span>
+                    <span className="grid h-8 w-8 place-items-center rounded-full bg-white/35 text-[11px] font-bold ring-2 ring-green">RL</span>
+                    <span className="grid h-8 w-8 place-items-center rounded-full bg-amber-400 text-[11px] font-bold text-green-dark ring-2 ring-green">+29</span>
+                  </div>
+                  <span className="font-mono text-xs text-white/50">mitra baru bulan ini</span>
+                </div>
               </div>
             </div>
           </div>
@@ -59,6 +72,7 @@ export default function Page() {
       </main>
       <Footer />
 
+      {/* WhatsApp FAB */}
       <a
         href={waAdminLink("Halo Admin JasaKebumen, saya butuh bantuan.")}
         target="_blank" rel="noopener noreferrer" aria-label="Chat admin"

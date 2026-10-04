@@ -11,8 +11,6 @@ const HeroDiorama = dynamic(() => import("./HeroDiorama"), {
   loading: () => <DioramaSkeleton />,
 });
 
-const WORDS = ["Cari", "&", "panggil", "jasa", "lokal", "Kebumen,"];
-
 function WibClock() {
   const [time, setTime] = useState("—:—");
   useEffect(() => {
@@ -26,33 +24,27 @@ function WibClock() {
     const id = setInterval(tick, 10_000);
     return () => clearInterval(id);
   }, []);
-  return <span className="tabular-nums text-mute">{time}</span>;
+  return <span id="clock" className="tabular-nums text-mute">{time}</span>;
 }
 
 function DioramaSkeleton() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_24px_60px_-32px_rgba(6,78,59,.28)]">
-      <div className="bg-grid relative h-[320px] sm:h-[400px] lg:h-[440px]">
-        <span className="absolute left-4 top-4 rounded-md border border-line bg-paper/90 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-mute">
+    <div className="scene-card overflow-hidden rounded-2xl border border-line bg-white shadow-[0_24px_60px_-32px_rgba(6,78,59,.28)]">
+      <div id="sceneWrap" className="relative h-[320px] sm:h-[400px] lg:h-[440px]">
+        <canvas id="sceneCanvas" />
+        <span className="scene-chip pointer-events-none absolute left-4 top-4 rounded-md border border-line bg-paper/90 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-mute">
           Diorama mitra · 3D
         </span>
-        {[
-          { left: "30%", top: "38%" },
-          { left: "58%", top: "30%" },
-          { left: "46%", top: "60%" },
-        ].map((p, i) => (
-          <span
-            key={i}
-            className="absolute h-4 w-4 animate-pulse rounded-full bg-amber-400/60 ring-4 ring-amber-400/15"
-            style={{ left: p.left, top: p.top }}
-          />
-        ))}
       </div>
-      <div className="flex items-center justify-between border-t border-line px-4 py-3">
-        <p className="font-mono text-[11px] uppercase tracking-[0.12em] text-faint">
-          Memuat diorama…
-        </p>
-        <span className="h-6 w-20 animate-pulse rounded-md bg-line" />
+      <div className="flex items-center justify-between gap-3 border-t border-line px-4 py-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <p className="scene-meta truncate font-mono text-[11px] uppercase tracking-[0.12em] text-faint">Seret memutar · klik untuk pin</p>
+          <span id="pinChip" className="hidden shrink-0 rounded-full bg-green-tint px-2 py-0.5 font-mono text-[10px] font-medium text-green">0 pin</span>
+        </div>
+        <button id="dayNight" type="button"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-line px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-mute transition hover:border-green/40 hover:text-green">
+          Malam
+        </button>
       </div>
     </div>
   );
@@ -82,12 +74,11 @@ export default function Hero() {
           </p>
 
           <h1 className="mt-5 font-serif text-[2.7rem] leading-[1.04] md:text-[4.1rem]">
-            {WORDS.map((w, i) => (
-              <span key={i} className="w" style={{ "--i": i } as CSSProperties}>
-                {w}&nbsp;
-              </span>
-            ))}
-            <span className="w relative inline-block whitespace-nowrap" style={{ "--i": 6 } as CSSProperties}>
+            <span className="w" style={{ "--i": 0 } as CSSProperties}>Cari</span>{" "}
+            <span className="w" style={{ "--i": 1 } as CSSProperties}>jasa</span>{" "}
+            <span className="w" style={{ "--i": 2 } as CSSProperties}>lokal</span>{" "}
+            <span className="w" style={{ "--i": 3 } as CSSProperties}>Kebumen,</span>{" "}
+            <span className="w relative inline-block whitespace-nowrap" style={{ "--i": 4 } as CSSProperties}>
               <em className="italic text-green">tanpa ribet.</em>
               <svg
                 className="swoosh absolute -bottom-1.5 left-0 w-full"
@@ -97,7 +88,7 @@ export default function Hero() {
               >
                 <path
                   d="M3 9 C 60 2, 140 2, 197 7"
-                  stroke="var(--color-amber, #F59E0B)"
+                  stroke="#F59E0B"
                   strokeWidth="4.5"
                   fill="none"
                   strokeLinecap="round"
@@ -112,9 +103,10 @@ export default function Hero() {
             tanpa biaya, tanpa perantara.
           </p>
 
-          <form className="rise mt-9 max-w-xl" style={{ animationDelay: ".5s" }} onSubmit={onSubmit} autoComplete="off">
+          <form id="searchForm" className="rise mt-9 max-w-xl" style={{ animationDelay: ".5s" }} onSubmit={onSubmit} autoComplete="off">
             <div className="flex flex-col gap-2 rounded-xl border border-line bg-white p-2 transition-colors focus-within:border-green/40 md:flex-row md:items-center">
               <input
+                id="searchInput"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 type="text"
@@ -125,6 +117,7 @@ export default function Hero() {
               <div className="hidden w-px self-stretch bg-line md:block" />
               <div className="relative md:w-48">
                 <select
+                  id="districtSelect"
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
                   aria-label="Kecamatan"
@@ -140,7 +133,7 @@ export default function Hero() {
               </div>
               <button
                 type="submit"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-dark"
+                className="magnet inline-flex items-center justify-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-dark"
               >
                 <Search className="h-4 w-4" /> Cari
               </button>
@@ -148,7 +141,7 @@ export default function Hero() {
           </form>
 
           <p className="rise mt-4 font-mono text-[11px] uppercase tracking-[0.16em] text-faint" style={{ animationDelay: ".58s" }}>
-            Gratis untuk pencari · Langsung WhatsApp · Mitra dikurasi tim
+            Gratis untuk pencari &nbsp;·&nbsp; Langsung WhatsApp &nbsp;·&nbsp; Mitra dikurasi tim
           </p>
         </div>
 

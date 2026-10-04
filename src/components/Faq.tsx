@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Asterisk } from "lucide-react";
 import Reveal from "./Reveal";
-import { waAdminLink } from "@/lib/data";
 
 export const FAQ_ITEMS = [
   { q: "Apakah ada biaya untuk pengguna?", a: "Tidak ada. JasaKebumen gratis untuk pencari jasa. Semua negosiasi harga terjadi langsung antara kamu dan mitra lewat WhatsApp." },
@@ -19,15 +19,11 @@ export default function Faq() {
       <div className="relative mx-auto grid max-w-6xl gap-10 px-5 py-16 md:grid-cols-[1fr_1.5fr] md:py-24">
         <Reveal>
           <p className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-            <span className="text-amber-500">✳</span>06 — FAQ
+            <Asterisk className="h-3 w-3 text-amber-500" />06 — FAQ
           </p>
           <h2 className="mt-3 font-serif text-3xl md:text-4xl">Pertanyaan umum</h2>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-mute">
-            Masih ada yang mengganjal?{" "}
-            <a href={waAdminLink("Halo Admin JasaKebumen, saya punya pertanyaan.")} target="_blank" rel="noopener noreferrer" className="font-medium text-green underline underline-offset-4">
-              Chat admin
-            </a>
-            , dibalas di bawah 24 jam.
+            Masih ada yang mengganjal? Chat admin lewat WhatsApp, dibalas di bawah 24 jam.
           </p>
         </Reveal>
 
@@ -39,7 +35,7 @@ export default function Faq() {
                   type="button"
                   onClick={() => setOpen(open === i ? null : i)}
                   aria-expanded={open === i}
-                  className="flex w-full items-center justify-between gap-4 py-5 text-left"
+                  className="faq-btn flex w-full items-center justify-between gap-4 py-5 text-left"
                 >
                   <span className="text-[15px] font-medium">{item.q}</span>
                   <span className="faq-x font-mono text-lg text-mute">+</span>

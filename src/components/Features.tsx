@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useInView } from "framer-motion";
-import { Globe, MapPin, MessageCircle, Search, ShieldCheck, Tag } from "lucide-react";
+import { Asterisk, MessageCircle, Search } from "lucide-react";
 import Reveal from "./Reveal";
 import { PROVIDERS, type Provider } from "@/lib/data";
 
@@ -10,7 +10,7 @@ const DEMO_QUERIES = ["servis ac", "tukang listrik", "fotografer", "laundry"];
 const chipsFor = (q: string) =>
   PROVIDERS.filter((p) => (p.keywords + " " + p.cat).toLowerCase().includes(q)).slice(0, 3);
 
-const vd = (v: string) => ({ "--d": v }) as CSSProperties;
+const vd = (v: string) => ({ "--d": v }) as React.CSSProperties;
 
 export default function Features() {
   const secRef = useRef<HTMLElement>(null);
@@ -62,7 +62,7 @@ export default function Features() {
           <div className="flex flex-wrap items-end justify-between gap-6">
             <div>
               <p className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-white/40">
-                <span className="text-amber-300">✳</span>01 — Fitur
+                <Asterisk className="h-3 w-3 text-amber-300" />01 — Fitur
               </p>
               <h2 className="mt-3 font-serif text-3xl md:text-4xl">Semua yang bikin cari jasa tenang.</h2>
             </div>
@@ -74,17 +74,17 @@ export default function Features() {
 
         <div className="mt-10 grid gap-3 lg:grid-cols-3">
           <Reveal className="lg:col-span-2">
-            <div className="h-full rounded-xl border border-white/10 bg-white/5 p-5">
+            <div className="rounded-xl border border-white/10 bg-white/5 p-5">
               <div className="flex items-center gap-2.5">
                 <Search className="h-4 w-4 text-amber-300" />
                 <h3 className="font-semibold tracking-tight">Pencarian yang hidup</h3>
               </div>
               <div className="mt-4 flex items-center gap-2.5 rounded-lg bg-white/10 px-3.5 py-3">
                 <Search className="h-4 w-4 shrink-0 text-white/40" />
-                <span className="font-mono text-sm text-white/90">{typed}</span>
+                <span id="demoType" className="font-mono text-sm text-white/90">{typed}</span>
                 <span className="demo-caret" aria-hidden />
               </div>
-              <div className="mt-3 flex min-h-[4.4rem] flex-wrap content-start gap-2">
+              <div id="demoChips" className="mt-3 flex min-h-[4.4rem] flex-wrap content-start gap-2">
                 {chips.map((p, j) => (
                   <span
                     key={p.id}
@@ -102,13 +102,13 @@ export default function Features() {
           </Reveal>
 
           <Reveal delay={0.08}>
-            <div className="h-full rounded-xl border border-white/10 bg-white/5 p-5">
+            <div className="rounded-xl border border-white/10 bg-white/5 p-5">
               <div className="flex items-center gap-2.5">
                 <MessageCircle className="h-4 w-4 text-amber-300" />
                 <h3 className="font-semibold tracking-tight">Langsung WhatsApp</h3>
               </div>
               <div className="mt-4 space-y-2 text-sm">
-                <div className="cb max-w-[85%] rounded-2xl rounded-bl-sm bg-white/10 px-3.5 py-2">Bang, AC saya bocor. Bisa dicek hari ini?</div>
+                <div className="cb cb-1 max-w-[85%] rounded-2xl rounded-bl-sm bg-white/10 px-3.5 py-2">Bang, AC saya bocor. Bisa dicek hari ini?</div>
                 <div className="cb cb-2 max-w-[85%] rounded-2xl rounded-bl-sm bg-white/10 px-3.5 py-2">Bisa. Jam 9 pagi sampai rumah ya.</div>
                 <div className="cb cb-3 ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-green px-3.5 py-2 text-white">Siap bang, ditunggu.</div>
               </div>
@@ -119,15 +119,14 @@ export default function Features() {
           </Reveal>
 
           <Reveal>
-            <div className="group flex h-full items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5">
+            <div className="group flex items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5">
               <div className="stage" aria-hidden>
                 <div className="idc"><span className="iav" /><span className="il1" /><span className="il2" /></div>
                 <span className="iscan" />
                 <span className="ick">✓</span>
               </div>
               <div className="min-w-0">
-                <ShieldCheck className="h-4 w-4 text-amber-300" />
-                <h3 className="mt-2 font-semibold tracking-tight">Kurasi manusia</h3>
+                <h3 className="font-semibold tracking-tight">Kurasi manusia</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-white/55">
                   Identitas, portofolio pekerjaan, dan nomor WA dicek tim sebelum profil tayang.
                 </p>
@@ -136,14 +135,13 @@ export default function Features() {
           </Reveal>
 
           <Reveal delay={0.07}>
-            <div className="group flex h-full items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5">
+            <div className="group flex items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5">
               <div className="stage" aria-hidden>
                 <span className="tagn" />
                 <span className="tagp">Rp75</span>
               </div>
               <div className="min-w-0">
-                <Tag className="h-4 w-4 text-amber-300" />
-                <h3 className="mt-2 font-semibold tracking-tight">Harga mulai tertera</h3>
+                <h3 className="font-semibold tracking-tight">Harga mulai tertera</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-white/55">
                   Tahu kisaran biaya dari profil — tidak ada kejutan harga saat chat pertama.
                 </p>
@@ -152,7 +150,7 @@ export default function Features() {
           </Reveal>
 
           <Reveal delay={0.14}>
-            <div className="group flex h-full items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5">
+            <div className="group flex items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5">
               <div className="stage" aria-hidden>
                 <div className="mmap"><i className="r1" /><i className="r2" /><i className="v1" />
                   <span className="mp" style={{ left: "24%", top: "30%", ...vd("0s") }} />
@@ -162,8 +160,7 @@ export default function Features() {
                 </div>
               </div>
               <div className="min-w-0">
-                <MapPin className="h-4 w-4 text-amber-300" />
-                <h3 className="mt-2 font-semibold tracking-tight">Filter 28 kecamatan</h3>
+                <h3 className="font-semibold tracking-tight">Filter 28 kecamatan</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-white/55">
                   Dari Kebumen kota sampai Ayah dan Rowokele — cari mitra yang paling dekat.
                 </p>
@@ -180,10 +177,8 @@ export default function Features() {
                 </div>
               </div>
               <p className="text-sm leading-relaxed text-white/70">
-                <strong className="font-semibold text-white">Tanpa aplikasi &amp; tanpa akun.</strong>{" "}
-                Buka browser, cari, chat — selesai. Halaman ini ringan, hemat kuota, dan jalan di HP kentang sekalipun.
+                <strong className="font-semibold text-white">Tanpa aplikasi &amp; tanpa akun.</strong> Buka browser, cari, chat — selesai. Halaman ini ringan, hemat kuota, dan jalan di HP kentang sekalipun.
               </p>
-              <Globe className="ml-auto hidden h-5 w-5 shrink-0 text-amber-300 sm:block" />
             </div>
           </Reveal>
         </div>

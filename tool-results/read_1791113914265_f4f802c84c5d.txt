@@ -1,0 +1,402 @@
+   370→   370→  </style>
+   371→   371→</head>
+   372→   372→
+   373→   373→<body class="bg-paper font-sans text-ink antialiased">
+   374→   374→
+   375→   375→  <div id="progress" class="fixed inset-x-0 top-0 z-[60] h-0.5 origin-left scale-x-0 bg-amber-400"></div>
+   376→   376→
+   377→   377→  <!-- ================= HEADER ================= -->
+   378→   378→  <header id="siteHeader" class="fixed inset-x-0 top-0 z-50 bg-paper/90 backdrop-blur-sm">
+   379→   379→    <nav class="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
+   380→   380→      <a href="#" class="flex items-center gap-2.5">
+   381→   381→        <span class="grid h-7 w-7 place-items-center rounded-[7px] bg-green text-white">
+   382→   382→          <i data-lucide="map-pin" class="h-3.5 w-3.5"></i>
+   383→   383→        </span>
+   384→   384→        <span class="font-semibold tracking-tight">JasaKebumen</span>
+   385→   385→      </a>
+   386→   386→
+   387→   387→      <div class="hidden items-center gap-7 md:flex">
+   388→   388→        <a href="#fitur" class="text-sm text-mute transition hover:text-ink">Fitur</a>
+   389→   389→        <a href="#kategori" class="text-sm text-mute transition hover:text-ink">Kategori</a>
+   390→   390→        <a href="#penyedia" class="text-sm text-mute transition hover:text-ink">Penyedia</a>
+   391→   391→        <a href="#cara" class="text-sm text-mute transition hover:text-ink">Cara kerja</a>
+   392→   392→        <a href="#faq" class="text-sm text-mute transition hover:text-ink">FAQ</a>
+   393→   393→        <a href="https://wa.me/6281234567890?text=Halo%20Admin%20JasaKebumen%2C%20saya%20ingin%20mendaftarkan%20usaha%20jasa."
+   394→   394→          target="_blank" rel="noopener"
+   395→   395→          class="rounded-lg bg-green px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-dark">Daftar usaha</a>
+   396→   396→      </div>
+   397→   397→
+   398→   398→      <button id="menuBtn" class="grid h-9 w-9 place-items-center rounded-lg border border-line md:hidden" aria-label="Menu">
+   399→   399→        <i data-lucide="menu" class="menu-open h-5 w-5"></i>
+   400→   400→        <i data-lucide="x" class="menu-close hidden h-5 w-5"></i>
+   401→   401→      </button>
+   402→   402→    </nav>
+   403→   403→
+   404→   404→    <div id="mobileMenu" class="hidden border-t border-line bg-paper md:hidden">
+   405→   405→      <nav class="flex flex-col px-5 py-4 text-[15px]">
+   406→   406→        <a href="#fitur" class="js-mnav py-2.5">Fitur</a>
+   407→   407→        <a href="#kategori" class="js-mnav py-2.5">Kategori</a>
+   408→   408→        <a href="#penyedia" class="js-mnav py-2.5">Penyedia</a>
+   409→   409→        <a href="#cara" class="js-mnav py-2.5">Cara kerja</a>
+   410→   410→        <a href="#faq" class="js-mnav py-2.5">FAQ</a>
+   411→   411→        <a href="https://wa.me/6281234567890?text=Halo%20Admin%20JasaKebumen%2C%20saya%20ingin%20mendaftarkan%20usaha%20jasa."
+   412→   412→          target="_blank" rel="noopener"
+   413→   413→          class="js-mnav mt-2 rounded-lg bg-green px-4 py-3 text-center font-semibold text-white">Daftar usaha</a>
+   414→   414→      </nav>
+   415→   415→    </div>
+   416→   416→  </header>
+   417→   417→
+   418→   418→  <!-- ================= HERO ================= -->
+   419→   419→  <section class="relative pb-14 pt-28 md:pb-20 md:pt-40">
+   420→   420→    <p aria-hidden="true" class="pointer-events-none absolute left-1 top-56 hidden select-none font-mono text-[10px] uppercase tracking-[0.32em] text-faint [writing-mode:vertical-rl] xl:block">
+   421→   421→      7.6708° S — 109.6528° E · Kabupaten Kebumen
+   422→   422→    </p>
+   423→   423→
+   424→   424→    <div class="mx-auto grid max-w-6xl items-center gap-12 px-5 lg:grid-cols-[1.02fr_0.98fr]">
+   425→   425→      <div class="lg:pr-4">
+   426→   426→        <p class="rise font-mono text-[11px] uppercase tracking-[0.18em] text-faint" style="animation-delay:.05s">
+   427→   427→          Direktori jasa lokal — Kebumen · <span id="clock" class="tabular-nums text-mute">—:—</span> WIB
+   428→   428→        </p>
+   429→   429→
+   430→   430→        <h1 class="mt-5 font-serif text-[2.7rem] leading-[1.04] md:text-[4.1rem]">
+   431→   431→          <span class="w" style="--i:0">Cari</span> <span class="w" style="--i:1">jasa</span> <span class="w" style="--i:2">lokal</span> <span class="w" style="--i:3">Kebumen,</span>
+   432→   432→          <span class="w relative inline-block whitespace-nowrap" style="--i:4">
+   433→   433→            <em class="italic text-green">tanpa ribet.</em>
+   434→   434→            <svg class="swoosh absolute -bottom-1.5 left-0 w-full" viewBox="0 0 200 12" preserveAspectRatio="none" aria-hidden="true">
+   435→   435→              <path d="M3 9 C 60 2, 140 2, 197 7" stroke="#F59E0B" stroke-width="4.5" fill="none" stroke-linecap="round" />
+   436→   436→            </svg>
+   437→   437→          </span>
+   438→   438→        </h1>
+   439→   439→
+   440→   440→        <p class="rise mt-6 max-w-xl text-[15px] leading-relaxed text-mute md:text-base" style="animation-delay:.4s">
+   441→   441→          Menghubungkan kamu ke teknisi, tukang, dan penyedia jasa terverifikasi
+   442→   442→          di 28 kecamatan. Hubungi langsung lewat WhatsApp — tanpa aplikasi,
+   443→   443→          tanpa biaya, tanpa perantara.
+   444→   444→        </p>
+   445→   445→
+   446→   446→        <form id="searchForm" class="rise mt-9 max-w-xl" autocomplete="off" style="animation-delay:.5s">
+   447→   447→          <div class="flex flex-col gap-2 rounded-xl border border-line bg-white p-2 transition-colors focus-within:border-green/40 md:flex-row md:items-center">
+   448→   448→            <input id="searchInput" type="text" aria-label="Cari jasa"
+   449→   449→              placeholder="Butuh apa? Misal: servis AC, tukang listrik, fotografer"
+   450→   450→              class="w-full bg-transparent px-3 py-2.5 text-[15px] outline-none placeholder:text-faint md:flex-1" />
+   451→   451→            <div class="hidden w-px self-stretch bg-line md:block"></div>
+   452→   452→            <div class="relative md:w-48">
+   453→   453→              <select id="districtSelect" aria-label="Kecamatan"
+   454→   454→                class="w-full appearance-none bg-transparent py-2.5 pl-3 pr-9 text-[15px] text-mute outline-none"></select>
+   455→   455→              <i data-lucide="chevron-down" class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-faint"></i>
+   456→   456→            </div>
+   457→   457→            <button type="submit"
+   458→   458→              class="magnet inline-flex items-center justify-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-dark">
+   459→   459→              <i data-lucide="search" class="h-4 w-4"></i> Cari
+   460→   460→            </button>
+   461→   461→          </div>
+   462→   462→        </form>
+   463→   463→
+   464→   464→        <p class="rise mt-4 font-mono text-[11px] uppercase tracking-[0.16em] text-faint" style="animation-delay:.58s">
+   465→   465→          Gratis untuk pencari &nbsp;·&nbsp; Langsung WhatsApp &nbsp;·&nbsp; Mitra dikurasi tim
+   466→   466→        </p>
+   467→   467→      </div>
+   468→   468→
+   469→   469→      <!-- Diorama 3D -->
+   470→   470→      <div class="rise lg:mt-12" style="animation-delay:.35s">
+   471→   471→        <div class="scene-card overflow-hidden rounded-2xl border border-line bg-white shadow-[0_24px_60px_-32px_rgba(6,78,59,.28)]">
+   472→   472→          <div id="sceneWrap" class="relative h-[320px] sm:h-[400px] lg:h-[440px]">
+   473→   473→            <canvas id="sceneCanvas"></canvas>
+   474→   474→            <span class="scene-chip pointer-events-none absolute left-4 top-4 rounded-md border border-line bg-paper/90 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-mute">
+   475→   475→              Diorama mitra · 3D
+   476→   476→            </span>
+   477→   477→          </div>
+   478→   478→          <div class="flex items-center justify-between gap-3 border-t border-line px-4 py-3">
+   479→   479→            <div class="flex min-w-0 items-center gap-2">
+   480→   480→              <p class="scene-meta truncate font-mono text-[11px] uppercase tracking-[0.12em] text-faint">Seret memutar · klik untuk pin</p>
+   481→   481→              <span id="pinChip" class="hidden shrink-0 rounded-full bg-green-tint px-2 py-0.5 font-mono text-[10px] font-medium text-green">0 pin</span>
+   482→   482→            </div>
+   483→   483→            <button id="dayNight" type="button"
+   484→   484→              class="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-line px-2 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-mute transition hover:border-green/40 hover:text-green">
+   485→   485→              <i data-lucide="moon" class="ic-moon h-3.5 w-3.5"></i>
+   486→   486→              <i data-lucide="sun" class="ic-sun hidden h-3.5 w-3.5"></i>
+   487→   487→              <span id="dnLabel">Malam</span>
+   488→   488→            </button>
+   489→   489→          </div>
+   490→   490→        </div>
+   491→   491→      </div>
+   492→   492→    </div>
+   493→   493→  </section>
+   494→   494→
+   495→   495→  <!-- ================= STATS (dihitung dari data) ================= -->
+   496→   496→  <section id="stats" class="border-y border-line bg-green-tint">
+   497→   497→    <div class="mx-auto grid max-w-6xl grid-cols-2 divide-line px-5 md:grid-cols-4 md:divide-x">
+   498→   498→      <div class="py-8 md:py-10 md:pr-8" data-reveal>
+   499→   499→        <p class="font-mono text-3xl tabular-nums text-green md:text-4xl"><span data-stat="mitra" data-count="8">0</span></p>
+   500→   500→        <p class="mt-1.5 text-sm text-mute">Mitra terkurasi &amp; tayang</p>
+   501→   501→      </div>
+   502→   502→      <div class="py-8 md:py-10 md:px-8" data-reveal data-delay="80">
+   503→   503→        <p class="font-mono text-3xl tabular-nums text-green md:text-4xl"><span data-stat="kecamatan" data-count="29">0</span></p>
+   504→   504→        <p class="mt-1.5 text-sm text-mute">Kecamatan dipetakan</p>
+   505→   505→      </div>
+   506→   506→      <div class="py-8 md:py-10 md:px-8" data-reveal data-delay="160">
+   507→   507→        <p class="font-mono text-3xl tabular-nums text-green md:text-4xl"><span data-stat="rating" data-count="4.8" data-decimals="1">0</span></p>
+   508→   508→        <p class="mt-1.5 text-sm text-mute">Rating rata-rata mitra</p>
+   509→   509→      </div>
+   510→   510→      <div class="py-8 md:py-10 md:pl-8" data-reveal data-delay="240">
+   511→   511→        <p class="font-mono text-3xl tabular-nums text-green md:text-4xl"><span data-stat="ulasan" data-count="648">0</span></p>
+   512→   512→        <p class="mt-1.5 text-sm text-mute">Ulasan dari pelanggan</p>
+   513→   513→      </div>
+   514→   514→    </div>
+   515→   515→    <div class="mx-auto max-w-6xl px-5 pb-5">
+   516→   516→      <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-faint">Angka dihitung langsung dari data mitra — ikut naik saat mitra baru bergabung.</p>
+   517→   517→    </div>
+   518→   518→  </section>
+   519→   519→
+   520→   520→  <!-- ================= 01 FITUR ================= -->
+   521→   521→  <section id="fitur" class="scroll-mt-20 bg-green-dark text-white">
+   522→   522→    <div class="relative mx-auto max-w-6xl px-5 py-16 md:py-24">
+   523→   523→      <span aria-hidden="true" class="pointer-events-none absolute right-4 top-8 hidden select-none font-serif text-[9rem] leading-none text-white/[0.04] lg:block">01</span>
+   524→   524→
+   525→   525→      <div class="flex flex-wrap items-end justify-between gap-6" data-reveal>
+   526→   526→        <div>
+   527→   527→          <p class="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-white/40"><i data-lucide="asterisk" class="h-3 w-3 text-amber-300"></i>01 — Fitur</p>
+   528→   528→          <h2 class="mt-3 font-serif text-3xl md:text-4xl">Semua yang bikin cari jasa tenang.</h2>
+   529→   529→        </div>
+   530→   530→        <p class="max-w-xs text-sm leading-relaxed text-white/60">
+   531→   531→          Bukan cuma daftar nomor — platform ini punya mekanisme yang membuat kamu yakin sebelum menghubungi.
+   532→   532→        </p>
+   533→   533→      </div>
+   534→   534→
+   535→   535→      <div class="mt-10 grid gap-3 lg:grid-cols-3">
+   536→   536→        <div class="rounded-xl border border-white/10 bg-white/5 p-5 lg:col-span-2" data-reveal>
+   537→   537→          <div class="flex items-center gap-2.5">
+   538→   538→            <i data-lucide="search" class="h-4 w-4 text-amber-300"></i>
+   539→   539→            <h3 class="font-semibold tracking-tight">Pencarian yang hidup</h3>
+   540→   540→          </div>
+   541→   541→          <div class="mt-4 flex items-center gap-2.5 rounded-lg bg-white/10 px-3.5 py-3">
+   542→   542→            <i data-lucide="search" class="h-4 w-4 shrink-0 text-white/40"></i>
+   543→   543→            <span id="demoType" class="font-mono text-sm text-white/90"></span>
+   544→   544→            <span class="demo-caret" aria-hidden="true"></span>
+   545→   545→          </div>
+   546→   546→          <div id="demoChips" class="mt-3 flex min-h-[4.4rem] flex-wrap content-start gap-2"></div>
+   547→   547→          <p class="mt-3 text-sm leading-relaxed text-white/50">Hasil muncul seketika saat kamu mengetik — tanpa reload, tanpa akun. Coba versi aslinya di kolom pencarian atas.</p>
+   548→   548→        </div>
+   549→   549→
+   550→   550→        <div class="rounded-xl border border-white/10 bg-white/5 p-5" data-reveal data-delay="80">
+   551→   551→          <div class="flex items-center gap-2.5">
+   552→   552→            <i data-lucide="message-circle" class="h-4 w-4 text-amber-300"></i>
+   553→   553→            <h3 class="font-semibold tracking-tight">Langsung WhatsApp</h3>
+   554→   554→          </div>
+   555→   555→          <div class="mt-4 space-y-2 text-sm">
+   556→   556→            <div class="cb cb-1 max-w-[85%] rounded-2xl rounded-bl-sm bg-white/10 px-3.5 py-2">Bang, AC saya bocor. Bisa dicek hari ini?</div>
+   557→   557→            <div class="cb cb-2 max-w-[85%] rounded-2xl rounded-bl-sm bg-white/10 px-3.5 py-2">Bisa. Jam 9 pagi sampai rumah ya.</div>
+   558→   558→            <div class="cb cb-3 ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-[#25D366] px-3.5 py-2 text-white">Siap bang, ditunggu.</div>
+   559→   559→          </div>
+   560→   560→          <p class="mt-4 text-sm leading-relaxed text-white/50">Nego harga dan jadwal langsung dengan mitra. Kami tidak di tengah, tidak ambil potongan.</p>
+   561→   561→        </div>
+   562→   562→
+   563→   563→        <div class="group flex items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5" data-reveal>
+   564→   564→          <div class="stage" aria-hidden="true">
+   565→   565→            <div class="idc"><span class="iav"></span><span class="il1"></span><span class="il2"></span></div>
+   566→   566→            <span class="iscan"></span>
+   567→   567→            <span class="ick">✓</span>
+   568→   568→          </div>
+   569→   569→          <div class="min-w-0">
+   570→   570→            <h3 class="font-semibold tracking-tight">Kurasi manusia</h3>
+   571→   571→            <p class="mt-1.5 text-sm leading-relaxed text-white/55">Identitas, portofolio pekerjaan, dan nomor WA dicek tim sebelum profil tayang.</p>
+   572→   572→          </div>
+   573→   573→        </div>
+   574→   574→
+   575→   575→        <div class="group flex items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5" data-reveal data-delay="70">
+   576→   576→          <div class="stage" aria-hidden="true">
+   577→   577→            <span class="tagn"></span>
+   578→   578→            <span class="tagp">Rp75</span>
+   579→   579→          </div>
+   580→   580→          <div class="min-w-0">
+   581→   581→            <h3 class="font-semibold tracking-tight">Harga mulai tertera</h3>
+   582→   582→            <p class="mt-1.5 text-sm leading-relaxed text-white/55">Tahu kisaran biaya dari profil — tidak ada kejutan harga saat chat pertama.</p>
+   583→   583→          </div>
+   584→   584→        </div>
+   585→   585→
+   586→   586→        <div class="group flex items-start gap-4 rounded-xl border border-white/10 bg-white/5 p-5" data-reveal data-delay="140">
+   587→   587→          <div class="stage" aria-hidden="true">
+   588→   588→            <div class="mmap"><i class="r1"></i><i class="r2"></i><i class="v1"></i>
+   589→   589→              <span class="mp" style="left:24%; top:30%; --d:0s"></span>
+   590→   590→              <span class="mp" style="left:62%; top:24%; --d:.35s"></span>
+   591→   591→              <span class="mp" style="left:40%; top:66%; --d:.7s"></span>
+   592→   592→              <span class="mp near" style="left:76%; top:62%; --d:1.05s"></span>
+   593→   593→            </div>
+   594→   594→          </div>
+   595→   595→          <div class="min-w-0">
+   596→   596→            <h3 class="font-semibold tracking-tight">Filter 28 kecamatan</h3>
+   597→   597→            <p class="mt-1.5 text-sm leading-relaxed text-white/55">Dari Kebumen kota sampai Ayah dan Rowokele — cari mitra yang paling dekat.</p>
+   598→   598→          </div>
+   599→   599→        </div>
+   600→   600→
+   601→   601→        <div class="flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-5 lg:col-span-3" data-reveal>
+   602→   602→          <div class="stage" aria-hidden="true">
+   603→   603→            <div class="brw">
+   604→   604→              <div class="bbar"><b></b><b></b><b></b><span class="u"></span></div>
+   605→   605→              <span class="bl bl1"></span><span class="bl bl2"></span><span class="bl bl3"></span>
+   606→   606→            </div>
+   607→   607→          </div>
+   608→   608→          <p class="text-sm leading-relaxed text-white/70"><strong class="font-semibold text-white">Tanpa aplikasi &amp; tanpa akun.</strong> Buka browser, cari, chat — selesai. Halaman ini ringan, hemat kuota, dan jalan di HP kentang sekalipun.</p>
+   609→   609→        </div>
+   610→   610→      </div>
+   611→   611→    </div>
+   612→   612→  </section>
+   613→   613→
+   614→   614→  <!-- ================= 02 KATEGORI ================= -->
+   615→   615→  <section id="kategori" class="scroll-mt-20">
+   616→   616→    <div class="relative mx-auto max-w-6xl px-5 py-16 md:py-24">
+   617→   617→      <span aria-hidden="true" class="pointer-events-none absolute right-4 top-8 hidden select-none font-serif text-[9rem] leading-none text-green/[0.05] lg:block">02</span>
+   618→   618→
+   619→   619→      <div class="flex flex-wrap items-end justify-between gap-6" data-reveal>
+   620→   620→        <div>
+   621→   621→          <p class="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-faint"><i data-lucide="asterisk" class="h-3 w-3 text-amber-500"></i>02 — Kategori</p>
+   622→   622→          <h2 class="mt-3 font-serif text-3xl md:text-4xl">Kategori terpopuler</h2>
+   623→   623→        </div>
+   624→   624→        <p class="max-w-xs text-sm leading-relaxed text-mute">
+   625→   625→          Delapan kategori yang paling sering dicari pengguna bulan ini. Klik untuk memfilter daftar mitra.
+   626→   626→        </p>
+   627→   627→      </div>
+   628→   628→
+   629→   629→      <div id="catGrid" class="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"></div>
+   630→   630→    </div>
+   631→   631→  </section>
+   632→   632→
+   633→   633→  <!-- ================= 03 PENYEDIA ================= -->
+   634→   634→  <section id="penyedia" class="scroll-mt-20 border-t border-line bg-white">
+   635→   635→    <div class="relative mx-auto max-w-6xl px-5 py-16 md:py-24">
+   636→   636→      <span aria-hidden="true" class="pointer-events-none absolute right-4 top-8 hidden select-none font-serif text-[9rem] leading-none text-green/[0.05] lg:block">03</span>
+   637→   637→
+   638→   638→      <div class="flex flex-wrap items-end justify-between gap-6" data-reveal>
+   639→   639→        <div>
+   640→   640→          <p class="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-faint"><i data-lucide="asterisk" class="h-3 w-3 text-amber-500"></i>03 — Penyedia</p>
+   641→   641→          <h2 class="mt-3 font-serif text-3xl md:text-4xl">Terverifikasi minggu ini</h2>
+   642→   642→          <p class="mt-3 max-w-md text-sm leading-relaxed text-mute">
+   643→   643→            Dipilih berdasarkan rating, kecepatan respon, dan kelengkapan profil.
+   644→   644→          </p>
+   645→   645→        </div>
+   646→   646→        <p class="font-mono text-xs tabular-nums text-faint"><span id="countShown">8</span> / 8 mitra</p>
+   647→   647→      </div>
+   648→   648→
+   649→   649→      <div id="filterBar" class="mt-8 hidden flex-wrap items-center gap-x-2 text-sm text-mute">
+   650→   650→        <span>Menampilkan hasil untuk</span>
+   651→   651→        <span id="filterLabel" class="font-medium text-ink"></span>
+   652→   652→        <button id="resetBtn" type="button" class="font-medium text-green underline underline-offset-4 hover:text-green-dark">hapus filter</button>
+   653→   653→      </div>
+   654→   654→
+   655→   655→      <div id="providerList" class="mt-10 border-t border-line"></div>
+   656→   656→
+   657→   657→      <div id="emptyState" class="mt-10 hidden border-t border-line py-14 text-center">
+   658→   658→        <p class="text-[15px] font-medium">Tidak ada mitra yang cocok.</p>
+   659→   659→        <p class="mt-1.5 text-sm text-mute">Coba kata kunci lain, atau pilih "Semua kecamatan".</p>
+   660→   660→        <button id="resetBtn2" type="button" class="mt-4 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-dark">Hapus filter</button>
+   661→   661→      </div>
+   662→   662→    </div>
+   663→   663→  </section>
+   664→   664→
+   665→   665→  <!-- ================= 04 CARA KERJA — PANEL DEMO ================= -->
+   666→   666→  <section id="cara" class="scroll-mt-20 border-t border-line bg-[#062A20] text-white">
+   667→   667→    <div class="relative mx-auto max-w-6xl px-5 py-16 md:py-24">
+   668→   668→      <span aria-hidden="true" class="pointer-events-none absolute right-4 top-8 hidden select-none font-serif text-[9rem] leading-none text-white/[0.04] lg:block">04</span>
+   669→   669→
+   670→   670→      <div data-reveal>
+   671→   671→        <p class="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-white/40"><i data-lucide="asterisk" class="h-3 w-3 text-amber-300"></i>04 — Cara kerja</p>
+   672→   672→        <h2 class="mt-3 font-serif text-3xl md:text-4xl">Tiga langkah, selesai.</h2>
+   673→   673→        <p class="mt-3 max-w-md text-sm leading-relaxed text-white/55">
+   674→   674→          Tiga demo yang berjalan sendiri — berpindah otomatis, atau klik tabnya kalau mau pilih.
+   675→   675→        </p>
+   676→   676→      </div>
+   677→   677→
+   678→   678→      <div data-reveal>
+   679→   679→        <div class="mt-10 flex flex-wrap items-end justify-between gap-4">
+   680→   680→          <div id="stepTabs" class="relative inline-flex flex-wrap rounded-xl border border-white/15 bg-white/5 p-1">
+   681→   681→            <span id="stepInk" class="absolute bottom-1 left-1 top-1 rounded-lg bg-amber-400" style="width:0"></span>
+   682→   682→            <button type="button" class="stab relative z-10 rounded-lg px-4 py-2.5 text-sm font-semibold text-white/60 transition-colors" data-step="0" aria-selected="true">01 · Cari jasa</button>
+   683→   683→            <button type="button" class="stab relative z-10 rounded-lg px-4 py-2.5 text-sm font-semibold text-white/60 transition-colors" data-step="1" aria-selected="false">02 · Pilih penyedia</button>
+   684→   684→            <button type="button" class="stab relative z-10 rounded-lg px-4 py-2.5 text-sm font-semibold text-white/60 transition-colors" data-step="2" aria-selected="false">03 · Chat WhatsApp</button>
+   685→   685→          </div>
+   686→   686→          <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-white/35">Otomatis · klik tab untuk pilih</p>
+   687→   687→        </div>
+   688→   688→        <div class="mt-3 h-0.5 max-w-md overflow-hidden rounded-full bg-white/10">
+   689→   689→          <span id="stepFill" class="block h-full origin-left scale-x-0 bg-amber-400"></span>
+   690→   690→        </div>
+   691→   691→
+   692→   692→        <div class="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
+   693→   693→          <div class="cw-stage">
+   694→   694→            <span class="pointer-events-none absolute left-4 top-4 z-10 rounded-md border border-white/15 bg-[#062A20]/70 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-white/50">Demo · berjalan sendiri</span>
+   695→   695→
+   696→   696→            <!-- Panel 1: Cari -->
+   697→   697→            <div class="cw-panel" id="cw-p1" aria-hidden="true">
+   698→   698→              <div class="cw-card">
+   699→   699→                <div class="cw-bar"><b></b><b></b><b></b><span class="cw-url">jasakebumen.id</span></div>
+   700→   700→                <div class="cw-body">
+   701→   701→                  <div class="cw-searchrow">
+   702→   702→                    <i data-lucide="search"></i>
+   703→   703→                    <span class="cw-type">servis AC</span>
+   704→   704→                    <span class="cw-caret"></span>
+   705→   705→                  </div>
+   706→   706→                  <div class="cw-chiprow hm" style="--ad:1.7s">
+   707→   707→                    <span class="cw-count">3 mitra cocok</span>
+   708→   708→                    <span class="cw-loc">Kec. Kebumen</span>
+   709→   709→                  </div>
+   710→   710→                  <div class="cw-res hm" style="--ad:2.15s">
+   711→   711→                    <span class="cw-av">AS</span>
+   712→   712→                    <div class="cw-rinfo"><b>AC Sejahtera</b><span>Servis AC &amp; elektronik · Kec. Kebumen</span></div>
+   713→   713→                    <span class="cw-wa"><i data-lucide="message-circle"></i>WA</span>
+   714→   714→                  </div>
+   715→   715→                  <div class="cw-res hm" style="--ad:2.4s">
+   716→   716→                    <span class="cw-av">TK</span>
+   717→   717→                    <div class="cw-rinfo"><b>Teknisi AC 24 Jam</b><span>Servis AC · mulai Rp60.000</span></div>
+   718→   718→                    <span class="cw-wa"><i data-lucide="message-circle"></i>WA</span>
+   719→   719→                  </div>
+   720→   720→                  <div class="cw-map hm" style="--ad:2.7s">
+   721→   721→                    <span class="cw-pin hm" style="left:26%; top:38%; --ad:3s"></span>
+   722→   722→                    <span class="cw-pin cw-pin-near hm" style="left:56%; top:55%; --ad:3.2s"></span>
+   723→   723→                    <span class="cw-pin hm" style="left:42%; top:26%; --ad:3.4s"></span>
+   724→   724→                    <span class="cw-maplabel">teknisi terdekat</span>
+   725→   725→                  </div>
+   726→   726→                </div>
+   727→   727→              </div>
+   728→   728→            </div>
+   729→   729→
+   730→   730→            <!-- Panel 2: Pilih (kartu flip) -->
+   731→   731→            <div class="cw-panel" id="cw-p2" aria-hidden="true">
+   732→   732→              <div class="f-wrap">
+   733→   733→                <span class="f-chip f-c1">★ 4.9 · 127 ulasan</span>
+   734→   734→                <span class="f-chip f-c2">Kec. Kebumen</span>
+   735→   735→                <div class="f-flip">
+   736→   736→                  <div class="f-flipin">
+   737→   737→                    <div class="f-face f-front">
+   738→   738→                      <span class="f-badge hm" style="--ad:1s"><i data-lucide="badge-check"></i>Terverifikasi</span>
+   739→   739→                      <span class="f-av">AS</span>
+   740→   740→                      <b class="f-name">AC Sejahtera</b>
+   741→   741→                      <span class="f-cat">Servis AC &amp; elektronik</span>
+   742→   742→                      <span class="f-div"></span>
+   743→   743→                      <div class="f-stars">
+   744→   744→                        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+   745→   745→                        <b class="f-score">4.9</b>
+   746→   746→                      </div>
+   747→   747→                      <span class="f-price">mulai Rp75.000</span>
+   748→   748→                      <span class="f-shadow"></span>
+   749→   749→                    </div>
+   750→   750→                    <div class="f-face f-back">
+   751→   751→                      <b class="f-bt">Kurasi tim JasaKebumen</b>
+   752→   752→                      <div class="f-check hm" style="--ad:3.9s"><i>✓</i>Identitas pemilik usaha</div>
+   753→   753→                      <div class="f-check hm" style="--ad:4.35s"><i>✓</i>Portofolio pekerjaan</div>
+   754→   754→                      <div class="f-check hm" style="--ad:4.8s"><i>✓</i>Nomor WA aktif &amp; responsif</div>
+   755→   755→                      <span class="f-seal" style="--ad:5.3s">LOLOS KURASI</span>
+   756→   756→                    </div>
+   757→   757→                  </div>
+   758→   758→                </div>
+   759→   759→              </div>
+   760→   760→            </div>
+   761→   761→
+   762→   762→            <!-- Panel 3: Chat WhatsApp -->
+   763→   763→            <div class="cw-panel" id="cw-p3" aria-hidden="true">
+   764→   764→              <div class="ph">
+   765→   765→                <div class="ph-screen">
+   766→   766→                  <div class="ph-head">
+   767→   767→                    <span class="ph-av">AS</span>
+   768→   768→                    <div><b>AC Sejahtera</b><span>online</span></div>
+   769→   769→                    <span class="ph-call"><i data-lucide="phone"></i></span>
+
+[showing lines 370-769 of 1917; use offset=770 with limit to continue reading]
