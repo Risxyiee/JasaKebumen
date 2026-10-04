@@ -138,9 +138,97 @@
 /* ===== Grid pattern for map background ===== */
 .bg-grid {
   background-image:
-    linear-gradient(rgba(6,78,59,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(6,78,59,0.04) 1px, transparent 1px);
+    linear-gradient(rgba(6,78,59,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(6,78,59,0.06) 1px, transparent 1px);
   background-size: 24px 24px;
+}
+
+/* ===== 3D Diorama Map ===== */
+.diorama {
+  perspective: 900px;
+  perspective-origin: 50% 30%;
+}
+.diorama-surface {
+  transform: rotateX(52deg) rotateZ(-6deg);
+  transform-style: preserve-3d;
+  transition: transform .6s cubic-bezier(.22,1,.36,1);
+}
+.diorama-surface:hover {
+  transform: rotateX(48deg) rotateZ(-4deg);
+}
+
+/* 3D pin yang nancap ke permukaan */
+.pin3d {
+  transform-style: preserve-3d;
+  position: absolute;
+}
+.pin3d-stem {
+  position: absolute;
+  bottom: 0; left: 50%;
+  width: 2px; height: 28px;
+  margin-left: -1px;
+  transform: translateZ(0);
+  border-radius: 1px;
+}
+.pin3d-head {
+  position: absolute;
+  bottom: 26px; left: 50%;
+  width: 14px; height: 14px;
+  margin-left: -7px;
+  border-radius: 50%;
+  transform: translateZ(8px) rotateX(-52deg) rotateZ(6deg);
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+.pin3d-shadow {
+  position: absolute;
+  bottom: -2px; left: 50%;
+  width: 10px; height: 6px;
+  margin-left: -5px;
+  border-radius: 50%;
+  transform: translateZ(-1px);
+  opacity: .35;
+}
+
+/* Pulse ripple di permukaan */
+.pin3d-ripple {
+  position: absolute;
+  bottom: -4px; left: 50%;
+  width: 24px; height: 24px;
+  margin-left: -12px;
+  border-radius: 50%;
+  transform: translateZ(-1px) scaleY(.45);
+  border: 1.5px solid currentColor;
+  opacity: 0;
+  animation: ripple3d 3s ease-out infinite;
+}
+@keyframes ripple3d {
+  0% { transform: translateZ(-1px) scaleY(.45) scale(.5); opacity: .7; }
+  100% { transform: translateZ(-1px) scaleY(.45) scale(2.2); opacity: 0; }
+}
+
+/* Jalan-jalan di peta 3D */
+.road3d {
+  position: absolute;
+  border-radius: 1px;
+  transform: translateZ(1px);
+}
+
+/* Kartu mitra floating di atas diorama */
+.float-card {
+  transform: translateZ(40px) rotateX(-8deg);
+  transform-style: preserve-3d;
+}
+
+/* ===== 3D Diorama: roads, regions ===== */
+.diorama-road-h { background: rgba(6,78,59,.12); height: 3px; left: 0; right: 0; }
+.diorama-road-v { background: rgba(6,78,59,.12); width: 3px; top: 0; bottom: 0; }
+.diorama-road-main { background: rgba(6,78,59,.18); }
+.diorama-region {
+  position: absolute;
+  border-radius: 40%;
+  background: rgba(6,78,59,.04);
+  border: 1px dashed rgba(6,78,59,.08);
+  transform: translateZ(1px);
 }
 
 /* ===== Rolling keyword animation ===== */
