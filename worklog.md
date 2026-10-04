@@ -31,3 +31,32 @@ Stage Summary:
 - Search/filter integration works across Hero and ProviderDirectory via SearchProvider
 - CSS animations: rolling keywords, dot checks, chat bubbles, card flip, pin travel, FAQ accordion, tab indicator
 - Zero runtime errors on both desktop and mobile viewports
+
+---
+Task ID: 2
+Agent: main
+Task: Replace CSS 3D diorama with proper Three.js 3D scene
+
+Work Log:
+- Installed three.js (v0.186.1) and @types/three
+- Created HeroDiorama.tsx with full Three.js 3D scene:
+  - Tilted map plane (rotateX 58°, slight twist) with grid overlay
+  - 6 3D pins (cylinder stem + sphere head) at real kecamatan positions
+  - Pulse ripple rings (torus) animating on each pin
+  - Road network (3 horizontal + 3 vertical) on surface
+  - Region boundaries (ring geometries) for kecamatan areas
+  - Floating mitra card (box geometry with green accent + WA dot) above surface
+  - Ambient particle system (40 particles drifting upward)
+  - Directional light + shadow (PCFShadowMap), ambient + fill lights
+  - Camera with subtle sway animation
+  - Proper cleanup: cancelAnimationFrame, renderer.dispose(), traverse geometry/material dispose
+  - ResizeObserver for responsive canvas sizing
+- Integrated HeroDiorama into Hero.tsx (replaced CSS diorama)
+- Fixed PCFSoftShadowMap deprecation → PCFShadowMap
+- Verified: zero errors, zero warnings, mobile responsive
+
+Stage Summary:
+- Hero section now uses real Three.js WebGL 3D diorama
+- Scene: tilted map, 3D pins with bobbing + ripple, roads, regions, floating card, particles, shadows
+- Proper React lifecycle handling (cleanup on unmount, StrictMode safe)
+- Responsive via ResizeObserver, pixel ratio capped at 2
