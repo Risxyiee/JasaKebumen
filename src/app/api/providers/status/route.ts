@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
+/* Required for Cloudflare Pages (next-on-pages) */
+export const runtime = "edge";
+
 /* PATCH /api/providers/status — Update provider status (publish/reject) */
 export async function PATCH(req: NextRequest) {
   try {

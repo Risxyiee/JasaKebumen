@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000 2>&1 | tee dev.log",
-    "build": "npx @cloudflare/next-on-pages",
+    "build": "next build",
+    "pages:build": "npx @cloudflare/next-on-pages@1",
     "preview": "npx wrangler pages dev .vercel/output/static --compatibility-flag=nodejs_compat",
     "deploy": "npx wrangler pages deploy .vercel/output/static",
+    "postinstall": "prisma generate",
     "lint": "eslint .",
     "db:push": "prisma db push --accept-data-loss",
     "db:generate": "prisma generate",

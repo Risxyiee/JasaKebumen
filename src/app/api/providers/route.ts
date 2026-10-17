@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
+/* Required for Cloudflare Pages (next-on-pages) */
+export const runtime = "edge";
+
 /* POST /api/providers — Submit a new provider (status: pending) */
 export async function POST(req: NextRequest) {
   try {
