@@ -3,10 +3,12 @@ main = ".open-next/worker.js"
 compatibility_date = "2025-09-01"
 compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
 
-# `npx wrangler deploy` menjalankan ini dulu:
-# build bundle Worker dari output `next build` (dipicu oleh "bun run build" di CF)
-[build]
-command = "npx opennextjs-cloudflare build"
+# NOTE: Jangan menaruh [build] hook di sini.
+# `npx wrangler deploy` pada proyek OpenNext langsung mendelegasikan ke
+# `opennextjs-cloudflare deploy` TANPA menjalankan [build] command,
+# dan wrangler deploy di dalam delegasi justru akan menjalankan [build]
+# lagi (build dobel). Build dilakukan oleh Build Command di dashboard:
+# `bun run cf:build` (= opennextjs-cloudflare build, otomatis menjalankan next build)
 
 # Static assets produced by `opennextjs-cloudflare build`
 [assets]
