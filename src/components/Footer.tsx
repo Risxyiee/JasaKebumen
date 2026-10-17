@@ -10,7 +10,7 @@ export default function Footer() {
           <div className="md:col-span-2">
             <a href="#" className="flex items-center gap-2">
               <Image
-                src="/logo-sm.png"
+                src="/logo-sm-white.png"
                 alt="JasaKebumen"
                 width={28}
                 height={28}
