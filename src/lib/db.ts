@@ -1,6 +1,5 @@
-import { PrismaClient } from "@prisma/client";
-import { PrismaNeon } from "@prisma/adapter-neon";
-import { neon } from "@neondatabase/serverless";
+import { PrismaClient } from "@prisma/client/wasm";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -12,9 +11,9 @@ function createClient() {
     throw new Error("DATABASE_URL is not set");
   }
 
-  // Neon serverless driver — works on Cloudflare Workers (Edge Runtime)
-  const neonSql = neon(url);
-  const adapter = new PrismaNeon(neonSql);
+  // node-postgres driver — connects to any PostgreSQL (Aiven, Neon, Supabase, dll.)
+  // Works on Cloudflare Workers via nodejs_compat (outbound TCP) and on Node.js.
+  const adapter = new PrismaPg({ connectionString: url });
   return new PrismaClient({ adapter });
 }
 

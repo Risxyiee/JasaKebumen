@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-/* Required for Cloudflare Pages (next-on-pages) */
-export const runtime = "edge";
+/* Always render on demand — never run at build time */
+export const dynamic = "force-dynamic";
 
 /* PATCH /api/providers/status — Update provider status (publish/reject) */
 export async function PATCH(req: NextRequest) {

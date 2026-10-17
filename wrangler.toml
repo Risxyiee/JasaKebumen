@@ -1,17 +1,25 @@
 name = "jasakebumen"
-compatibility_date = "2024-09-23"
-compatibility_flags = ["nodejs_compat"]
+main = ".open-next/worker.js"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
 
-[observability.logs]
+# `npx wrangler deploy` menjalankan ini dulu:
+# build bundle Worker dari output `next build` (dipicu oleh "bun run build" di CF)
+[build]
+command = "npx opennextjs-cloudflare build"
+
+# Static assets produced by `opennextjs-cloudflare build`
+[assets]
+directory = ".open-next/assets"
+binding = "ASSETS"
+
+[observability]
 enabled = true
 head_sampling_rate = 1
-invocation_logs = true
-persist-logs = true
 
-[observability.traces]
-enabled = false
-head_sampling_rate = 1
-persist-traces = true
-
-[observability.issue_detection]
-enabled = false
+# Non-secret runtime vars.
+# NOTE: DATABASE_URL (Aiven PostgreSQL) harus diisi di dashboard Cloudflare:
+#       Workers & Pages -> jasakebumen -> Settings -> Variables and Secrets
+[vars]
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "kebumen2025"
