@@ -7,8 +7,9 @@ compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
 # `npx wrangler deploy` pada proyek OpenNext langsung mendelegasikan ke
 # `opennextjs-cloudflare deploy` TANPA menjalankan [build] command,
 # dan wrangler deploy di dalam delegasi justru akan menjalankan [build]
-# lagi (build dobel). Build dilakukan oleh Build Command di dashboard:
-# `bun run cf:build` (= opennextjs-cloudflare build, otomatis menjalankan next build)
+# lagi (build dobel). Build dilakukan lewat `bun run build` (package.json):
+# `NEXT_PRIVATE_STANDALONE=true next build && opennextjs-cloudflare build -s`
+# sehingga Build Command di dashboard tidak perlu diubah.
 
 # Static assets produced by `opennextjs-cloudflare build`
 [assets]
