@@ -1,21 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
 
 /**
- * Auth admin — dipakai oleh middleware DAN route handler (defense in depth).
+ * Auth admin — dipakai oleh semua route handler admin (satu-satunya gerbang,
+ * middleware dihapus agar tidak duplikat).
  *
- * Dua cara lolos:
- *  1. Header `Authorization: Basic <b64(user:pass)>`  (dipakai browser saat buka /admin)
- *  2. Cookie `jk_admin` berisi token deterministik
- *     sha256(ADMIN_USERNAME:ADMIN_PASSWORD:jasakebumen-admin-v1)
- *     — di-set middleware setelah Basic auth sukses, supaya fetch() dari
- *     halaman admin ke /api/providers ikut terautentikasi (browser tidak
- *     selalu menyertakan ulang header Basic pada fetch lintas-path).
+ * Dua sumber kredensial, dicek berurutan:
+ *  1. Cloudflare Secrets `ADMIN_USERNAME` + `ADMIN_PASSWORD` (opsional).
+ *     Masih didukung agar admin yang sudah terbiasa Basic auth tetap jalan.
+ *  2. Kredensial tersimpan di database (tabel AdminAuth, satu baris id
+ *     "admin") — diatur lewat wizard pengaturan awal di halaman /admin,
+ *     dibuka dengan KODE SETUP yang hanya diketahui pemilik situs.
  *
- * Kredensial dibaca dari process.env (Cloudflare Secrets di produksi).
- * Jika belum diset, SEMUA akses admin gagal tertutup (fail closed, 503).
+ * Sesi: cookie `jk_admin` berisi token.
+ *  - Sumber env  → token deterministik sha256(user:pass:jasakebumen-admin-v1)
+ *  - Sumber DB   → token acak 32 byte tersimpan di kolom sessionToken
+ *
+ * Keamanan wizard setup: kode setup diverifikasi sebagai SHA-256. Konstanta
+ * di repo hanya hash-nya (preimage acak kuat), jadi bocornya repo tidak
+ * membuka akses. Kode yang sama juga berfungsi untuk ATUR ULANG kredensial
+ * jika suatu saat sandi terlupa.
  */
 
 export const ADMIN_COOKIE = "jk_admin";
+export const ADMIN_ROW_ID = "admin";
+
+/* SHA-256 dari kode setup (lihat komentar di atas). */
+const SETUP_CODE_HASH =
+  "17f8e2a00ce9194a0e85f25e1fe0754e0f1430ada777ca63aa704e023c7c496b";
 
 export function adminEnv() {
   return {
@@ -40,6 +52,59 @@ export async function expectedAdminToken(): Promise<string | null> {
   return sha256Hex(`${username}:${password}:jasakebumen-admin-v1`);
 }
 
+/* ---------- Kredensial di database ---------- */
+
+export interface DbAdmin {
+  username: string;
+  passwordHash: string;
+  salt: string;
+  sessionToken: string;
+}
+
+/** Ambil baris kredensial admin dari DB; null = belum diset / DB gagal. */
+export async function getDbAdmin(): Promise<DbAdmin | null> {
+  try {
+    const row = await db.adminAuth.findUnique({ where: { id: ADMIN_ROW_ID } });
+    if (!row) return null;
+    return {
+      username: row.username,
+      passwordHash: row.passwordHash,
+      salt: row.salt,
+      sessionToken: row.sessionToken,
+    };
+  } catch {
+    return null; // DB belum siap / DATABASE_URL belum diset — fail closed
+  }
+}
+
+/**
+ * Hash sandi untuk kredensial DB. Satu putaran SHA-256 + salt (bukan
+ * PBKDF2 berat) karena batas CPU Cloudflare Workers; risiko dikompensasi
+ * dengan salt acak per-akun dan kebijakan sandi minimal 8 karakter.
+ */
+export async function hashPassword(password: string, salt: string): Promise<string> {
+  return sha256Hex(`jk-admin-v2:${salt}:${password}`);
+}
+
+export function generateSalt(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  return [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+export function generateSessionToken(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  return [...bytes].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/** true jika kode setup yang dimasukkan pemilik cocok dengan hash di repo. */
+export async function verifySetupCode(code: string): Promise<boolean> {
+  if (!code) return false;
+  const hash = await sha256Hex(code.trim().toUpperCase());
+  return hash === SETUP_CODE_HASH;
+}
+
+/* ---------- Verifikasi request ---------- */
+
 export function parseBasic(req: NextRequest): { user: string; pass: string } | null {
   const header = req.headers.get("authorization");
   if (!header || !header.startsWith("Basic ")) return null;
@@ -61,11 +126,23 @@ export function basicAuthValid(req: NextRequest): boolean {
   return !!creds && creds.user === username && creds.pass === password;
 }
 
-/** true jika cookie sesi admin valid */
+/** true jika cookie sesi admin valid (cocok token env ATAU token DB) */
 export async function adminCookieValid(req: NextRequest): Promise<boolean> {
-  const token = await expectedAdminToken();
+  const token = req.cookies.get(ADMIN_COOKIE)?.value;
   if (!token) return false;
-  return req.cookies.get(ADMIN_COOKIE)?.value === token;
+
+  const envToken = await expectedAdminToken();
+  if (envToken && token === envToken) return true;
+
+  const row = await getDbAdmin();
+  return !!row && row.sessionToken === token;
+}
+
+/** true jika sumber kredensial mana pun sudah tersedia */
+export async function adminConfigured(): Promise<boolean> {
+  const envToken = await expectedAdminToken();
+  if (envToken) return true;
+  return !!(await getDbAdmin());
 }
 
 /**
@@ -73,11 +150,26 @@ export async function adminCookieValid(req: NextRequest): Promise<boolean> {
  * Return `null` jika lolos, atau Response 401/503 yang harus langsung dikembalikan.
  */
 export async function requireAdmin(req: NextRequest): Promise<Response | null> {
-  const token = await expectedAdminToken();
-  if (!token) {
-    return NextResponse.json({ error: "Admin belum dikonfigurasi." }, { status: 503 });
-  }
   if (basicAuthValid(req)) return null;
   if (await adminCookieValid(req)) return null;
+
+  const configured = await adminConfigured();
+  if (!configured) {
+    return NextResponse.json(
+      { error: "Admin belum disiapkan. Buka halaman /admin untuk pengaturan awal." },
+      { status: 503 }
+    );
+  }
   return NextResponse.json({ error: "Tidak memiliki akses." }, { status: 401 });
+}
+
+/** Opsi cookie sesi yang seragam untuk login & setup */
+export function adminCookieOptions(maxAgeSeconds = 60 * 60 * 12) {
+  return {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax" as const,
+    path: "/",
+    maxAge: maxAgeSeconds,
+  };
 }

@@ -501,7 +501,16 @@ export default function DaftarPage() {
               </button>
 
               <p className="text-center text-xs text-faint">
-                Dengan mendaftar, Anda menyetujui bahwa data di atas benar dan dapat diverifikasi oleh tim JasaKebumen.
+                Dengan mendaftar, Anda menyetujui bahwa data di atas benar dan dapat diverifikasi
+                oleh tim JasaKebumen, serta menyetujui{" "}
+                <Link
+                  href="/syarat"
+                  target="_blank"
+                  className="font-medium text-green underline underline-offset-2 transition hover:text-green-dark"
+                >
+                  Syarat &amp; Ketentuan
+                </Link>{" "}
+                yang berlaku.
               </p>
             </form>
           )}

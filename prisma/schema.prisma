@@ -71,3 +71,16 @@ model CsMessage {
   @@index([sessionId])
   @@index([handled, createdAt])
 }
+
+// Kredensial admin yang diatur lewat wizard pengaturan awal di /admin
+// (satu baris, id tetap "admin"). Alternatif tanpa Cloudflare Secrets:
+// jika env ADMIN_USERNAME/ADMIN_PASSWORD tersedia, env tetap diutamakan.
+model AdminAuth {
+  id           String   @id
+  username     String   @unique
+  passwordHash String // sha256("jk-admin-v2:" + salt + ":" + password)
+  salt         String
+  sessionToken String   @unique @default(cuid()) // nilai cookie jk_admin
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

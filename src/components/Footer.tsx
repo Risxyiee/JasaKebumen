@@ -37,7 +37,7 @@ export default function Footer() {
             <ul className="mt-4 space-y-2.5 text-sm text-white/70">
               <li><Link href="/daftar" className="transition hover:text-white">Daftar usaha</Link></li>
               <li><Link href="/admin" className="transition hover:text-white">Admin</Link></li>
-              <li><a href="#" className="transition hover:text-white">Syarat &amp; ketentuan</a></li>
+              <li><Link href="/syarat" className="transition hover:text-white">Syarat &amp; ketentuan</Link></li>
               <li><a href={waAdminLink("Halo Admin JasaKebumen.")} target="_blank" rel="noopener noreferrer" className="transition hover:text-white">Hubungi admin</a></li>
               <li><a href="mailto:halo@jasakebumen.id" className="transition hover:text-white">halo@jasakebumen.id</a></li>
             </ul>

@@ -64,6 +64,15 @@ const DDL_STATEMENTS: string[] = [
   )`,
   `CREATE INDEX IF NOT EXISTS "CsMessage_sessionId_idx" ON "CsMessage"("sessionId")`,
   `CREATE INDEX IF NOT EXISTS "CsMessage_handled_createdAt_idx" ON "CsMessage"("handled", "createdAt")`,
+  `CREATE TABLE IF NOT EXISTS "AdminAuth" (
+    "id"           TEXT PRIMARY KEY,
+    "username"     TEXT NOT NULL UNIQUE,
+    "passwordHash" TEXT NOT NULL,
+    "salt"         TEXT NOT NULL,
+    "sessionToken" TEXT NOT NULL UNIQUE,
+    "createdAt"    TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt"    TIMESTAMPTZ(3) NOT NULL
+  )`,
 ];
 
 async function ensureSchema(): Promise<void> {
