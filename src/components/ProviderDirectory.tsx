@@ -19,9 +19,19 @@ function ProviderRow({ p, i }: { p: DirectoryProvider; i: number }) {
           </span>
 
           <div className="flex min-w-0 items-center gap-4">
-            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-green/10 bg-green-tint text-sm font-semibold text-green">
-              {initials(p.name)}
-            </span>
+            {p.images && p.images.length > 0 ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={p.images[0]}
+                alt={`Foto usaha ${p.name}`}
+                loading="lazy"
+                className="h-11 w-11 shrink-0 rounded-lg border border-green/10 object-cover"
+              />
+            ) : (
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-green/10 bg-green-tint text-sm font-semibold text-green">
+                {initials(p.name)}
+              </span>
+            )}
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <h3 className="truncate font-semibold tracking-tight transition-transform duration-300 group-hover:translate-x-0.5">

@@ -1,9 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
+import { ensureDb } from "@/lib/db-bootstrap";
 
 /* Always render on demand — never run at build time */
 export const dynamic = "force-dynamic";
+
+/* Batas foto usaha: maks 3, tiap foto adalah data URL (JPEG/PNG/WebP)
+   hasil kompresi di sisi client. 700_000 karakter ≈ 525 KB biner. */
+const MAX_IMAGES = 3;
+const MAX_IMAGE_CHARS = 700_000;
+const IMAGE_RE = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
+
+function sanitizeImages(input: unknown): { images: string[]; error?: string } {
+  if (input == null) return { images: [] };
+  if (!Array.isArray(input)) return { images: [], error: "Format foto tidak valid." };
+  if (input.length > MAX_IMAGES)
+    return { images: [], error: `Maksimal ${MAX_IMAGES} foto usaha.` };
+
+  const images: string[] = [];
+  for (const raw of input) {
+    const s = typeof raw === "string" ? raw : "";
+    if (!IMAGE_RE.test(s))
+      return { images: [], error: "Foto harus berupa gambar JPEG/PNG/WebP yang valid." };
+    if (s.length > MAX_IMAGE_CHARS)
+      return { images: [], error: "Ukuran foto terlalu besar. Coba foto yang lebih kecil." };
+    images.push(s);
+  }
+  return { images };
+}
 
 /* POST /api/providers — Submit a new provider (status: pending). PUBLIK. */
 export async function POST(req: NextRequest) {
@@ -12,9 +37,20 @@ export async function POST(req: NextRequest) {
     const { name, categoryId, districtId, description, whatsappNumber, website } = body;
 
     /* Honeypot: field tersembunyi untuk manusia. Bot yang mengisinya dianggap spam —
-       balas sukses palsu tanpa menyimpan apa pun (jangan memberi sinyal ke bot). */
+       balas sukses palsu tanpa menyimpan apa pun (jangan memberi sinyal ke bot).
+       Harus dicek SEBELUM apa pun akses DB, agar respons bot selalu identik. */
     if (typeof website === "string" && website.trim() !== "") {
       return NextResponse.json({ provider: null }, { status: 201 });
+    }
+
+    /* Pastikan tabel & data referensi (kategori/kecamatan) siap —
+       database produksi yang masih kosong otomatis ter-seed di sini. */
+    const dbReady = await ensureDb();
+    if (!dbReady) {
+      return NextResponse.json(
+        { error: "Server sedang tidak bisa mengakses database. Coba beberapa saat lagi." },
+        { status: 503 }
+      );
     }
 
     if (!name || !categoryId || !districtId || !whatsappNumber) {
@@ -36,19 +72,37 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Validate photos (opsional, maks 3)
+    const { images, error: imgError } = sanitizeImages(body.images);
+    if (imgError) {
+      return NextResponse.json({ error: imgError }, { status: 400 });
+    }
+
+    /* Kategori & kecamatan harus ada di DB (sudah dijamin ter-seed oleh
+       ensureDb). ID fallback dari form pun cocok karena deterministik. */
+    const category = await db.category.findUnique({ where: { id: String(categoryId) } });
+    const district = await db.district.findUnique({ where: { id: String(districtId) } });
+    if (!category || !district) {
+      return NextResponse.json(
+        { error: "Kategori atau kecamatan tidak dikenal. Muat ulang halaman lalu pilih ulang." },
+        { status: 400 }
+      );
+    }
+
     const provider = await db.provider.create({
       data: {
         name: cleanName,
-        categoryId: String(categoryId),
-        districtId: String(districtId),
+        categoryId: category.id,
+        districtId: district.id,
         description: cleanDesc,
         whatsappNumber: cleaned,
+        images,
         status: "pending",
       },
       include: { category: true, district: true },
     });
 
-    return NextResponse.json({ provider }, { status: 201 });
+    return NextResponse.json({ provider: { id: provider.id } }, { status: 201 });
   } catch (error) {
     console.error("Error creating provider:", error);
     return NextResponse.json(

@@ -35,6 +35,7 @@ interface Provider {
   description: string;
   whatsappNumber: string;
   imageUrl: string | null;
+  images: string[];
   status: string;
   createdAt: string;
   updatedAt: string;
@@ -244,6 +245,22 @@ export default function AdminPage() {
                           <p className="mt-3 line-clamp-2 text-sm text-mute leading-relaxed">
                             {p.description}
                           </p>
+                        )}
+
+                        {/* Foto usaha — dilayani endpoint terlindungi (cookie admin) */}
+                        {p.images && p.images.length > 0 && (
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {p.images.map((_, i) => (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                key={i}
+                                src={`/api/providers/${p.id}/images/${i}`}
+                                alt={`Foto ${i + 1} ${p.name}`}
+                                loading="lazy"
+                                className="h-16 w-16 rounded-lg border border-line object-cover"
+                              />
+                            ))}
+                          </div>
                         )}
 
                         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-faint">

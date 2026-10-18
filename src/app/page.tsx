@@ -12,6 +12,7 @@ import Footer from "@/components/Footer";
 import { SearchProvider } from "@/components/search-context";
 import { waAdminLink, toWaIntl, type DirectoryProvider } from "@/lib/data";
 import { db } from "@/lib/db";
+import { ensureDb } from "@/lib/db-bootstrap";
 
 /* Direktori harus selalu segar — mitra baru yang di-approve admin langsung tayang.
    force-dynamic: jangan pernah dieksekusi/di-prerender saat build (DB belum pasti ada). */
@@ -22,6 +23,7 @@ type ProviderRow = {
   name: string;
   description: string;
   whatsappNumber: string;
+  images: string[];
   category: { name: string };
   district: { name: string };
 };
@@ -41,6 +43,7 @@ function toDirectoryProvider(p: ProviderRow): DirectoryProvider {
     keywords: `${p.description} ${p.category.name} ${p.district.name}`.toLowerCase(),
     wa: toWaIntl(p.whatsappNumber),
     msg: `Halo ${p.name}, saya menemukan usaha Anda di JasaKebumen. Boleh tanya-tanya layanan Anda?`,
+    images: (p.images || []).map((_, i) => `/api/providers/${p.id}/images/${i}`),
   };
 }
 
@@ -49,6 +52,9 @@ async function getHomeData(): Promise<{
   catCounts: Record<string, number>;
 }> {
   try {
+    /* Pastikan skema & data referensi siap (self-healing untuk DB baru) */
+    await ensureDb();
+
     const [rows, categories] = await Promise.all([
       db.provider.findMany({
         where: { status: "published" },

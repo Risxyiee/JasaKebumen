@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import {
   CheckCircle2,
   ChevronDown,
+  ImageIcon,
   Loader2,
   MessageCircle,
   Phone,
@@ -13,8 +14,11 @@ import {
   FileText,
   MapPin,
   Tag,
+  TriangleAlert,
+  X,
 } from "lucide-react";
 import Link from "next/link";
+import { REF_CATEGORIES, REF_DISTRICTS } from "@/lib/reference";
 
 interface Category {
   id: string;
@@ -31,10 +35,44 @@ interface District {
 
 type FormState = "idle" | "submitting" | "success" | "error";
 
+const MAX_PHOTOS = 3;
+const MAX_ORIGINAL_BYTES = 15 * 1024 * 1024; // 15 MB sebelum dikompresi
+
+/** Kompresi foto di browser: sisi terpanjang 1280px, JPEG kualitas 0.82.
+    Hasilnya data URL ±100–300 KB — ringan untuk dikirim & disimpan. */
+function compressImage(file: File, maxDim = 1280, quality = 0.82): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = document.createElement("img");
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, maxDim / Math.max(img.width, img.height));
+      const w = Math.max(1, Math.round(img.width * scale));
+      const h = Math.max(1, Math.round(img.height * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        reject(new Error("canvas"));
+        return;
+      }
+      ctx.drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL("image/jpeg", quality));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("format"));
+    };
+    img.src = url;
+  });
+}
+
 export default function DaftarPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
 
   const [formState, setFormState] = useState<FormState>("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -47,18 +85,81 @@ export default function DaftarPage() {
   /* Honeypot anti-spam: field tersembunyi — manusia tidak pernah mengisinya */
   const [honeypot, setHoneypot] = useState("");
 
-  useEffect(() => {
-    Promise.all([
-      fetch("/api/categories").then((r) => r.json()),
-      fetch("/api/districts").then((r) => r.json()),
-    ])
-      .then(([catRes, distRes]) => {
-        setCategories(catRes.categories || []);
-        setDistricts(distRes.districts || []);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+  /* Foto usaha: maks 3, tersimpan sebagai data URL hasil kompresi */
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [photoError, setPhotoError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const loadReference = useCallback(async () => {
+    setLoading(true);
+    setLoadFailed(false);
+    try {
+      const results = await Promise.allSettled([
+        fetch("/api/categories").then((r) => r.json()),
+        fetch("/api/districts").then((r) => r.json()),
+      ]);
+
+      const [catRes, distRes] = results.map((r) =>
+        r.status === "fulfilled" ? r.value : null
+      );
+
+      const cats: Category[] = catRes?.categories?.length ? catRes.categories : REF_CATEGORIES;
+      const dists: District[] = distRes?.districts?.length ? distRes.districts : REF_DISTRICTS;
+
+      setCategories(cats);
+      setDistricts(dists);
+      /* Gagal total (dua-duanya) → pakai fallback lokal, tapi beri tahu user */
+      setLoadFailed(results.every((r) => r.status === "rejected"));
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadReference();
+  }, [loadReference]);
+
+  const addPhotos = async (e: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = ""; // izinkan pilih file yang sama lagi
+    if (!files.length) return;
+
+    setPhotoError("");
+    const room = MAX_PHOTOS - photos.length;
+    if (room <= 0) {
+      setPhotoError(`Maksimal ${MAX_PHOTOS} foto.`);
+      return;
+    }
+
+    setPhotoBusy(true);
+    const added: string[] = [];
+    try {
+      for (const file of files.slice(0, room)) {
+        if (!file.type.startsWith("image/")) {
+          setPhotoError("File harus berupa gambar (JPG/PNG/WebP).");
+          continue;
+        }
+        if (file.size > MAX_ORIGINAL_BYTES) {
+          setPhotoError("Foto terlalu besar (maks 15 MB).");
+          continue;
+        }
+        try {
+          added.push(await compressImage(file));
+        } catch {
+          setPhotoError("Format foto tidak didukung browser. Gunakan JPG/PNG.");
+        }
+      }
+      if (added.length) setPhotos((prev) => [...prev, ...added].slice(0, MAX_PHOTOS));
+    } finally {
+      setPhotoBusy(false);
+    }
+  };
+
+  const removePhoto = (idx: number) => {
+    setPhotos((prev) => prev.filter((_, i) => i !== idx));
+    setPhotoError("");
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -76,6 +177,7 @@ export default function DaftarPage() {
           description,
           whatsappNumber,
           website: honeypot,
+          images: photos,
         }),
       });
 
@@ -125,6 +227,7 @@ export default function DaftarPage() {
                 setDistrictId("");
                 setDescription("");
                 setWhatsappNumber("");
+                setPhotos([]);
               }}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-dark"
             >
@@ -192,6 +295,23 @@ export default function DaftarPage() {
                   onChange={(e) => setHoneypot(e.target.value)}
                 />
               </div>
+
+              {/* Peringatan: data referensi dari fallback lokal (server gagal dihubungi) */}
+              {loadFailed && (
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                  <span className="inline-flex items-center gap-2">
+                    <TriangleAlert className="h-4 w-4" />
+                    Gagal memuat data dari server — memakai data bawaan. Anda tetap bisa mendaftar.
+                  </span>
+                  <button
+                    type="button"
+                    onClick={loadReference}
+                    className="rounded-md border border-amber-300 bg-white px-3 py-1 text-xs font-semibold text-amber-800 transition hover:bg-amber-100"
+                  >
+                    Coba muat ulang
+                  </button>
+                </div>
+              )}
 
               {/* Name */}
               <div>
@@ -273,6 +393,62 @@ export default function DaftarPage() {
                 />
                 <p className="mt-1 text-xs text-faint">
                   Opsional — tapi membantu calon pelanggan mengenal layanan Anda.
+                </p>
+              </div>
+
+              {/* Foto usaha — maks 3 */}
+              <div>
+                <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-ink">
+                  <ImageIcon className="h-4 w-4 text-faint" /> Foto Usaha{" "}
+                  <span className="font-normal text-faint">(opsional, maks {MAX_PHOTOS})</span>
+                </label>
+                <div className="mt-1 grid grid-cols-3 gap-3">
+                  {photos.map((src, idx) => (
+                    <div
+                      key={`${idx}-${src.slice(-16)}`}
+                      className="group relative aspect-square overflow-hidden rounded-lg border border-line bg-paper"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={src} alt={`Foto usaha ${idx + 1}`} className="h-full w-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(idx)}
+                        aria-label={`Hapus foto ${idx + 1}`}
+                        className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full bg-black/60 text-white transition hover:bg-red-600"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                  {photos.length < MAX_PHOTOS && (
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={photoBusy}
+                      className="grid aspect-square place-items-center rounded-lg border-2 border-dashed border-line bg-paper text-faint transition hover:border-green hover:text-green disabled:opacity-60"
+                    >
+                      {photoBusy ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      ) : (
+                        <span className="flex flex-col items-center gap-1 text-xs">
+                          <ImageIcon className="h-5 w-5" />
+                          Tambah foto
+                        </span>
+                      )}
+                    </button>
+                  )}
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/*"
+                  multiple
+                  className="hidden"
+                  onChange={addPhotos}
+                />
+                {photoError && <p className="mt-1.5 text-xs text-red-600">{photoError}</p>}
+                <p className="mt-1 text-xs text-faint">
+                  JPG/PNG/WebP. Foto otomatis dikompresi — pilih foto kerja terbaik Anda.
                 </p>
               </div>
 

@@ -33,6 +33,7 @@ model Provider {
   description    String   @default("")
   whatsappNumber String
   imageUrl       String?
+  images         String[] @default([]) // foto usaha (maks 3, data URL) — dilayani via /api/providers/[id]/images/[n]
   status         String   @default("pending") // pending | published | rejected
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
