@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     siteName: "JasaKebumen",
     locale: "id_ID",
     type: "website",
-    images: [{ url: "/logo.png", width: 2048, height: 2048 }],
+    images: [{ url: "/og.png", width: 1200, height: 630 }],
   },
 };
 
