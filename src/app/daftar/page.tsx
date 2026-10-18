@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState, type FormEvent } from "react";
 import {
   CheckCircle2,
@@ -141,14 +142,15 @@ export default function DaftarPage() {
       <div className="border-b border-line bg-white">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-5 py-5">
           <Link href="/" className="flex items-center gap-2 text-green transition hover:opacity-80">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-              <rect width="24" height="24" rx="6" fill="currentColor" />
-              <path
-                d="M12 5c-2.5 0-4.5 2-4.5 4.5C7.5 13 12 19 12 19s4.5-6 4.5-9.5C16.5 7 14.5 5 12 5z"
-                fill="white"
-              />
-            </svg>
-            <span className="font-serif text-lg font-semibold text-ink">JasaKebumen</span>
+            <Image
+              src="/logo-sm.png"
+              alt="JasaKebumen"
+              width={32}
+              height={32}
+              className="h-8 w-8"
+              priority
+            />
+            <span className="font-semibold tracking-tight text-ink">JasaKebumen</span>
           </Link>
         </div>
       </div>
