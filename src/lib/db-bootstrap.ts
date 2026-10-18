@@ -53,6 +53,17 @@ const DDL_STATEMENTS: string[] = [
     "createdAt"  TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
   )`,
   `CREATE INDEX IF NOT EXISTS "Review_providerId_status_idx" ON "Review"("providerId", "status")`,
+  `CREATE TABLE IF NOT EXISTS "CsMessage" (
+    "id"        TEXT PRIMARY KEY,
+    "sessionId" TEXT NOT NULL,
+    "name"      TEXT NOT NULL DEFAULT '',
+    "contact"   TEXT NOT NULL DEFAULT '',
+    "text"      TEXT NOT NULL,
+    "handled"   BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE INDEX IF NOT EXISTS "CsMessage_sessionId_idx" ON "CsMessage"("sessionId")`,
+  `CREATE INDEX IF NOT EXISTS "CsMessage_handled_createdAt_idx" ON "CsMessage"("handled", "createdAt")`,
 ];
 
 async function ensureSchema(): Promise<void> {

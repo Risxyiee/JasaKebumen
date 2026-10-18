@@ -58,3 +58,16 @@ model Review {
 
   @@index([providerId, status])
 }
+
+model CsMessage {
+  id        String   @id @default(cuid())
+  sessionId String // sesi chat widget per pengunjung
+  name      String   @default("") // nama panggilan (opsional)
+  contact   String   @default("") // nomor WA penganjur, jika ditinggalkan
+  text      String
+  handled   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([sessionId])
+  @@index([handled, createdAt])
+}

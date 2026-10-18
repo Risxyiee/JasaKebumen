@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import CsChat from "@/components/CsChat";
 import PhotoGallery from "@/components/PhotoGallery";
 import ReviewForm from "@/components/ReviewForm";
 import ShareButton from "@/components/ShareButton";
@@ -362,6 +363,9 @@ export default async function ProviderProfilePage({
       </div>
 
       <Footer />
+
+      {/* CS bot widget seluruh situs */}
+      <CsChat />
     </main>
   );
 }

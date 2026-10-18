@@ -1,4 +1,4 @@
-import { ArrowUpRight, Asterisk, MessageCircle } from "lucide-react";
+import { ArrowUpRight, Asterisk } from "lucide-react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Stats from "@/components/Stats";
@@ -9,6 +9,7 @@ import HowItWorks from "@/components/HowItWorks";
 import Benefits from "@/components/Benefits";
 import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
+import CsChat from "@/components/CsChat";
 import { SearchProvider } from "@/components/search-context";
 import { waAdminLink, toWaIntl, type DirectoryProvider } from "@/lib/data";
 import { db } from "@/lib/db";
@@ -165,14 +166,8 @@ export default async function Page() {
       </main>
       <Footer />
 
-      {/* WhatsApp FAB */}
-      <a
-        href={waAdminLink("Halo Admin JasaKebumen, saya butuh bantuan.")}
-        target="_blank" rel="noopener noreferrer" aria-label="Chat admin"
-        className="fixed bottom-5 right-5 z-40 grid h-11 w-11 place-items-center rounded-full bg-green text-white shadow-lg shadow-black/10 ring-1 ring-white/20 transition hover:bg-green-dark"
-      >
-        <MessageCircle className="h-5 w-5" />
-      </a>
+      {/* CS bot widget (menangani FAQ + titip pesan + notif owner) */}
+      <CsChat />
     </SearchProvider>
   );
 }

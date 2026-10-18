@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { ensureDb } from "@/lib/db-bootstrap";
+import { notifyNewReview } from "@/lib/notify";
 
 /* Always render on demand — never run at build time */
 export const dynamic = "force-dynamic";
@@ -53,7 +54,7 @@ export async function POST(
     /* Hanya usaha yang sudah tayang yang bisa diulas */
     const provider = await db.provider.findUnique({
       where: { id },
-      select: { id: true, status: true },
+      select: { id: true, name: true, status: true },
     });
     if (!provider || provider.status !== "published") {
       return NextResponse.json(
@@ -71,6 +72,14 @@ export async function POST(
         status: "pending",
       },
     });
+
+    /* Notifikasi owner via Telegram — kegagalan tidak menggagalkan ulasan */
+    notifyNewReview({
+      providerName: provider.name,
+      reviewerName: cleanName,
+      rating: numRating,
+      comment: cleanComment,
+    }).catch(() => {});
 
     return NextResponse.json({ ok: true, id: review.id }, { status: 201 });
   } catch (error) {

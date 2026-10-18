@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
 import { ensureDb } from "@/lib/db-bootstrap";
+import { notifyNewProvider } from "@/lib/notify";
 
 /* Always render on demand — never run at build time */
 export const dynamic = "force-dynamic";
@@ -101,6 +102,15 @@ export async function POST(req: NextRequest) {
       },
       include: { category: true, district: true },
     });
+
+    /* Notifikasi owner via Telegram — kegagalan tidak menggagalkan pendaftaran */
+    notifyNewProvider({
+      name: provider.name,
+      categoryName: provider.category.name,
+      districtName: provider.district.name,
+      whatsappNumber: provider.whatsappNumber,
+      photoCount: images.length,
+    }).catch(() => {});
 
     return NextResponse.json({ provider: { id: provider.id } }, { status: 201 });
   } catch (error) {

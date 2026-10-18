@@ -54,8 +54,18 @@ interface AdminReview {
   provider: { id: string; name: string; status: string };
 }
 
+interface CsMsg {
+  id: string;
+  sessionId: string;
+  name: string;
+  contact: string;
+  text: string;
+  handled: boolean;
+  createdAt: string;
+}
+
 type StatusFilter = "all" | "pending" | "published" | "rejected";
-type AdminTab = "mitra" | "ulasan";
+type AdminTab = "mitra" | "ulasan" | "pesan";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: typeof Clock }> = {
   pending: { label: "Menunggu", color: "text-amber-700", bg: "bg-amber-50 border-amber-200", icon: Clock },
@@ -67,6 +77,7 @@ export default function AdminPage() {
   const [tab, setTab] = useState<AdminTab>("mitra");
   const [providers, setProviders] = useState<Provider[]>([]);
   const [reviews, setReviews] = useState<AdminReview[]>([]);
+  const [csMsgs, setCsMsgs] = useState<CsMsg[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -100,10 +111,45 @@ export default function AdminPage() {
     }
   }, []);
 
+  const fetchMessages = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/messages");
+      const data = await res.json();
+      setCsMsgs(data.messages || []);
+    } catch {
+      setCsMsgs([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (tab === "mitra") fetchProviders();
-    else fetchReviews();
-  }, [tab, fetchProviders, fetchReviews]);
+    else if (tab === "ulasan") fetchReviews();
+    else fetchMessages();
+  }, [tab, fetchProviders, fetchReviews, fetchMessages]);
+
+  const updateMessageHandled = async (id: string, handled: boolean) => {
+    setUpdating(id);
+    try {
+      const res = await fetch("/api/admin/messages", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, handled }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCsMsgs((prev) =>
+          prev.map((m) => (m.id === id ? data.message : m))
+        );
+      }
+    } catch {
+      // silent
+    } finally {
+      setUpdating(null);
+    }
+  };
 
   const updateReviewStatus = async (id: string, newStatus: string) => {
     setUpdating(id);
@@ -178,7 +224,9 @@ export default function AdminPage() {
             </div>
           </div>
           <button
-            onClick={tab === "mitra" ? fetchProviders : fetchReviews}
+            onClick={
+              tab === "mitra" ? fetchProviders : tab === "ulasan" ? fetchReviews : fetchMessages
+            }
             disabled={loading}
             className="inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-xs font-medium text-mute transition hover:border-green/30 hover:text-green disabled:opacity-50"
           >
@@ -194,6 +242,7 @@ export default function AdminPage() {
           {([
             { key: "mitra", label: "Mitra", count: counts.pending },
             { key: "ulasan", label: "Ulasan", count: reviews.filter((r) => r.status === "pending").length },
+            { key: "pesan", label: "Pesan", count: csMsgs.filter((m) => !m.handled).length },
           ] as { key: AdminTab; label: string; count: number }[]).map((t) => (
             <button
               key={t.key}
@@ -518,6 +567,91 @@ export default function AdminPage() {
                     </div>
                   );
                 })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === "pesan" && (
+          <div className="mt-6">
+            {loading ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="h-6 w-6 animate-spin text-faint" />
+                <span className="ml-3 text-mute">Memuat pesan…</span>
+              </div>
+            ) : csMsgs.length === 0 ? (
+              <div className="rounded-xl border border-line bg-white py-16 text-center">
+                <MessageCircle className="mx-auto h-10 w-10 text-faint" />
+                <p className="mt-3 text-mute">Belum ada pesan masuk.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {[...csMsgs]
+                  .sort((a, b) => (a.handled === b.handled ? 0 : a.handled ? 1 : -1))
+                  .map((m) => {
+                    const isUpdating = updating === m.id;
+                    const waDigits = m.contact.replace(/\D/g, "").replace(/^0/, "62");
+
+                    return (
+                      <div
+                        key={m.id}
+                        className={`rounded-xl border bg-white p-5 transition-shadow hover:shadow-md ${
+                          m.handled ? "border-line" : "border-amber-200 shadow-[0_0_0_1px_rgba(245,158,11,.08)]"
+                        }`}
+                      >
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <p className="text-sm font-semibold text-ink">
+                                {m.name || "Pengunjung"}
+                              </p>
+                              {!m.handled && (
+                                <span className="rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+                                  Belum ditangani
+                                </span>
+                              )}
+                            </div>
+                            <p className="mt-0.5 text-xs text-faint">
+                              {new Date(m.createdAt).toLocaleString("id-ID", {
+                                day: "numeric", month: "short", year: "numeric",
+                                hour: "2-digit", minute: "2-digit",
+                              })}
+                              {" "}· sesi {m.sessionId.slice(-6)}
+                            </p>
+                            <p className="mt-3 text-sm leading-relaxed text-mute">{m.text}</p>
+                          </div>
+
+                          <div className="flex shrink-0 items-center gap-2">
+                            {waDigits && (
+                              <a
+                                href={`https://wa.me/${waDigits}?text=${encodeURIComponent(`Halo ${m.name || ""}, saya admin JasaKebumen. Menjawab pesan Anda: "${m.text.slice(0, 60)}..."`)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1.5 rounded-lg bg-green px-4 py-2 text-xs font-semibold text-white transition hover:bg-green-dark"
+                              >
+                                <MessageCircle className="h-3.5 w-3.5" />
+                                Balas WA
+                              </a>
+                            )}
+                            <button
+                              onClick={() => updateMessageHandled(m.id, !m.handled)}
+                              disabled={isUpdating}
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-line px-4 py-2 text-xs font-medium text-mute transition hover:border-green/30 hover:text-green disabled:opacity-50"
+                            >
+                              {isUpdating ? (
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              ) : m.handled ? (
+                                <Eye className="h-3.5 w-3.5" />
+                              ) : (
+                                <CheckCircle2 className="h-3.5 w-3.5" />
+                              )}
+                              {m.handled ? "Buka lagi" : "Tandai selesai"}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
               </div>
             )}
           </div>
