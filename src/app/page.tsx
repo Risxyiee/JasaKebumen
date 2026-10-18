@@ -1,5 +1,3 @@
-"use client";
-
 import { ArrowUpRight, Asterisk, MessageCircle } from "lucide-react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -12,18 +10,85 @@ import Benefits from "@/components/Benefits";
 import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
 import { SearchProvider } from "@/components/search-context";
-import { waAdminLink } from "@/lib/data";
+import { waAdminLink, toWaIntl, type DirectoryProvider } from "@/lib/data";
+import { db } from "@/lib/db";
 
-export default function Page() {
+/* Direktori harus selalu segar — mitra baru yang di-approve admin langsung tayang.
+   force-dynamic: jangan pernah dieksekusi/di-prerender saat build (DB belum pasti ada). */
+export const dynamic = "force-dynamic";
+
+type ProviderRow = {
+  id: string;
+  name: string;
+  description: string;
+  whatsappNumber: string;
+  category: { name: string };
+  district: { name: string };
+};
+
+/** Provider DB → bentuk tampilan direktori. Rating/ulasan asli belum ada di DB,
+    jadi semua mitra tampil jujur sebagai "Mitra baru" dengan lencana terverifikasi. */
+function toDirectoryProvider(p: ProviderRow): DirectoryProvider {
+  return {
+    id: p.id,
+    name: p.name,
+    cat: p.category.name,
+    district: p.district.name,
+    verified: true, // hanya status "published" yang sampai sini = sudah dikurasi admin
+    rating: null,
+    reviews: 0,
+    price: "", // DB belum menyimpan tarif → baris menampilkan "hubungi"
+    keywords: `${p.description} ${p.category.name} ${p.district.name}`.toLowerCase(),
+    wa: toWaIntl(p.whatsappNumber),
+    msg: `Halo ${p.name}, saya menemukan usaha Anda di JasaKebumen. Boleh tanya-tanya layanan Anda?`,
+  };
+}
+
+async function getHomeData(): Promise<{
+  providers: DirectoryProvider[];
+  catCounts: Record<string, number>;
+}> {
+  try {
+    const [rows, categories] = await Promise.all([
+      db.provider.findMany({
+        where: { status: "published" },
+        include: { category: true, district: true },
+        orderBy: { createdAt: "desc" },
+      }),
+      db.category.findMany({
+        include: {
+          _count: { select: { providers: { where: { status: "published" } } } },
+        },
+      }),
+    ]);
+
+    const catCounts: Record<string, number> = {};
+    for (const c of categories) catCounts[c.name] = c._count.providers;
+
+    return {
+      providers: rows.map(toDirectoryProvider),
+      catCounts,
+    };
+  } catch (error) {
+    /* DB belum dikonfigurasi / tidak terjangkau → tampilkan situs kosong yang jujur,
+       jangan 500. (Cek console Workers untuk detailnya.) */
+    console.error("Homepage DB error:", error);
+    return { providers: [], catCounts: {} };
+  }
+}
+
+export default async function Page() {
+  const { providers, catCounts } = await getHomeData();
+
   return (
     <SearchProvider>
       <Header />
       <main className="min-h-screen">
         <Hero />
-        <Stats />
-        <Features />
-        <CategoryGrid />
-        <ProviderDirectory />
+        <Stats mitra={providers.length} />
+        <Features providers={providers} />
+        <CategoryGrid counts={catCounts} />
+        <ProviderDirectory providers={providers} />
         <HowItWorks />
         <Benefits />
 
@@ -59,9 +124,9 @@ export default function Page() {
                     <span className="grid h-8 w-8 place-items-center rounded-full bg-white/15 text-[11px] font-bold ring-2 ring-green">AS</span>
                     <span className="grid h-8 w-8 place-items-center rounded-full bg-white/25 text-[11px] font-bold ring-2 ring-green">GJ</span>
                     <span className="grid h-8 w-8 place-items-center rounded-full bg-white/35 text-[11px] font-bold ring-2 ring-green">RL</span>
-                    <span className="grid h-8 w-8 place-items-center rounded-full bg-amber-400 text-[11px] font-bold text-green-dark ring-2 ring-green">+29</span>
+                    <span className="grid h-8 w-8 place-items-center rounded-full bg-amber-400 text-[11px] font-bold text-green-dark ring-2 ring-green">+{Math.max(providers.length, 1)}</span>
                   </div>
-                  <span className="font-mono text-xs text-white/50">mitra baru bulan ini</span>
+                  <span className="font-mono text-xs text-white/50">mitra bergabung di JasaKebumen</span>
                 </div>
               </div>
             </div>

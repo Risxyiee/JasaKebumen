@@ -20,9 +20,10 @@ binding = "ASSETS"
 enabled = true
 head_sampling_rate = 1
 
-# Non-secret runtime vars.
-# NOTE: DATABASE_URL (Aiven PostgreSQL) harus diisi di dashboard Cloudflare:
-#       Workers & Pages -> jasakebumen -> Settings -> Variables and Secrets
-[vars]
-ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "kebumen2025"
+# Kredensial TIDAK ditaruh di file ini (bisa terbaca publik lewat repo).
+# Set sebagai SECRETS di dashboard Cloudflare:
+#   Workers & Pages -> jasakebumen -> Settings -> Variables and Secrets
+#   -> ADMIN_USERNAME  (type: Secret)
+#   -> ADMIN_PASSWORD  (type: Secret, jangan pakai password lama yang sudah terekspos di git)
+#   -> DATABASE_URL    (type: Secret)
+# OpenNext otomatis meneruskan secrets ke process.env saat runtime.

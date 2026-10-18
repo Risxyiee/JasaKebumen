@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { requireAdmin } from "@/lib/admin-auth";
 
 /* Always render on demand — never run at build time */
 export const dynamic = "force-dynamic";
 
-/* PATCH /api/providers/status — Update provider status (publish/reject) */
+/* PATCH /api/providers/status — Update provider status (publish/reject). ADMIN-ONLY. */
 export async function PATCH(req: NextRequest) {
+  /* Defense in depth: middleware juga melindungi path ini, tapi route
+     tetap memverifikasi sendiri — jangan pernah percaya satu lapisan saja. */
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
+
   try {
     const body = await req.json();
     const { id, status } = body;

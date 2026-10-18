@@ -208,7 +208,7 @@ export default function AdminPage() {
               {filteredProviders.map((p) => {
                 const cfg = STATUS_CONFIG[p.status] || STATUS_CONFIG.pending;
                 const StatusIcon = cfg.icon;
-                const isUpdating = updating === p;
+                const isUpdating = updating === p.id;
 
                 return (
                   <div

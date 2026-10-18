@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { directoryStats } from "@/lib/data";
+import { CATS, KECAMATAN_DIPETAKAN } from "@/lib/data";
 
 function CountUp({ to, decimals = 0 }: { to: number; decimals?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -39,13 +39,12 @@ function CountUp({ to, decimals = 0 }: { to: number; decimals?: number }) {
 
 const PAD = ["md:pr-8", "md:px-8", "md:px-8", "md:pl-8"];
 
-export default function Stats() {
-  const s = directoryStats();
+export default function Stats({ mitra }: { mitra: number }) {
   const cells = [
-    { v: s.mitra, d: 0, label: "Mitra terkurasi & tayang", stat: "mitra" },
-    { v: s.kecamatan, d: 0, label: "Kecamatan dipetakan", stat: "kecamatan" },
-    { v: s.rating, d: 1, label: "Rating rata-rata mitra", stat: "rating" },
-    { v: s.ulasan, d: 0, label: "Ulasan dari pelanggan", stat: "ulasan" },
+    { v: mitra, d: 0, label: "Mitra terkurasi & tayang", stat: "mitra" },
+    { v: KECAMATAN_DIPETAKAN, d: 0, label: "Kecamatan dipetakan", stat: "kecamatan" },
+    { v: CATS.length, d: 0, label: "Kategori jasa", stat: "kategori" },
+    { v: 0, d: 0, label: "Komisi per transaksi — tetap Rp0", stat: "komisi" },
   ];
 
   return (

@@ -123,6 +123,30 @@ export const CATS: Category[] = [
 export const initials = (name: string) =>
   name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 
+/* ---------- Mapping Provider dari database → bentuk tampilan direktori ---------- */
+
+export interface DirectoryProvider {
+  id: string;
+  name: string;
+  cat: string;
+  district: string;
+  verified: boolean;
+  rating: number | null;
+  reviews: number;
+  price: string; // kosong = belum ada data tarif → baris tampil "hubungi"
+  keywords: string;
+  wa: string; // format internasional tanpa "+", mis. 62812…
+  msg: string;
+}
+
+/** Normalisasi nomor WA lokal ke format internasional tanpa "+" (untuk wa.me). */
+export const toWaIntl = (raw: string): string => {
+  let d = (raw || "").replace(/\D/g, "");
+  if (d.startsWith("0")) d = "62" + d.slice(1);
+  if (!d.startsWith("62")) d = "62" + d;
+  return d;
+};
+
 export const waLink = (p: Provider) =>
   `https://wa.me/${p.wa}?text=${encodeURIComponent(p.msg)}`;
 

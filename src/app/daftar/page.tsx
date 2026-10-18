@@ -43,6 +43,8 @@ export default function DaftarPage() {
   const [districtId, setDistrictId] = useState("");
   const [description, setDescription] = useState("");
   const [whatsappNumber, setWhatsappNumber] = useState("");
+  /* Honeypot anti-spam: field tersembunyi — manusia tidak pernah mengisinya */
+  const [honeypot, setHoneypot] = useState("");
 
   useEffect(() => {
     Promise.all([
@@ -72,6 +74,7 @@ export default function DaftarPage() {
           districtId,
           description,
           whatsappNumber,
+          website: honeypot,
         }),
       });
 
@@ -174,6 +177,20 @@ export default function DaftarPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Honeypot — tersembunyi dari manusia, bot biasa mengisinya */}
+              <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+                <label htmlFor="website">Website</label>
+                <input
+                  id="website"
+                  name="website"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={honeypot}
+                  onChange={(e) => setHoneypot(e.target.value)}
+                />
+              </div>
+
               {/* Name */}
               <div>
                 <label htmlFor="name" className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-ink">

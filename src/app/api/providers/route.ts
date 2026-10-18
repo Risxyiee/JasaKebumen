@@ -1,14 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { requireAdmin } from "@/lib/admin-auth";
 
 /* Always render on demand — never run at build time */
 export const dynamic = "force-dynamic";
 
-/* POST /api/providers — Submit a new provider (status: pending) */
+/* POST /api/providers — Submit a new provider (status: pending). PUBLIK. */
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, categoryId, districtId, description, whatsappNumber } = body;
+    const { name, categoryId, districtId, description, whatsappNumber, website } = body;
+
+    /* Honeypot: field tersembunyi untuk manusia. Bot yang mengisinya dianggap spam —
+       balas sukses palsu tanpa menyimpan apa pun (jangan memberi sinyal ke bot). */
+    if (typeof website === "string" && website.trim() !== "") {
+      return NextResponse.json({ provider: null }, { status: 201 });
+    }
 
     if (!name || !categoryId || !districtId || !whatsappNumber) {
       return NextResponse.json(
@@ -17,8 +24,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const cleanName = String(name).trim().slice(0, 80);
+    const cleanDesc = String(description || "").trim().slice(0, 1000);
+
     // Validate WhatsApp number format
-    const cleaned = whatsappNumber.replace(/[^0-9]/g, "");
+    const cleaned = String(whatsappNumber).replace(/[^0-9]/g, "");
     if (cleaned.length < 10 || cleaned.length > 15) {
       return NextResponse.json(
         { error: "Nomor WhatsApp tidak valid." },
@@ -28,10 +38,10 @@ export async function POST(req: NextRequest) {
 
     const provider = await db.provider.create({
       data: {
-        name: name.trim(),
-        categoryId,
-        districtId,
-        description: (description || "").trim(),
+        name: cleanName,
+        categoryId: String(categoryId),
+        districtId: String(districtId),
+        description: cleanDesc,
         whatsappNumber: cleaned,
         status: "pending",
       },
@@ -48,8 +58,12 @@ export async function POST(req: NextRequest) {
   }
 }
 
-/* GET /api/providers — List all providers (for admin) */
+/* GET /api/providers — List providers. ADMIN-ONLY:
+   data pendaftar (termasuk yang pending + nomor WA) tidak boleh bocor ke publik. */
 export async function GET(req: NextRequest) {
+  const denied = await requireAdmin(req);
+  if (denied) return denied;
+
   try {
     const url = new URL(req.url);
     const status = url.searchParams.get("status");

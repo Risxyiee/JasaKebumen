@@ -12,7 +12,7 @@ const ICONS: Record<CategoryIcon, LucideIcon> = {
   camera: Camera, hammer: Hammer, scissors: Scissors, zap: Zap,
 };
 
-export default function CategoryGrid() {
+export default function CategoryGrid({ counts = {} }: { counts?: Record<string, number> }) {
   const { setQuery } = useSearch();
   const reduce = useReducedMotion();
   const hoverable = useRef(false);
@@ -67,6 +67,7 @@ export default function CategoryGrid() {
         <div id="catGrid" className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {CATS.map((c, i) => {
             const Icon = ICONS[c.icon];
+            const count = counts[c.label] ?? 0;
             return (
               <Reveal key={c.n} delay={(i % 4) * 0.07} className={c.wide ? "lg:col-span-2" : ""}>
                 <button
@@ -88,7 +89,7 @@ export default function CategoryGrid() {
                       </div>
                       <div className="flex shrink-0 flex-col items-end gap-1.5">
                         <span className="font-mono text-[11px] text-faint">{c.n}</span>
-                        <span className="font-mono text-[11px] tabular-nums text-mute">{c.count} mitra</span>
+                        <span className="font-mono text-[11px] tabular-nums text-mute">{count} mitra</span>
                         <ArrowUpRight className="h-4 w-4 -translate-x-1 text-green opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100" />
                       </div>
                     </div>
@@ -102,7 +103,7 @@ export default function CategoryGrid() {
                       </div>
                       <h3 data-depth="10" className="mt-4 text-[15px] font-semibold leading-snug tracking-tight transition-colors group-hover:text-green">{c.label}</h3>
                       <p data-depth="10" className="mt-1 flex items-center justify-between font-mono text-[11px] tabular-nums text-mute">
-                        {c.count} mitra
+                        {count} mitra
                         <ArrowUpRight className="h-3.5 w-3.5 -translate-x-1 text-green opacity-0 transition group-hover:translate-x-0 group-hover:opacity-100" />
                       </p>
                     </div>

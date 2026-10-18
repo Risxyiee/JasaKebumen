@@ -4,20 +4,20 @@ import { useEffect, useRef, useState } from "react";
 import { useInView } from "framer-motion";
 import { Asterisk, MessageCircle, Search } from "lucide-react";
 import Reveal from "./Reveal";
-import { PROVIDERS, type Provider } from "@/lib/data";
+import type { DirectoryProvider } from "@/lib/data";
 
 const DEMO_QUERIES = ["servis ac", "tukang listrik", "fotografer", "laundry"];
-const chipsFor = (q: string) =>
-  PROVIDERS.filter((p) => (p.keywords + " " + p.cat).toLowerCase().includes(q)).slice(0, 3);
+const chipsFor = (providers: DirectoryProvider[], q: string) =>
+  providers.filter((p) => (p.keywords + " " + p.cat).toLowerCase().includes(q)).slice(0, 3);
 
 const vd = (v: string) => ({ "--d": v }) as React.CSSProperties;
 
-export default function Features() {
+export default function Features({ providers = [] }: { providers?: DirectoryProvider[] }) {
   const secRef = useRef<HTMLElement>(null);
   const inView = useInView(secRef, { margin: "200px 0px" });
   const startedRef = useRef(false);
   const [typed, setTyped] = useState("");
-  const [chips, setChips] = useState<Provider[]>([]);
+  const [chips, setChips] = useState<DirectoryProvider[]>([]);
 
   useEffect(() => {
     if (!inView || startedRef.current) return;
@@ -37,7 +37,7 @@ export default function Features() {
         }
         await sleep(400);
         if (cancelled) return;
-        setChips(chipsFor(q));
+        setChips(chipsFor(providers, q));
         await sleep(2800);
         if (cancelled) return;
         setChips([]);

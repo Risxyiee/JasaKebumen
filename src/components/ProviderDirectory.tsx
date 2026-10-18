@@ -2,14 +2,14 @@
 
 import { useMemo } from "react";
 import { Asterisk, BadgeCheck, MessageCircle, Star } from "lucide-react";
-import { PROVIDERS, initials, type Provider } from "@/lib/data";
+import { initials, type DirectoryProvider } from "@/lib/data";
 import { useSearch } from "./search-context";
 import Reveal from "./Reveal";
 
 const pad2 = (i: number) => String(i + 1).padStart(2, "0");
 
-function ProviderRow({ p, i }: { p: Provider; i: number }) {
-  const verified = p.rating !== null;
+function ProviderRow({ p, i }: { p: DirectoryProvider; i: number }) {
+  const verified = p.verified || p.rating !== null;
   return (
     <Reveal delay={Math.min(i, 7) * 0.06}>
       <article className="prov-row group border-b border-line transition-colors hover:bg-paper">
@@ -43,14 +43,18 @@ function ProviderRow({ p, i }: { p: Provider; i: number }) {
 
           <div className="mt-3 flex items-center gap-6 font-mono text-sm tabular-nums md:mt-0 md:justify-self-end">
             {verified ? (
-              <span className="inline-flex items-center gap-1.5">
-                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                {p.rating?.toFixed(1)} <span className="text-faint">({p.reviews})</span>
-              </span>
+              p.rating !== null ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                  {p.rating?.toFixed(1)} <span className="text-faint">({p.reviews})</span>
+                </span>
+              ) : (
+                <span className="text-amber-600">Mitra baru</span>
+              )
             ) : (
               <span className="text-amber-600">Mitra baru</span>
             )}
-            <span><span className="text-faint">mulai</span> {p.price}</span>
+            {p.price && <span><span className="text-faint">mulai</span> {p.price}</span>}
           </div>
 
           <a
@@ -69,16 +73,16 @@ function ProviderRow({ p, i }: { p: Provider; i: number }) {
   );
 }
 
-export default function ProviderDirectory() {
+export default function ProviderDirectory({ providers = [] }: { providers?: DirectoryProvider[] }) {
   const { query, district, reset } = useSearch();
 
   const filtered = useMemo(() => {
     const tokens = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
-    return PROVIDERS.filter((p) => {
+    return providers.filter((p) => {
       const hay = `${p.name} ${p.cat} ${p.district} ${p.keywords}`.toLowerCase();
       return tokens.every((t) => hay.includes(t)) && (district === "all" || p.district === district);
     });
-  }, [query, district]);
+  }, [providers, query, district]);
 
   const active = query.trim() !== "" || district !== "all";
   const filterLabel = [
@@ -103,7 +107,7 @@ export default function ProviderDirectory() {
               </p>
             </div>
             <p className="font-mono text-xs tabular-nums text-faint">
-              <span id="countShown">{filtered.length}</span> / {PROVIDERS.length} mitra
+              <span id="countShown">{filtered.length}</span> / {providers.length} mitra
             </p>
           </div>
         </Reveal>
@@ -127,7 +131,22 @@ export default function ProviderDirectory() {
           ))}
         </div>
 
-        <div id="emptyState" className={`mt-10 ${filtered.length === 0 ? "" : "hidden"} border-t border-line py-14 text-center`}>
+        {/* Belum ada mitra sama sekali (DB kosong) — ajak yang pertama */}
+        <div className={`mt-10 border-t border-line py-14 text-center ${providers.length === 0 ? "" : "hidden"}`}>
+          <p className="font-serif text-2xl text-ink">Direktori masih kosong.</p>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-mute">
+            Jadi mitra pertama yang tayang di sini — pendaftaran gratis dan
+            dikurasi langsung oleh tim kami sebelum ditampilkan.
+          </p>
+          <a
+            href="/daftar"
+            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-dark"
+          >
+            Daftarkan usaha — gratis
+          </a>
+        </div>
+
+        <div id="emptyState" className={`mt-10 ${filtered.length === 0 && providers.length > 0 ? "" : "hidden"} border-t border-line py-14 text-center`}>
           <p className="text-[15px] font-medium">Tidak ada mitra yang cocok.</p>
           <p className="mt-1.5 text-sm text-mute">Coba kata kunci lain, atau pilih &quot;Semua kecamatan&quot;.</p>
           <button

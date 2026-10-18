@@ -1,44 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ADMIN_COOKIE, adminCookieValid, basicAuthValid, expectedAdminToken } from "@/lib/admin-auth";
 
-export function middleware(req: NextRequest) {
-  /* Only protect /admin and its sub-paths */
-  if (!req.nextUrl.pathname.startsWith("/admin")) {
+/**
+ * Perlindungan:
+ *  - /admin/*                  → Basic auth (browser popup) + cookie sesi
+ *  - /api/providers/status/*   → POST/PATCH/DELETE admin-only (publish/reject)
+ *  - /api/providers            → GET admin-only; POST tetap PUBLIK (formulir /daftar)
+ *
+ * Catatan: middleware adalah lapisan pertama. Route handler admin juga
+ * memanggil requireAdmin() sendiri (defense in depth).
+ */
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  /* Formulir pendaftaran mitra — publik, tanpa auth */
+  if (pathname === "/api/providers" && req.method === "POST") {
     return NextResponse.next();
   }
 
-  const username = process.env.ADMIN_USERNAME;
-  const password = process.env.ADMIN_PASSWORD;
+  const token = await expectedAdminToken();
 
-  /* If env vars are not set, block all access */
-  if (!username || !password) {
-    return new NextResponse("Admin not configured.", { status: 503 });
+  /* Belum dikonfigurasi → tolak semua akses admin (fail closed) */
+  if (!token) {
+    return new NextResponse("Admin belum dikonfigurasi.", { status: 503 });
   }
 
-  /* Parse the Authorization header */
-  const authHeader = req.headers.get("authorization");
-
-  if (authHeader) {
-    const [scheme, encoded] = authHeader.split(" ");
-
-    if (scheme === "Basic") {
-      const decoded = Buffer.from(encoded, "base64").toString("utf-8");
-      const [inputUser, inputPass] = decoded.split(":");
-
-      if (inputUser === username && inputPass === password) {
-        return NextResponse.next();
-      }
-    }
+  if (basicAuthValid(req) || (await adminCookieValid(req))) {
+    const res = NextResponse.next();
+    /* Set/refresh cookie sesi — dipakai fetch() dari halaman admin */
+    res.cookies.set(ADMIN_COOKIE, token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 12,
+    });
+    return res;
   }
 
-  /* Reject — ask browser to show Basic Auth prompt */
-  return new NextResponse(null, {
-    status: 401,
-    headers: {
-      "WWW-Authenticate": 'Basic realm="JasaKebumen Admin", charset="UTF-8"',
-    },
-  });
+  /* Halaman /admin → challenge Basic auth (popup browser) */
+  if (pathname.startsWith("/admin")) {
+    return new NextResponse(null, {
+      status: 401,
+      headers: {
+        "WWW-Authenticate": 'Basic realm="JasaKebumen Admin", charset="UTF-8"',
+      },
+    });
+  }
+
+  /* API admin → 401 JSON polos (tanpa popup) */
+  return NextResponse.json({ error: "Tidak memiliki akses." }, { status: 401 });
 }
 
 export const config = {
-  matcher: "/admin/:path*",
+  matcher: ["/admin/:path*", "/api/providers", "/api/providers/status/:path*"],
 };
