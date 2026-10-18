@@ -12,6 +12,7 @@ import {
   RefreshCw,
   Search,
   Shield,
+  Star,
   XCircle,
   ExternalLink,
 } from "lucide-react";
@@ -43,7 +44,18 @@ interface Provider {
   district: District;
 }
 
+interface AdminReview {
+  id: string;
+  name: string;
+  rating: number;
+  comment: string;
+  status: string;
+  createdAt: string;
+  provider: { id: string; name: string; status: string };
+}
+
 type StatusFilter = "all" | "pending" | "published" | "rejected";
+type AdminTab = "mitra" | "ulasan";
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: typeof Clock }> = {
   pending: { label: "Menunggu", color: "text-amber-700", bg: "bg-amber-50 border-amber-200", icon: Clock },
@@ -52,7 +64,9 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
 };
 
 export default function AdminPage() {
+  const [tab, setTab] = useState<AdminTab>("mitra");
   const [providers, setProviders] = useState<Provider[]>([]);
+  const [reviews, setReviews] = useState<AdminReview[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -73,9 +87,44 @@ export default function AdminPage() {
     }
   }, [statusFilter]);
 
+  const fetchReviews = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/reviews");
+      const data = await res.json();
+      setReviews(data.reviews || []);
+    } catch {
+      setReviews([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    fetchProviders();
-  }, [fetchProviders]);
+    if (tab === "mitra") fetchProviders();
+    else fetchReviews();
+  }, [tab, fetchProviders, fetchReviews]);
+
+  const updateReviewStatus = async (id: string, newStatus: string) => {
+    setUpdating(id);
+    try {
+      const res = await fetch("/api/admin/reviews", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: newStatus }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setReviews((prev) =>
+          prev.map((r) => (r.id === id ? data.review : r))
+        );
+      }
+    } catch {
+      // silent
+    } finally {
+      setUpdating(null);
+    }
+  };
 
   const updateStatus = async (id: string, newStatus: string) => {
     setUpdating(id);
@@ -129,7 +178,7 @@ export default function AdminPage() {
             </div>
           </div>
           <button
-            onClick={fetchProviders}
+            onClick={tab === "mitra" ? fetchProviders : fetchReviews}
             disabled={loading}
             className="inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-1.5 text-xs font-medium text-mute transition hover:border-green/30 hover:text-green disabled:opacity-50"
           >
@@ -140,6 +189,34 @@ export default function AdminPage() {
       </div>
 
       <main className="mx-auto max-w-6xl px-5 py-8">
+        {/* Tab: Mitra / Ulasan */}
+        <div className="flex items-center gap-2">
+          {([
+            { key: "mitra", label: "Mitra", count: counts.pending },
+            { key: "ulasan", label: "Ulasan", count: reviews.filter((r) => r.status === "pending").length },
+          ] as { key: AdminTab; label: string; count: number }[]).map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition ${
+                tab === t.key
+                  ? "bg-green text-white"
+                  : "border border-line bg-white text-mute hover:border-green/30 hover:text-green"
+              }`}
+            >
+              {t.label}
+              {t.count > 0 && (
+                <span className={`grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-bold ${
+                  tab === t.key ? "bg-white/20 text-white" : "bg-amber-100 text-amber-700"
+                }`}>
+                  {t.count}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {tab === "mitra" && (<>
         {/* Stats Cards */}
         <div className="grid gap-4 sm:grid-cols-3">
           {([
@@ -347,6 +424,104 @@ export default function AdminPage() {
             </div>
           )}
         </div>
+
+        </>
+        )}
+
+        {tab === "ulasan" && (
+          <div className="mt-6">
+            {loading ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="h-6 w-6 animate-spin text-faint" />
+                <span className="ml-3 text-mute">Memuat ulasan…</span>
+              </div>
+            ) : reviews.length === 0 ? (
+              <div className="rounded-xl border border-line bg-white py-16 text-center">
+                <Star className="mx-auto h-10 w-10 text-faint" />
+                <p className="mt-3 text-mute">Belum ada ulasan masuk.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {reviews.map((r) => {
+                  const cfg = STATUS_CONFIG[r.status] || STATUS_CONFIG.pending;
+                  const StatusIcon = cfg.icon;
+                  const isUpdating = updating === r.id;
+
+                  return (
+                    <div
+                      key={r.id}
+                      className={`rounded-xl border bg-white p-5 transition-shadow hover:shadow-md ${
+                        r.status === "pending"
+                          ? "border-amber-200 shadow-[0_0_0_1px_rgba(245,158,11,.08)]"
+                          : "border-line"
+                      }`}
+                    >
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            {/* Bintang */}
+                            <span className="inline-flex items-center gap-0.5">
+                              {[1, 2, 3, 4, 5].map((n) => (
+                                <Star
+                                  key={n}
+                                  className={`h-4 w-4 ${r.rating >= n ? "fill-amber-400 text-amber-400" : "text-stone-300"}`}
+                                />
+                              ))}
+                            </span>
+                            <span className={`inline-flex shrink-0 items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-medium ${cfg.bg} ${cfg.color}`}>
+                              <StatusIcon className="h-3 w-3" />
+                              {cfg.label}
+                            </span>
+                          </div>
+                          <p className="mt-2 text-sm font-semibold text-ink">
+                            {r.name}
+                            <span className="font-normal text-faint">
+                              {" "}untuk{" "}
+                              <Link href={`/usaha/${r.provider.id}`} className="text-green underline underline-offset-2 hover:text-green-dark" target="_blank">
+                                {r.provider.name}
+                              </Link>
+                            </span>
+                          </p>
+                          {r.comment && (
+                            <p className="mt-2 text-sm leading-relaxed text-mute">{r.comment}</p>
+                          )}
+                          <p className="mt-2 text-xs text-faint">
+                            {new Date(r.createdAt).toLocaleDateString("id-ID", {
+                              day: "numeric", month: "short", year: "numeric",
+                            })}
+                          </p>
+                        </div>
+
+                        <div className="flex shrink-0 items-center gap-2">
+                          {r.status !== "published" && (
+                            <button
+                              onClick={() => updateReviewStatus(r.id, "published")}
+                              disabled={isUpdating}
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-green px-4 py-2 text-xs font-semibold text-white transition hover:bg-green-dark disabled:opacity-50"
+                            >
+                              {isUpdating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                              Approve
+                            </button>
+                          )}
+                          {r.status !== "rejected" && (
+                            <button
+                              onClick={() => updateReviewStatus(r.id, "rejected")}
+                              disabled={isUpdating}
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-4 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                            >
+                              <XCircle className="h-3.5 w-3.5" />
+                              Reject
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Footer note */}
         <p className="mt-10 text-center text-xs text-faint">

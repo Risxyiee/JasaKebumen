@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import Link from "next/link";
 import { Asterisk, BadgeCheck, MessageCircle, Star } from "lucide-react";
 import { initials, type DirectoryProvider } from "@/lib/data";
 import { useSearch } from "./search-context";
@@ -19,6 +20,7 @@ function ProviderRow({ p, i }: { p: DirectoryProvider; i: number }) {
           </span>
 
           <div className="flex min-w-0 items-center gap-4">
+            <Link href={`/usaha/${p.id}`} className="flex min-w-0 items-center gap-4 group/link" aria-label={`Lihat profil ${p.name}`}>
             {p.images && p.images.length > 0 ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -34,7 +36,7 @@ function ProviderRow({ p, i }: { p: DirectoryProvider; i: number }) {
             )}
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <h3 className="truncate font-semibold tracking-tight transition-transform duration-300 group-hover:translate-x-0.5">
+                <h3 className="truncate font-semibold tracking-tight transition-all duration-300 group-hover/link:translate-x-0.5 group-hover/link:text-green group-hover:translate-x-0.5">
                   {p.name}
                 </h3>
                 {verified ? (
@@ -49,6 +51,7 @@ function ProviderRow({ p, i }: { p: DirectoryProvider; i: number }) {
                 {p.cat} · Kec. {p.district}
               </p>
             </div>
+            </Link>
           </div>
 
           <div className="mt-3 flex items-center gap-6 font-mono text-sm tabular-nums md:mt-0 md:justify-self-end">
@@ -139,6 +142,11 @@ export default function ProviderDirectory({ providers = [] }: { providers?: Dire
           {filtered.map((p, i) => (
             <ProviderRow key={p.id} p={p} i={i} />
           ))}
+          {filtered.length > 0 && (
+            <p className="py-6 text-center text-sm text-mute">
+              Ketuk nama usaha untuk melihat profil lengkap, foto, dan ulasannya.
+            </p>
+          )}
         </div>
 
         {/* Belum ada mitra sama sekali (DB kosong) — ajak yang pertama */}

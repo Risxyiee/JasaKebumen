@@ -43,6 +43,16 @@ const DDL_STATEMENTS: string[] = [
     "districtId"     TEXT NOT NULL REFERENCES "District"("id") ON DELETE CASCADE
   )`,
   `ALTER TABLE "Provider" ADD COLUMN IF NOT EXISTS "images" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[]`,
+  `CREATE TABLE IF NOT EXISTS "Review" (
+    "id"         TEXT PRIMARY KEY,
+    "providerId" TEXT NOT NULL REFERENCES "Provider"("id") ON DELETE CASCADE,
+    "name"       TEXT NOT NULL,
+    "rating"     INTEGER NOT NULL,
+    "comment"    TEXT NOT NULL DEFAULT '',
+    "status"     TEXT NOT NULL DEFAULT 'pending',
+    "createdAt"  TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE INDEX IF NOT EXISTS "Review_providerId_status_idx" ON "Review"("providerId", "status")`,
 ];
 
 async function ensureSchema(): Promise<void> {

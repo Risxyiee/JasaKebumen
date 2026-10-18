@@ -28,17 +28,22 @@ type ProviderRow = {
   district: { name: string };
 };
 
-/** Provider DB → bentuk tampilan direktori. Rating/ulasan asli belum ada di DB,
-    jadi semua mitra tampil jujur sebagai "Mitra baru" dengan lencana terverifikasi. */
-function toDirectoryProvider(p: ProviderRow): DirectoryProvider {
+/** Provider DB → bentuk tampilan direktori. Rating dari ulasan asli yang
+    sudah di-approve admin (null = belum ada ulasan → tampil "Mitra baru"). */
+function toDirectoryProvider(
+  p: ProviderRow,
+  avgRating?: number,
+  reviewCount?: number
+): DirectoryProvider {
+  const reviews = reviewCount ?? 0;
   return {
     id: p.id,
     name: p.name,
     cat: p.category.name,
     district: p.district.name,
     verified: true, // hanya status "published" yang sampai sini = sudah dikurasi admin
-    rating: null,
-    reviews: 0,
+    rating: reviews > 0 ? Math.round(avgRating! * 10) / 10 : null,
+    reviews,
     price: "", // DB belum menyimpan tarif → baris menampilkan "hubungi"
     keywords: `${p.description} ${p.category.name} ${p.district.name}`.toLowerCase(),
     wa: toWaIntl(p.whatsappNumber),
@@ -55,7 +60,7 @@ async function getHomeData(): Promise<{
     /* Pastikan skema & data referensi siap (self-healing untuk DB baru) */
     await ensureDb();
 
-    const [rows, categories] = await Promise.all([
+    const [rows, categories, reviewStats] = await Promise.all([
       db.provider.findMany({
         where: { status: "published" },
         include: { category: true, district: true },
@@ -66,13 +71,30 @@ async function getHomeData(): Promise<{
           _count: { select: { providers: { where: { status: "published" } } } },
         },
       }),
+      /* Rating asli dari ulasan yang sudah di-approve admin */
+      db.review.groupBy({
+        by: ["providerId"],
+        where: { status: "published" },
+        _avg: { rating: true },
+        _count: { _all: true },
+      }),
     ]);
+
+    const ratingMap = new Map(
+      reviewStats.map((r) => [
+        r.providerId,
+        { avg: r._avg.rating ?? 0, count: r._count._all },
+      ])
+    );
 
     const catCounts: Record<string, number> = {};
     for (const c of categories) catCounts[c.name] = c._count.providers;
 
     return {
-      providers: rows.map(toDirectoryProvider),
+      providers: rows.map((p) => {
+        const stat = ratingMap.get(p.id);
+        return toDirectoryProvider(p, stat?.avg, stat?.count);
+      }),
       catCounts,
     };
   } catch (error) {
