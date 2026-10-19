@@ -5,21 +5,25 @@ import { db } from "@/lib/db";
  * Auth admin — dipakai oleh semua route handler admin (satu-satunya gerbang,
  * middleware dihapus agar tidak duplikat).
  *
- * Dua sumber kredensial, dicek berurutan:
- *  1. Cloudflare Secrets `ADMIN_USERNAME` + `ADMIN_PASSWORD` (opsional).
- *     Masih didukung agar admin yang sudah terbiasa Basic auth tetap jalan.
- *  2. Kredensial tersimpan di database (tabel AdminAuth, satu baris id
- *     "admin") — diatur lewat wizard pengaturan awal di halaman /admin,
- *     dibuka dengan KODE SETUP yang hanya diketahui pemilik situs.
+ * DUA MODE, saling eksklusif:
+ *
+ *  MODE CLOUDFLARE (eksklusif, paling aman) — aktif otomatis begitu secrets
+ *  `ADMIN_USERNAME` + `ADMIN_PASSWORD` terpasang di Cloudflare Workers.
+ *  Satu-satunya jalan masuk adalah kredensial dari secrets tersebut.
+ *  Wizard web / kode setup / kredensial DB diabaikan TOTAL:
+ *   - POST /api/admin/setup  → selalu 403
+ *   - POST /api/admin/login  → hanya cocok env
+ *   - cookie sesi            → hanya token env yang diakui
+ *
+ *  MODE DATABASE (fallback) — dipakai hanya jika env belum diset.
+ *  Kredensial tersimpan di tabel AdminAuth (satu baris id "admin"), diatur
+ *  lewat wizard pengaturan awal di /admin yang dibuka dengan KODE SETUP
+ *  yang hanya diketahui pemilik situs (repo hanya menyimpan hash SHA-256
+ *  dari kodenya, preimage acak kuat).
  *
  * Sesi: cookie `jk_admin` berisi token.
  *  - Sumber env  → token deterministik sha256(user:pass:jasakebumen-admin-v1)
  *  - Sumber DB   → token acak 32 byte tersimpan di kolom sessionToken
- *
- * Keamanan wizard setup: kode setup diverifikasi sebagai SHA-256. Konstanta
- * di repo hanya hash-nya (preimage acak kuat), jadi bocornya repo tidak
- * membuka akses. Kode yang sama juga berfungsi untuk ATUR ULANG kredensial
- * jika suatu saat sandi terlupa.
  */
 
 export const ADMIN_COOKIE = "jk_admin";
@@ -50,6 +54,14 @@ export async function expectedAdminToken(): Promise<string | null> {
   const { username, password } = adminEnv();
   if (!username || !password) return null;
   return sha256Hex(`${username}:${password}:jasakebumen-admin-v1`);
+}
+
+/**
+ * MODE CLOUDFLARE aktif? — true jika ADMIN_USERNAME + ADMIN_PASSWORD
+ * keduanya terpasang. Begitu aktif, mode DB dan wizard web ditutup total.
+ */
+export async function envModeActive(): Promise<boolean> {
+  return !!(await expectedAdminToken());
 }
 
 /* ---------- Kredensial di database ---------- */
@@ -126,13 +138,17 @@ export function basicAuthValid(req: NextRequest): boolean {
   return !!creds && creds.user === username && creds.pass === password;
 }
 
-/** true jika cookie sesi admin valid (cocok token env ATAU token DB) */
+/**
+ * true jika cookie sesi admin valid.
+ * Mode Cloudflare → hanya token env yang diakui (eksklusif, DB tak disentuh).
+ * Mode DB         → token env ATAU token DB.
+ */
 export async function adminCookieValid(req: NextRequest): Promise<boolean> {
   const token = req.cookies.get(ADMIN_COOKIE)?.value;
   if (!token) return false;
 
   const envToken = await expectedAdminToken();
-  if (envToken && token === envToken) return true;
+  if (envToken) return token === envToken; // eksklusif env — jangan cek DB
 
   const row = await getDbAdmin();
   return !!row && row.sessionToken === token;
@@ -152,6 +168,11 @@ export async function adminConfigured(): Promise<boolean> {
 export async function requireAdmin(req: NextRequest): Promise<Response | null> {
   if (basicAuthValid(req)) return null;
   if (await adminCookieValid(req)) return null;
+
+  /* Mode Cloudflare: kredensial DB tidak diakui — 401 polos tanpa lookup DB. */
+  if (await envModeActive()) {
+    return NextResponse.json({ error: "Tidak memiliki akses." }, { status: 401 });
+  }
 
   const configured = await adminConfigured();
   if (!configured) {

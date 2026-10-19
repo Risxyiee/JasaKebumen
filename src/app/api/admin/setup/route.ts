@@ -5,6 +5,7 @@ import {
   ADMIN_COOKIE,
   ADMIN_ROW_ID,
   adminCookieOptions,
+  expectedAdminToken,
   generateSalt,
   generateSessionToken,
   hashPassword,
@@ -30,6 +31,15 @@ const USERNAME_RE = /^[a-zA-Z0-9_.-]{4,40}$/;
  * Sukses → baris AdminAuth dibuat/diperbarui + cookie sesi langsung aktif.
  */
 export async function POST(req: NextRequest) {
+  /* MODE CLOUDFLARE: admin dikunci via secrets → wizard web dimatikan total.
+     Ini penutup jalur kedua; satu-satunya akses adalah kredensial secrets. */
+  if (await expectedAdminToken()) {
+    return NextResponse.json(
+      { error: "Pengaturan via web dinonaktifkan: admin dikunci lewat Cloudflare Secrets." },
+      { status: 403 }
+    );
+  }
+
   const body = await req.json().catch(() => null);
   const code = typeof body?.code === "string" ? body.code.trim() : "";
   const username = typeof body?.username === "string" ? body.username.trim() : "";

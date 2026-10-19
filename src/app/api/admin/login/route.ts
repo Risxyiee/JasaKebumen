@@ -30,14 +30,15 @@ export async function POST(req: NextRequest) {
 
   let token: string | null = null;
 
-  /* 1) Kredensial env (jika pernah diset di Cloudflare) */
+  /* 1) Kredensial env (Cloudflare Secrets) — dalam mode ini DB diabaikan total */
+  const envToken = await expectedAdminToken();
   const env = adminEnv();
-  if (env.username && env.password && username === env.username && password === env.password) {
-    token = await expectedAdminToken();
+  if (envToken && env.username && username === env.username && password === env.password) {
+    token = envToken;
   }
 
-  /* 2) Kredensial dari wizard setup (tabel AdminAuth) */
-  if (!token) {
+  /* 2) Kredensial dari wizard setup (tabel AdminAuth) — hanya saat env tidak aktif */
+  if (!token && !envToken) {
     const row = await getDbAdmin();
     if (row && username === row.username) {
       const hash = await hashPassword(password, row.salt);

@@ -111,7 +111,11 @@ export default function AdminPage() {
           {view === "setup" ? (
             <SetupForm onDone={loadSession} onBack={() => setView("login")} />
           ) : (
-            <LoginForm onDone={loadSession} onReset={() => setView("setup")} />
+            <LoginForm
+              onDone={loadSession}
+              onReset={() => setView("setup")}
+              canReset={!session?.envConfigured}
+            />
           )}
         </div>
 
@@ -127,7 +131,15 @@ export default function AdminPage() {
 
 /* ---------- Form login ---------- */
 
-function LoginForm({ onDone, onReset }: { onDone: () => Promise<void>; onReset: () => void }) {
+function LoginForm({
+  onDone,
+  onReset,
+  canReset,
+}: {
+  onDone: () => Promise<void>;
+  onReset: () => void;
+  canReset: boolean;
+}) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -197,16 +209,23 @@ function LoginForm({ onDone, onReset }: { onDone: () => Promise<void>; onReset: 
         Masuk
       </button>
 
-      <p className="text-center text-xs text-faint">
-        Lupa sandi?{" "}
-        <button
-          type="button"
-          onClick={onReset}
-          className="font-medium text-green underline underline-offset-2 transition hover:text-green-dark"
-        >
-          Atur ulang dengan kode setup
-        </button>
-      </p>
+      {canReset ? (
+        <p className="text-center text-xs text-faint">
+          Lupa sandi?{" "}
+          <button
+            type="button"
+            onClick={onReset}
+            className="font-medium text-green underline underline-offset-2 transition hover:text-green-dark"
+          >
+            Atur ulang dengan kode setup
+          </button>
+        </p>
+      ) : (
+        <p className="text-center text-xs leading-relaxed text-faint">
+          Akses admin dikunci lewat Cloudflare Secrets (ADMIN_USERNAME &amp; ADMIN_PASSWORD).
+          Untuk mengganti kredensial, ubah secrets di dashboard Cloudflare.
+        </p>
+      )}
     </form>
   );
 }
