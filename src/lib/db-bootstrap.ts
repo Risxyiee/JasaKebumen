@@ -43,6 +43,7 @@ const DDL_STATEMENTS: string[] = [
     "districtId"     TEXT NOT NULL REFERENCES "District"("id") ON DELETE CASCADE
   )`,
   `ALTER TABLE "Provider" ADD COLUMN IF NOT EXISTS "images" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[]`,
+  `ALTER TABLE "Provider" ADD COLUMN IF NOT EXISTS "verified" BOOLEAN NOT NULL DEFAULT false`,
   `CREATE TABLE IF NOT EXISTS "Review" (
     "id"         TEXT PRIMARY KEY,
     "providerId" TEXT NOT NULL REFERENCES "Provider"("id") ON DELETE CASCADE,

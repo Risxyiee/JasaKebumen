@@ -201,16 +201,21 @@ export default async function ProviderProfilePage({
           {/* Kanan: identitas + CTA */}
           <div>
             <p className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
-              <Asterisk className="h-3 w-3 text-amber-500" /> Profil usaha terverifikasi
+              <Asterisk className="h-3 w-3 text-amber-500" />
+              {provider.verified ? "Profil usaha terverifikasi" : "Profil usaha mitra"}
             </p>
             <h1 className="mt-3 font-serif text-3xl leading-tight text-ink md:text-4xl">
               {provider.name}
             </h1>
             <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-mute">
-              <span className="inline-flex items-center gap-1.5 font-medium text-green">
-                <BadgeCheck className="h-4 w-4" /> Terverifikasi
-              </span>
-              <span>·</span>
+              {provider.verified && (
+                <>
+                  <span className="inline-flex items-center gap-1.5 font-medium text-green">
+                    <BadgeCheck className="h-4 w-4" /> Terverifikasi
+                  </span>
+                  <span>·</span>
+                </>
+              )}
               <span>{provider.category.name}</span>
               <span>·</span>
               <span>Kec. {provider.district.name}</span>

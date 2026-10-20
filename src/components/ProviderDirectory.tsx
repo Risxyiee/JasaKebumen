@@ -10,7 +10,8 @@ import Reveal from "./Reveal";
 const pad2 = (i: number) => String(i + 1).padStart(2, "0");
 
 function ProviderRow({ p, i }: { p: DirectoryProvider; i: number }) {
-  const verified = p.verified || p.rating !== null;
+  /* Badge hanya dari data nyata: admin yang memverifikasi usaha satu per satu. */
+  const verified = p.verified;
   return (
     <Reveal delay={Math.min(i, 7) * 0.06}>
       <article className="prov-row group border-b border-line transition-colors hover:bg-paper">
@@ -55,15 +56,11 @@ function ProviderRow({ p, i }: { p: DirectoryProvider; i: number }) {
           </div>
 
           <div className="mt-3 flex items-center gap-6 font-mono text-sm tabular-nums md:mt-0 md:justify-self-end">
-            {verified ? (
-              p.rating !== null ? (
-                <span className="inline-flex items-center gap-1.5">
-                  <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                  {p.rating?.toFixed(1)} <span className="text-faint">({p.reviews})</span>
-                </span>
-              ) : (
-                <span className="text-amber-600">Mitra baru</span>
-              )
+            {p.rating !== null ? (
+              <span className="inline-flex items-center gap-1.5">
+                <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                {p.rating?.toFixed(1)} <span className="text-faint">({p.reviews})</span>
+              </span>
             ) : (
               <span className="text-amber-600">Mitra baru</span>
             )}
@@ -114,9 +111,10 @@ export default function ProviderDirectory({ providers = [] }: { providers?: Dire
               <p className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">
                 <Asterisk className="h-3 w-3 text-amber-500" />03 — Penyedia
               </p>
-              <h2 className="mt-3 font-serif text-3xl md:text-4xl">Terverifikasi minggu ini</h2>
+              <h2 className="mt-3 font-serif text-3xl md:text-4xl">Direktori mitra Kebumen</h2>
               <p className="mt-3 max-w-md text-sm leading-relaxed text-mute">
-                Dipilih berdasarkan rating, kecepatan respon, dan kelengkapan profil.
+                Tanda ✓ hijau berarti usaha sudah diperiksa langsung oleh tim
+                JasaKebumen — nomornya aktif dan layanannya sesuai kategori.
               </p>
             </div>
             <p className="font-mono text-xs tabular-nums text-faint">

@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import {
   ArrowLeft,
+  BadgeCheck,
   CheckCircle2,
   Clock,
   Eye,
@@ -39,6 +40,7 @@ interface Provider {
   imageUrl: string | null;
   images: string[];
   status: string;
+  verified: boolean;
   createdAt: string;
   updatedAt: string;
   category: Category;
@@ -180,6 +182,28 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, status: newStatus }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProviders((prev) =>
+          prev.map((p) => (p.id === id ? data.provider : p))
+        );
+      }
+    } catch {
+      // silent
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  /* Toggle badge Terverifikasi — hanya untuk mitra yang sudah dicek langsung */
+  const updateVerified = async (id: string, verified: boolean) => {
+    setUpdating(id);
+    try {
+      const res = await fetch("/api/providers/status", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, verified }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -366,6 +390,12 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
                               <h3 className="truncate text-base font-semibold text-ink">{p.name}</h3>
+                              {p.verified && (
+                                <BadgeCheck
+                                  className="h-4 w-4 shrink-0 text-green"
+                                  aria-label="Sudah terverifikasi"
+                                />
+                              )}
                               <span className={`inline-flex shrink-0 items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-medium ${cfg.bg} ${cfg.color}`}>
                                 <StatusIcon className="h-3 w-3" />
                                 {cfg.label}
@@ -416,6 +446,29 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
 
                       {/* Right: Actions */}
                       <div className="flex shrink-0 items-center gap-2 sm:flex-col sm:items-end">
+                        {p.status !== "rejected" && (
+                          <button
+                            onClick={() => updateVerified(p.id, !p.verified)}
+                            disabled={isUpdating}
+                            title={
+                              p.verified
+                                ? "Klik untuk mencabut badge Terverifikasi"
+                                : "Tandai sudah dicek langsung — badge ✓ tampil di situs"
+                            }
+                            className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-semibold transition disabled:opacity-50 ${
+                              p.verified
+                                ? "bg-green text-white hover:bg-green-dark"
+                                : "border border-green/30 bg-white text-green hover:bg-green-tint"
+                            }`}
+                          >
+                            {isUpdating ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <BadgeCheck className="h-3.5 w-3.5" />
+                            )}
+                            {p.verified ? "Terverifikasi" : "Verifikasi"}
+                          </button>
+                        )}
                         {p.status === "pending" && (
                           <>
                             <button

@@ -25,6 +25,7 @@ type ProviderRow = {
   description: string;
   whatsappNumber: string;
   images: string[];
+  verified: boolean;
   category: { name: string };
   district: { name: string };
 };
@@ -42,7 +43,7 @@ function toDirectoryProvider(
     name: p.name,
     cat: p.category.name,
     district: p.district.name,
-    verified: true, // hanya status "published" yang sampai sini = sudah dikurasi admin
+    verified: p.verified, // badge Terverifikasi — hanya usaha yang sudah dicek langsung admin
     rating: reviews > 0 ? Math.round(avgRating! * 10) / 10 : null,
     reviews,
     price: "", // DB belum menyimpan tarif → baris menampilkan "hubungi"
