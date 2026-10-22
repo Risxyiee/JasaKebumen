@@ -70,12 +70,12 @@ export default function Hero() {
       <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 lg:grid-cols-[1.02fr_0.98fr]">
         <div className="lg:pr-4">
           <p className="rise font-mono text-[11px] uppercase tracking-[0.18em] text-faint" style={{ animationDelay: ".05s" }}>
-            Direktori jasa lokal — Kebumen · <WibClock /> WIB
+            Direktori UMKM & jasa lokal — Kebumen · <WibClock /> WIB
           </p>
 
           <h1 className="mt-5 font-serif text-[2.7rem] leading-[1.04] md:text-[4.1rem]">
             <span className="w" style={{ "--i": 0 } as CSSProperties}>Cari</span>{" "}
-            <span className="w" style={{ "--i": 1 } as CSSProperties}>jasa</span>{" "}
+            <span className="w" style={{ "--i": 1 } as CSSProperties}>usaha</span>{" "}
             <span className="w" style={{ "--i": 2 } as CSSProperties}>lokal</span>{" "}
             <span className="w" style={{ "--i": 3 } as CSSProperties}>Kebumen,</span>{" "}
             <span className="w inline-block whitespace-nowrap" style={{ "--i": 4 } as CSSProperties}>
@@ -84,9 +84,9 @@ export default function Hero() {
           </h1>
 
           <p className="rise mt-6 max-w-xl text-[15px] leading-relaxed text-mute md:text-base" style={{ animationDelay: ".4s" }}>
-            Menghubungkan kamu ke teknisi, tukang, dan penyedia jasa terverifikasi
-            di 28 kecamatan. Hubungi langsung lewat WhatsApp — tanpa aplikasi,
-            tanpa biaya, tanpa perantara.
+            Menghubungkan kamu ke produsen kuliner, batik, kerajinan, teknisi,
+            dan penyedia jasa terverifikasi di 26 kecamatan. Hubungi langsung
+            lewat WhatsApp — tanpa aplikasi, tanpa biaya, tanpa perantara.
           </p>
 
           <form id="searchForm" className="rise mt-9 max-w-xl" style={{ animationDelay: ".5s" }} onSubmit={onSubmit} autoComplete="off">
@@ -96,8 +96,8 @@ export default function Hero() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 type="text"
-                aria-label="Cari jasa"
-                placeholder="Butuh apa? Misal: servis AC, tukang listrik, fotografer"
+                aria-label="Cari usaha"
+                placeholder="Butuh apa? Misal: lanting, batik, servis AC, tukang listrik"
                 className="w-full bg-transparent px-3 py-2.5 text-[15px] outline-none placeholder:text-faint md:flex-1"
               />
               <div className="hidden w-px self-stretch bg-line md:block" />

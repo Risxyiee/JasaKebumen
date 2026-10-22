@@ -44,6 +44,21 @@ const DDL_STATEMENTS: string[] = [
   )`,
   `ALTER TABLE "Provider" ADD COLUMN IF NOT EXISTS "images" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[]`,
   `ALTER TABLE "Provider" ADD COLUMN IF NOT EXISTS "verified" BOOLEAN NOT NULL DEFAULT false`,
+  `ALTER TABLE "Provider" ADD COLUMN IF NOT EXISTS "address" TEXT NOT NULL DEFAULT ''`,
+  `ALTER TABLE "Provider" ADD COLUMN IF NOT EXISTS "waClicks" INTEGER NOT NULL DEFAULT 0`,
+  `CREATE TABLE IF NOT EXISTS "WaClick" (
+    "id"         TEXT PRIMARY KEY,
+    "providerId" TEXT NOT NULL REFERENCES "Provider"("id") ON DELETE CASCADE,
+    "source"     TEXT NOT NULL DEFAULT 'profil',
+    "createdAt"  TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+  )`,
+  `CREATE INDEX IF NOT EXISTS "WaClick_providerId_createdAt_idx" ON "WaClick"("providerId", "createdAt")`,
+  /* Koreksi data referensi: 3 nama di daftar lama BUKAN kecamatan Kabupaten
+     Kebumen (Panjer = desa di Kec. Kebumen; Somagede & Kalibangkang = kecamatan
+     Kab. Banyumas). Baris dihapus hanya jika tidak ada usaha yang masih
+     merujuknya, agar usaha lama tidak ikut terhapus. */
+  `DELETE FROM "District" WHERE "slug" IN ('panjer', 'somagede', 'kalibangkang')
+    AND NOT EXISTS (SELECT 1 FROM "Provider" p WHERE p."districtId" = "District"."id")`,
   `CREATE TABLE IF NOT EXISTS "Review" (
     "id"         TEXT PRIMARY KEY,
     "providerId" TEXT NOT NULL REFERENCES "Provider"("id") ON DELETE CASCADE,

@@ -5,7 +5,7 @@ import {
   ArrowLeft,
   Asterisk,
   BadgeCheck,
-  MessageCircle,
+  MapPin,
   ShieldCheck,
   Star,
   Timer,
@@ -17,6 +17,7 @@ import CsChat from "@/components/CsChat";
 import PhotoGallery from "@/components/PhotoGallery";
 import ReviewForm from "@/components/ReviewForm";
 import ShareButton from "@/components/ShareButton";
+import WaChatButton from "@/components/WaChatButton";
 import Reveal from "@/components/Reveal";
 import { initials, toWaIntl } from "@/lib/data";
 import { db } from "@/lib/db";
@@ -149,6 +150,7 @@ export default async function ProviderProfilePage({
       : `${SITE}/og.png`,
     address: {
       "@type": "PostalAddress",
+      ...(provider.address ? { streetAddress: provider.address } : {}),
       addressLocality: provider.district.name,
       addressRegion: "Jawa Tengah",
       addressCountry: "ID",
@@ -244,6 +246,17 @@ export default async function ProviderProfilePage({
               </p>
             )}
 
+            {/* Alamat toko/workshop (PRD: profil UMKM memuat alamat fisik) */}
+            {provider.address && (
+              <p className="mt-4 flex items-start gap-2 text-sm leading-relaxed text-mute">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-green" />
+                <span>
+                  <span className="font-medium text-ink">Lokasi usaha: </span>
+                  {provider.address}, Kec. {provider.district.name}
+                </span>
+              </p>
+            )}
+
             {/* Jaminan layanan */}
             <ul className="mt-6 space-y-2.5 text-sm text-mute">
               <li className="flex items-center gap-2.5">
@@ -260,16 +273,12 @@ export default async function ProviderProfilePage({
               </li>
             </ul>
 
-            {/* CTA */}
+            {/* CTA — klik dihitung sebagai KPI PRD (WaChatButton, source: profil) */}
             <div className="mt-7 flex flex-wrap items-center gap-3">
-              <a
+              <WaChatButton
+                providerId={provider.id}
                 href={`https://wa.me/${waNumber}?text=${encodeURIComponent(waMsg)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg bg-green px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-green-dark"
-              >
-                <MessageCircle className="h-4 w-4" /> Chat WhatsApp
-              </a>
+              />
               <ShareButton url={`/usaha/${provider.id}`} title={provider.name} />
             </div>
             <p className="mt-2.5 text-xs text-faint">

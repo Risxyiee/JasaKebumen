@@ -10,11 +10,14 @@ import {
   Filter,
   Loader2,
   LogOut,
+  MapPin,
   MessageCircle,
+  MousePointerClick,
   RefreshCw,
   Search,
   Shield,
   Star,
+  Users,
   XCircle,
   ExternalLink,
 } from "lucide-react";
@@ -37,10 +40,12 @@ interface Provider {
   name: string;
   description: string;
   whatsappNumber: string;
+  address: string;
   imageUrl: string | null;
   images: string[];
   status: string;
   verified: boolean;
+  waClicks: number;
   createdAt: string;
   updatedAt: string;
   category: Category;
@@ -230,6 +235,13 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
     rejected: providers.filter((p) => p.status === "rejected").length,
   };
 
+  /* KPI PRD: jumlah usaha terverifikasi + total klik tombol WhatsApp */
+  const kpi = {
+    total: providers.length,
+    verified: providers.filter((p) => p.verified).length,
+    waClicks: providers.reduce((s, p) => s + (p.waClicks || 0), 0),
+  };
+
   return (
     <div className="min-h-screen bg-paper">
       {/* Header */}
@@ -300,6 +312,27 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         </div>
 
         {tab === "mitra" && (<>
+        {/* KPI Cards — metrik sukses sesuai PRD */}
+        <div className="grid gap-4 sm:grid-cols-3">
+          {([
+            { label: "Total pendaftar", value: kpi.total, icon: Users, accent: "border-line bg-white", iconBg: "bg-green-tint", iconColor: "text-green" },
+            { label: "Terverifikasi", value: kpi.verified, icon: BadgeCheck, accent: "border-line bg-white", iconBg: "bg-green-tint", iconColor: "text-green" },
+            { label: "Klik tombol WhatsApp (KPI)", value: kpi.waClicks, icon: MousePointerClick, accent: "border-green/20 bg-green-tint", iconBg: "bg-white", iconColor: "text-green" },
+          ] as const).map((s) => (
+            <div key={s.label} className={`rounded-xl border p-4 ${s.accent}`}>
+              <div className="flex items-center gap-3">
+                <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${s.iconBg}`}>
+                  <s.icon className={`h-5 w-5 ${s.iconColor}`} />
+                </div>
+                <div>
+                  <p className="text-2xl font-semibold tabular-nums text-ink">{s.value}</p>
+                  <p className="text-xs text-faint">{s.label}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
         {/* Stats Cards */}
         <div className="grid gap-4 sm:grid-cols-3">
           {([
@@ -433,6 +466,16 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                           <span className="inline-flex items-center gap-1">
                             <MessageCircle className="h-3 w-3" />
                             +62{p.whatsappNumber}
+                          </span>
+                          {p.address && (
+                            <span className="inline-flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              {p.address}
+                            </span>
+                          )}
+                          <span className="inline-flex items-center gap-1 font-medium text-green">
+                            <MousePointerClick className="h-3 w-3" />
+                            {p.waClicks || 0} klik WA
                           </span>
                           <span>
                             {new Date(p.createdAt).toLocaleDateString("id-ID", {

@@ -61,6 +61,7 @@ export function notifyNewProvider(p: {
   districtName: string;
   whatsappNumber: string;
   photoCount: number;
+  address?: string;
 }): Promise<boolean> {
   return sendTelegram(
     [
@@ -69,6 +70,7 @@ export function notifyNewProvider(p: {
       `Nama usaha: <b>${tgEscape(p.name)}</b>`,
       `Kategori: ${tgEscape(p.categoryName)}`,
       `Kecamatan: ${tgEscape(p.districtName)}`,
+      ...(p.address ? [`Alamat: ${tgEscape(p.address)}`] : []),
       `WA: ${tgEscape(p.whatsappNumber)}`,
       `Foto: ${p.photoCount}`,
       "",

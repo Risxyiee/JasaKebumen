@@ -32,19 +32,36 @@ model Provider {
   name           String
   description    String   @default("")
   whatsappNumber String
+  address        String   @default("") // alamat toko/workshop singkat (opsional) — dipakai PRD: profil UMKM
   imageUrl       String?
   images         String[] @default([]) // foto usaha (maks 3, data URL) — dilayani via /api/providers/[id]/images/[n]
   status         String   @default("pending") // pending | published | rejected
   verified       Boolean  @default(false) // badge Terverifikasi — diatur manual oleh admin setelah usaha dicek langsung
+  waClicks       Int      @default(0) // KPI PRD: jumlah klik tombol "Chat WhatsApp" pada usaha ini
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+
+  waClicksLog WaClick[]
 
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   districtId String
   district   District @relation(fields: [districtId], references: [id], onDelete: Cascade)
 
-  reviews Review[]
+  reviews   Review[]
+}
+
+/* Log klik tombol WhatsApp — KPI utama PRD (interaksi bisnis). Counter
+   cepat ada di Provider.waClicks; tabel ini menyimpan detail per kejadian
+   untuk statistik bulanan nanti. */
+model WaClick {
+  id         String   @id @default(cuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  source     String   @default("profil") // direktori | profil
+  createdAt  DateTime @default(now())
+
+  @@index([providerId, createdAt])
 }
 
 model Review {

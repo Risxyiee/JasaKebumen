@@ -19,15 +19,17 @@ export default function Footer() {
               <span className="font-semibold tracking-tight">JasaKebumen</span>
             </a>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/60">
-              Direktori jasa lokal untuk Kabupaten Kebumen. Dikelola dari Kebumen sejak 2025.
+              Direktori UMKM & jasa lokal untuk Kabupaten Kebumen — produk asli
+              dari produsen, dipesan langsung lewat WhatsApp tanpa komisi.
+              Dikelola dari Kebumen sejak 2025.
             </p>
           </div>
           <div>
             <h4 className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/40">Jelajah</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-white/70">
               <li><a href="#fitur" className="transition hover:text-white">Fitur</a></li>
-              <li><a href="#kategori" className="transition hover:text-white">Kategori jasa</a></li>
-              <li><a href="#penyedia" className="transition hover:text-white">Penyedia terverifikasi</a></li>
+              <li><a href="#kategori" className="transition hover:text-white">Kategori usaha</a></li>
+              <li><a href="#penyedia" className="transition hover:text-white">Direktori mitra</a></li>
               <li><a href="#cara" className="transition hover:text-white">Cara kerja</a></li>
               <li><a href="#faq" className="transition hover:text-white">FAQ</a></li>
             </ul>
@@ -36,7 +38,8 @@ export default function Footer() {
             <h4 className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/40">Mitra &amp; bantuan</h4>
             <ul className="mt-4 space-y-2.5 text-sm text-white/70">
               <li><Link href="/daftar" className="transition hover:text-white">Daftar usaha</Link></li>
-              <li><Link href="/admin" className="transition hover:text-white">Admin</Link></li>
+              <li><Link href="/kemasan-desain" className="transition hover:text-white">Pojok Kemasan &amp; Desain</Link></li>
+              <li><Link href="/papan-informasi" className="transition hover:text-white">Papan Informasi Program</Link></li>
               <li><Link href="/syarat" className="transition hover:text-white">Syarat &amp; ketentuan</Link></li>
               <li><a href={waAdminLink("Halo Admin JasaKebumen.")} target="_blank" rel="noopener noreferrer" className="transition hover:text-white">Hubungi admin</a></li>
               <li><a href="mailto:halo@jasakebumen.id" className="transition hover:text-white">halo@jasakebumen.id</a></li>
@@ -45,7 +48,7 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col justify-between gap-2 border-t border-white/10 pt-6 font-mono text-[11px] text-white/40 sm:flex-row">
-          <p>© 2026 JasaKebumen — Direktori jasa lokal Kabupaten Kebumen.</p>
+          <p>© 2026 JasaKebumen — Direktori UMKM & jasa lokal Kabupaten Kebumen.</p>
           <p>Dikelola dari Kebumen, Jawa Tengah</p>
         </div>
       </div>

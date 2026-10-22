@@ -14,6 +14,12 @@ const LINKS = [
   { href: "#faq", label: "FAQ" },
 ];
 
+/* Link halaman mandiri — tampil di desktop & mobile menu (PRD: Papan Informasi) */
+const PAGE_LINKS = [
+  { href: "/papan-informasi", label: "Info program" },
+  { href: "/kemasan-desain", label: "Pojok kemasan" },
+];
+
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -64,6 +70,11 @@ export default function Header() {
                 {l.label}
               </a>
             ))}
+            {PAGE_LINKS.map((l) => (
+              <Link key={l.href} href={l.href} className="text-sm text-mute transition hover:text-ink">
+                {l.label}
+              </Link>
+            ))}
             <Link
               href="/daftar"
               className="rounded-lg bg-green px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-dark"
@@ -89,6 +100,11 @@ export default function Header() {
               <a key={l.href} href={l.href} onClick={() => setOpen(false)} className="js-mnav py-2.5">
                 {l.label}
               </a>
+            ))}
+            {PAGE_LINKS.map((l) => (
+              <Link key={l.href} href={l.href} onClick={() => setOpen(false)} className="js-mnav py-2.5">
+                {l.label}
+              </Link>
             ))}
             <Link
               href="/daftar"

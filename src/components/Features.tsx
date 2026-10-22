@@ -6,7 +6,7 @@ import { Asterisk, MessageCircle, Search } from "lucide-react";
 import Reveal from "./Reveal";
 import type { DirectoryProvider } from "@/lib/data";
 
-const DEMO_QUERIES = ["servis ac", "tukang listrik", "fotografer", "laundry"];
+const DEMO_QUERIES = ["lanting", "batik", "servis ac", "laundry"];
 const chipsFor = (providers: DirectoryProvider[], q: string) =>
   providers.filter((p) => (p.keywords + " " + p.cat).toLowerCase().includes(q)).slice(0, 3);
 
@@ -160,7 +160,7 @@ export default function Features({ providers = [] }: { providers?: DirectoryProv
                 </div>
               </div>
               <div className="min-w-0">
-                <h3 className="font-semibold tracking-tight">Filter 28 kecamatan</h3>
+                <h3 className="font-semibold tracking-tight">Filter 26 kecamatan</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-white/55">
                   Dari Kebumen kota sampai Ayah dan Rowokele — cari mitra yang paling dekat.
                 </p>

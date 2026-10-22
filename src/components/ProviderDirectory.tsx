@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { Asterisk, BadgeCheck, MessageCircle, Star } from "lucide-react";
 import { initials, type DirectoryProvider } from "@/lib/data";
+import { trackWaClick } from "@/lib/track";
 import { useSearch } from "./search-context";
 import Reveal from "./Reveal";
 
@@ -70,9 +71,7 @@ function ProviderRow({ p, i }: { p: DirectoryProvider; i: number }) {
           <a
             href={`https://wa.me/${p.wa}?text=${encodeURIComponent(p.msg)}`}
             target="_blank" rel="noopener noreferrer"
-            onClick={() => {
-              // TODO: Send tracking ping to Supabase: providerId clicked
-            }}
+            onClick={() => trackWaClick(p.id, "direktori")}
             className="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-green/30 px-4 py-2 text-sm font-semibold text-green transition hover:border-green hover:bg-green hover:text-white md:mt-0 md:justify-self-end"
           >
             <MessageCircle className="h-4 w-4" /> WhatsApp

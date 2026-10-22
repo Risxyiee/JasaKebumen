@@ -43,7 +43,7 @@ export default function Stats({ mitra }: { mitra: number }) {
   const cells = [
     { v: mitra, d: 0, label: "Mitra terkurasi & tayang", stat: "mitra" },
     { v: KECAMATAN_DIPETAKAN, d: 0, label: "Kecamatan dipetakan", stat: "kecamatan" },
-    { v: CATS.length, d: 0, label: "Kategori jasa", stat: "kategori" },
+    { v: CATS.length, d: 0, label: "Kategori usaha", stat: "kategori" },
     { v: 0, d: 0, label: "Komisi per transaksi — tetap Rp0", stat: "komisi" },
   ];
 

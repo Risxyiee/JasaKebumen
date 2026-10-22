@@ -8,7 +8,8 @@ export const FAQ_ITEMS = [
   { q: "Apakah ada biaya untuk pengguna?", a: "Tidak ada. JasaKebumen gratis untuk pencari jasa. Semua negosiasi harga terjadi langsung antara kamu dan mitra lewat WhatsApp." },
   { q: "Apa arti label \"terverifikasi\"?", a: "Mitra sudah melewati kurasi tim: identitas dan usaha dicek, portofolio pekerjaan dilihat, dan nomor WhatsApp dipastikan aktif sebelum profil tayang." },
   { q: "Bagaimana kalau hasil kerja tidak sesuai?", a: "Semua pekerjaan adalah kesepakatan langsung dengan mitra. Kalau ada masalah, laporkan ke admin — mitra dengan laporan berulang kami cabut dari direktori." },
-  { q: "Saya punya usaha jasa, bagaimana cara ikut?", a: "Hubungi admin lewat WhatsApp. Siapkan nama usaha, kategori, wilayah kerja, dan beberapa contoh pekerjaan. Pendaftaran gratis, tanpa komisi." },
+  { q: "Saya punya usaha (produk atau jasa), bagaimana cara ikut?", a: "Isi formulir di halaman Daftar: nama usaha, kategori, kecamatan, foto produk, dan nomor WhatsApp aktif. Tim kami kurasi (1–2 hari kerja) lalu profilmu tayang. Pendaftaran gratis, tanpa komisi." },
+  { q: "Apa itu Papan Informasi & Pojok Kemasan?", a: "Papan Informasi merangkum program bantuan UMKM (sertifikasi halal, NIB, permodalan, pelatihan). Pojok Kemasan & Desain adalah halaman B2B untuk mencari vendor kemasan dan desain lokal. Keduanya gratis diakses dari footer." },
 ];
 
 export default function Faq() {

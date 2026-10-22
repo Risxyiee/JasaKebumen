@@ -132,18 +132,18 @@ export default async function Page() {
 
               <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/50">
                 <Asterisk className="h-3.5 w-3.5 animate-[spin_14s_linear_infinite] text-amber-300" />
-                Untuk pemilik usaha jasa
+                Untuk pelaku UMKM & usaha jasa
               </p>
               <h2 className="mt-4 max-w-2xl font-serif text-3xl leading-tight md:text-[2.6rem]">
                 Punya usaha di Kebumen? <em className="italic text-amber-300">Dapatkan pelanggan baru.</em>
               </h2>
               <p className="mt-4 max-w-xl leading-relaxed text-white/70">
                 Daftarkan usahamu, tim kami kurasi dan verifikasi, lalu profilmu tayang di direktori.
-                Pelanggan menghubungi WhatsApp-mu langsung — tanpa komisi per transaksi.
+                Pembeli menghubungi WhatsApp-mu langsung — tanpa komisi per transaksi.
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
                 <a
-                  href={waAdminLink("Halo Admin JasaKebumen, saya ingin mendaftarkan usaha jasa.")}
+                  href={waAdminLink("Halo Admin JasaKebumen, saya ingin mendaftarkan usaha.")}
                   target="_blank" rel="noopener noreferrer"
                   className="magnet inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-semibold text-green transition-colors hover:bg-amber-50"
                 >

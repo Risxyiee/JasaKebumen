@@ -13,7 +13,8 @@ export interface Provider {
 
 export type CategoryIcon =
   | "air-vent" | "laptop" | "car" | "sparkles"
-  | "camera" | "hammer" | "scissors" | "zap";
+  | "camera" | "hammer" | "scissors" | "zap"
+  | "utensils" | "shirt" | "shapes" | "package" | "pen-tool";
 
 export interface Category {
   n: string;
@@ -27,15 +28,16 @@ export interface Category {
 
 export const WA_ADMIN = "6281234567890"; // TODO: ganti nomor admin asli
 
+/* 26 kecamatan resmi Kabupaten Kebumen — sudah diverifikasi terhadap
+   Permendagri 137/2017 (PRD: filter berbasis 26 kecamatan). */
 export const DISTRICTS: string[] = [
   "all", "Kebumen", "Gombong", "Karanganyar", "Kutowinangun", "Prembun",
   "Sruweng", "Petanahan", "Puring", "Klirong", "Buluspesantren", "Alian",
   "Pejagoan", "Adimulyo", "Poncowarno", "Rowokele", "Ambal", "Kuwarasan",
-  "Mirit", "Bonorowo", "Panjer", "Sadang", "Buayan", "Ayah", "Sempor",
-  "Somagede", "Kalibangkang", "Karangsambung", "Karanggayam", "Padureso",
+  "Mirit", "Bonorowo", "Sadang", "Buayan", "Ayah", "Sempor",
+  "Karangsambung", "Karanggayam", "Padureso",
 ];
 
-// TODO: verifikasi daftar kecamatan resmi Kabupaten Kebumen sebelum rilis
 export const KECAMATAN_DIPETAKAN = DISTRICTS.length - 1;
 
 export const PROVIDERS: Provider[] = [
@@ -106,18 +108,26 @@ export const PROVIDERS: Provider[] = [
 ];
 
 export const CATS: Category[] = [
-  { n: "01", label: "Servis AC & elektronik", count: 18, q: "servis ac", icon: "air-vent", wide: true,
+  /* Produk UMKM (PRD Fase 1) */
+  { n: "01", label: "Kuliner & makanan khas", count: 0, q: "kuliner", icon: "utensils", wide: true,
+    desc: "Lanting, getuk, petis, sampai katering — langsung dari produsen." },
+  { n: "02", label: "Fashion & batik", count: 0, q: "batik", icon: "shirt" },
+  { n: "03", label: "Kerajinan & kriya", count: 0, q: "kerajinan", icon: "shapes" },
+  { n: "04", label: "Servis AC & elektronik", count: 0, q: "servis ac", icon: "air-vent", wide: true,
     desc: "Cuci, isi freon, bongkar-pasang. Teknisi datang ke rumah." },
-  { n: "02", label: "Servis laptop & HP", count: 24, q: "laptop", icon: "laptop" },
-  { n: "03", label: "Rental & cuci mobil", count: 12, q: "rental mobil", icon: "car" },
-  { n: "04", label: "Cleaning service & laundry", count: 21, q: "laundry", icon: "sparkles", wide: true,
+  { n: "05", label: "Servis laptop & HP", count: 0, q: "laptop", icon: "laptop" },
+  { n: "06", label: "Rental & cuci mobil", count: 0, q: "rental mobil", icon: "car" },
+  { n: "07", label: "Cleaning service & laundry", count: 0, q: "laundry", icon: "sparkles", wide: true,
     desc: "Sofa, kasur, karpet, dan laundry harian." },
-  { n: "05", label: "Fotografer & video", count: 9, q: "fotografer", icon: "camera" },
-  { n: "06", label: "Tukang listrik & CCTV", count: 14, q: "listrik", icon: "zap" },
-  { n: "07", label: "Tukang & renovasi rumah", count: 31, q: "renovasi", icon: "hammer", wide: true,
+  { n: "08", label: "Fotografer & video", count: 0, q: "fotografer", icon: "camera" },
+  { n: "09", label: "Tukang listrik & CCTV", count: 0, q: "listrik", icon: "zap" },
+  { n: "10", label: "Tukang & renovasi rumah", count: 0, q: "renovasi", icon: "hammer", wide: true,
     desc: "Keramik, atap, kamar mandi — tim tukang berpengalaman." },
-  { n: "08", label: "Barbershop & salon", count: 17, q: "barbershop", icon: "scissors", wide: true,
-    desc: "Potong rambut & cukur, juga melayani panggilan." },
+  { n: "11", label: "Barbershop & salon", count: 0, q: "barbershop", icon: "scissors" },
+  /* B2B (PRD: Pojok Kemasan & Desain) */
+  { n: "12", label: "Kemasan & packaging", count: 0, q: "kemasan", icon: "package", wide: true,
+    desc: "Kemasan produk, label, dan dus — vendor lokal untuk tampilan jualan lebih niat." },
+  { n: "13", label: "Desain grafis & branding", count: 0, q: "desain", icon: "pen-tool" },
 ];
 
 export const initials = (name: string) =>

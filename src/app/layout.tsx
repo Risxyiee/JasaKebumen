@@ -9,9 +9,9 @@ const jbmono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jbmono", d
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://jasakebumen.id"),
-  title: "JasaKebumen — Direktori Jasa Lokal Kabupaten Kebumen",
+  title: "JasaKebumen — Direktori UMKM & Jasa Lokal Kabupaten Kebumen",
   description:
-    "Direktori teknisi, tukang, dan penyedia jasa terverifikasi di 28 kecamatan Kabupaten Kebumen. Hubungi langsung lewat WhatsApp.",
+    "Direktori UMKM (kuliner, batik, kerajinan) dan jasa terverifikasi di 26 kecamatan Kabupaten Kebumen. Produk & layanan asli, hubungi langsung lewat WhatsApp tanpa komisi.",
   icons: {
     icon: [
       { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
@@ -20,8 +20,8 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "JasaKebumen — Cari & Panggil Jasa Lokal Kebumen",
-    description: "Teknisi & tukang terverifikasi di 28 kecamatan. Langsung chat WhatsApp, tanpa biaya.",
+    title: "JasaKebumen — Cari Produk & Jasa Lokal Kebumen",
+    description: "UMKM & jasa terverifikasi di 26 kecamatan Kebumen. Langsung chat WhatsApp, tanpa komisi, tanpa perantara.",
     url: "/",
     siteName: "JasaKebumen",
     locale: "id_ID",

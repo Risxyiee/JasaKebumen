@@ -2,7 +2,10 @@
 
 import { useEffect, useRef } from "react";
 import { useReducedMotion } from "framer-motion";
-import { AirVent, ArrowUpRight, Asterisk, Camera, Car, Hammer, Laptop, Scissors, Sparkles, Zap, type LucideIcon } from "lucide-react";
+import {
+  AirVent, ArrowUpRight, Asterisk, Camera, Car, Hammer, Laptop, Package,
+  PenTool, Scissors, Shapes, Shirt, Sparkles, Utensils, Zap, type LucideIcon,
+} from "lucide-react";
 import Reveal from "./Reveal";
 import { CATS, type CategoryIcon } from "@/lib/data";
 import { scrollToDirectory, useSearch } from "./search-context";
@@ -10,6 +13,8 @@ import { scrollToDirectory, useSearch } from "./search-context";
 const ICONS: Record<CategoryIcon, LucideIcon> = {
   "air-vent": AirVent, laptop: Laptop, car: Car, sparkles: Sparkles,
   camera: Camera, hammer: Hammer, scissors: Scissors, zap: Zap,
+  utensils: Utensils, shirt: Shirt, shapes: Shapes,
+  package: Package, "pen-tool": PenTool,
 };
 
 export default function CategoryGrid({ counts = {} }: { counts?: Record<string, number> }) {
@@ -59,7 +64,8 @@ export default function CategoryGrid({ counts = {} }: { counts?: Record<string, 
               <h2 className="mt-3 font-serif text-3xl md:text-4xl">Kategori terpopuler</h2>
             </div>
             <p className="max-w-xs text-sm leading-relaxed text-mute">
-              Delapan kategori yang paling sering dicari pengguna bulan ini. Klik untuk memfilter daftar mitra.
+              Kategori produk &amp; jasa yang paling sering dicari — dari lanting
+              dan batik sampai tukang bangunan. Klik untuk memfilter daftar mitra.
             </p>
           </div>
         </Reveal>

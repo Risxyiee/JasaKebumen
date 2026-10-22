@@ -2,6 +2,7 @@
 
 import { MessageCircle } from "lucide-react";
 import { waLink, type Provider } from "@/lib/data";
+import { trackWaClick } from "@/lib/track";
 
 interface Props {
   provider: Provider;
@@ -11,8 +12,8 @@ interface Props {
 
 export default function WhatsAppButton({ provider, className, label = "WhatsApp" }: Props) {
   const handleClick = () => {
-    // TODO: Send tracking ping to Supabase: providerId clicked
-    // await supabase.from("wa_clicks").insert({ provider_id: provider.id, clicked_at: new Date() });
+    /* KPI PRD: hitung klik tombol WhatsApp (tanpa mengganggu navigasi) */
+    trackWaClick(provider.id, "direktori");
   };
 
   return (

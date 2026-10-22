@@ -35,7 +35,7 @@ function sanitizeImages(input: unknown): { images: string[]; error?: string } {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { name, categoryId, districtId, description, whatsappNumber, website } = body;
+    const { name, categoryId, districtId, description, address, whatsappNumber, website } = body;
 
     /* Honeypot: field tersembunyi untuk manusia. Bot yang mengisinya dianggap spam —
        balas sukses palsu tanpa menyimpan apa pun (jangan memberi sinyal ke bot).
@@ -63,6 +63,8 @@ export async function POST(req: NextRequest) {
 
     const cleanName = String(name).trim().slice(0, 80);
     const cleanDesc = String(description || "").trim().slice(0, 1000);
+    /* Alamat toko/workshop singkat (opsional) — PRD: profil UMKM memuat alamat fisik */
+    const cleanAddress = String(address || "").trim().slice(0, 160);
 
     // Validate WhatsApp number format
     const cleaned = String(whatsappNumber).replace(/[^0-9]/g, "");
@@ -96,6 +98,7 @@ export async function POST(req: NextRequest) {
         categoryId: category.id,
         districtId: district.id,
         description: cleanDesc,
+        address: cleanAddress,
         whatsappNumber: cleaned,
         images,
         status: "pending",
@@ -110,6 +113,7 @@ export async function POST(req: NextRequest) {
       districtName: provider.district.name,
       whatsappNumber: provider.whatsappNumber,
       photoCount: images.length,
+      address: provider.address,
     }).catch(() => {});
 
     return NextResponse.json({ provider: { id: provider.id } }, { status: 201 });

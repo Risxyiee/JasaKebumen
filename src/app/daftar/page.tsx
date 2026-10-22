@@ -81,6 +81,7 @@ export default function DaftarPage() {
   const [categoryId, setCategoryId] = useState("");
   const [districtId, setDistrictId] = useState("");
   const [description, setDescription] = useState("");
+  const [address, setAddress] = useState(""); // alamat toko/workshop (opsional) — PRD: profil UMKM
   const [whatsappNumber, setWhatsappNumber] = useState("");
   /* Honeypot anti-spam: field tersembunyi — manusia tidak pernah mengisinya */
   const [honeypot, setHoneypot] = useState("");
@@ -175,6 +176,7 @@ export default function DaftarPage() {
           categoryId,
           districtId,
           description,
+          address,
           whatsappNumber,
           website: honeypot,
           images: photos,
@@ -226,6 +228,7 @@ export default function DaftarPage() {
                 setCategoryId("");
                 setDistrictId("");
                 setDescription("");
+                setAddress("");
                 setWhatsappNumber("");
                 setPhotos([]);
               }}
@@ -265,7 +268,7 @@ export default function DaftarPage() {
             <Send className="h-3 w-3" /> Pendaftaran Mitra
           </span>
           <h1 className="mt-4 font-serif text-3xl text-ink md:text-4xl">
-            Daftarkan Jasa Anda
+            Daftarkan Usaha Anda
           </h1>
           <p className="mt-2 text-mute leading-relaxed">
             Gratis, tanpa biaya. Isi formulir di bawah dan tim kami akan
@@ -324,7 +327,7 @@ export default function DaftarPage() {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Misal: AC Sejahtera"
+                  placeholder="Misal: Lanting Bu Sri, Batik Kebumen Jaya"
                   className="mt-1 w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-sm text-ink outline-none placeholder:text-faint transition focus:border-green focus:ring-2 focus:ring-green/15"
                 />
               </div>
@@ -333,7 +336,7 @@ export default function DaftarPage() {
               <div className="grid gap-6 md:grid-cols-2">
                 <div>
                   <label htmlFor="category" className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-ink">
-                    <Tag className="h-4 w-4 text-faint" /> Kategori Jasa
+                    <Tag className="h-4 w-4 text-faint" /> Kategori Usaha
                   </label>
                   <div className="relative">
                     <select
@@ -378,17 +381,37 @@ export default function DaftarPage() {
                 </div>
               </div>
 
+              {/* Alamat toko fisik (PRD: profil UMKM) */}
+              <div>
+                <label htmlFor="address" className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-ink">
+                  <MapPin className="h-4 w-4 text-faint" /> Alamat toko / workshop{" "}
+                  <span className="font-normal text-faint">(opsional)</span>
+                </label>
+                <input
+                  id="address"
+                  type="text"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  placeholder="Misal: Jl. Raya Gombong No. 12"
+                  className="mt-1 w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-sm text-ink outline-none placeholder:text-faint transition focus:border-green focus:ring-2 focus:ring-green/15"
+                />
+                <p className="mt-1 text-xs text-faint">
+                  Alamat singkat agar pembeli bisa datang langsung. Hanya kecamatan yang wajib —
+                  alamat rinci boleh dikosongkan.
+                </p>
+              </div>
+
               {/* Description */}
               <div>
                 <label htmlFor="description" className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-ink">
-                  <FileText className="h-4 w-4 text-faint" /> Deskripsi Layanan
+                  <FileText className="h-4 w-4 text-faint" /> Deskripsi Usaha
                 </label>
                 <textarea
                   id="description"
                   rows={4}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Jelaskan layanan yang Anda tawarkan, pengalaman, area layanan, dll."
+                  placeholder="Jelaskan produk/jasa yang Anda tawarkan, keunggulan, jam buka, area pengiriman, dll."
                   className="mt-1 w-full resize-none rounded-lg border border-line bg-paper px-4 py-2.5 text-sm text-ink outline-none placeholder:text-faint transition focus:border-green focus:ring-2 focus:ring-green/15"
                 />
                 <p className="mt-1 text-xs text-faint">
