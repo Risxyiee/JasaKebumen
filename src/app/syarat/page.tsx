@@ -117,7 +117,7 @@ const SECTIONS: Section[] = [
     id: "kontak",
     title: "10. Kontak",
     body: [
-      "Pertanyaan tentang ketentuan ini, permintaan penghapusan data, atau laporan pelanggaran dapat disampaikan melalui widget chat CS (tombol chat hijau di sudut situs) yang dikelola admin JasaKebumen, atau melalui email halo@jasakebumen.id. Kami berusaha membalas pesan dalam 1-2 hari kerja.",
+      "Pertanyaan tentang ketentuan ini, permintaan penghapusan data, atau laporan pelanggaran dapat disampaikan melalui widget chat CS (tombol chat hijau di sudut situs) yang dikelola admin JasaKebumen, atau melalui email jasakebumenid@gmail.com. Kami berusaha membalas pesan dalam 1-2 hari kerja.",
     ],
   },
 ];

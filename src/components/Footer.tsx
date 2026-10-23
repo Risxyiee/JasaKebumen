@@ -42,7 +42,7 @@ export default function Footer() {
               <li><Link href="/papan-informasi" className="transition hover:text-white">Papan Informasi Program</Link></li>
               <li><Link href="/syarat" className="transition hover:text-white">Syarat &amp; ketentuan</Link></li>
               <li><a href={waAdminLink("Halo Admin JasaKebumen.")} target="_blank" rel="noopener noreferrer" className="transition hover:text-white">Hubungi admin</a></li>
-              <li><a href="mailto:halo@jasakebumen.id" className="transition hover:text-white">halo@jasakebumen.id</a></li>
+              <li><a href="mailto:jasakebumenid@gmail.com" className="transition hover:text-white">jasakebumenid@gmail.com</a></li>
             </ul>
           </div>
         </div>
