@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { waAdminLink } from "@/lib/data";
 
 const LINKS = [
   { href: "#fitur", label: "Fitur" },

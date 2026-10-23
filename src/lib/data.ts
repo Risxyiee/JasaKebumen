@@ -26,8 +26,6 @@ export interface Category {
   desc?: string;
 }
 
-export const WA_ADMIN = "6281234567890"; // TODO: ganti nomor admin asli
-
 /* 26 kecamatan resmi Kabupaten Kebumen — sudah diverifikasi terhadap
    Permendagri 137/2017 (PRD: filter berbasis 26 kecamatan). */
 export const DISTRICTS: string[] = [
@@ -161,8 +159,12 @@ export const toWaIntl = (raw: string): string => {
 export const waLink = (p: Provider) =>
   `https://wa.me/${p.wa}?text=${encodeURIComponent(p.msg)}`;
 
-export const waAdminLink = (text: string) =>
-  `https://wa.me/${WA_ADMIN}?text=${encodeURIComponent(text)}`;
+/** Kontak admin — link undangan GRUP WhatsApp (bukan nomor pribadi,
+    aman dari panenan scraper). Link undangan grup tidak mendukung teks
+    otomatis, jadi argumen `text` diabaikan — dipertahankan supaya semua
+    pemanggil lama tetap kompatibel tanpa diubah satu per satu. */
+export const waAdminLink = (_text?: string) =>
+  "https://chat.whatsapp.com/KGiXliUNrRm8KuLlkQjSOd";
 
 export function directoryStats() {
   const rated = PROVIDERS.filter((p): p is Provider & { rating: number } => p.rating !== null);

@@ -13,6 +13,33 @@
 import { db } from "@/lib/db";
 import { REF_CATEGORIES, REF_DISTRICTS } from "@/lib/reference";
 
+/**
+ * Ubah error apa pun (termasuk error jaringan node-postgres di Workers yang
+ * pesannya kosong / hanya stack) menjadi teks satu baris yang benar-benar
+ * informatif: nama error, pesan, dan rantai `cause`-nya. Tanpa ini, log
+ * Cloudflare hanya memperlihatkan "at worker.js:..." dan penyebab gagalnya
+ * koneksi DB tidak terbaca.
+ */
+export function describeError(err: unknown): string {
+  if (err instanceof Error) {
+    const parts = [`${err.name}: ${err.message || "(tanpa pesan)"}`];
+    let cause: unknown = (err as Error & { cause?: unknown }).cause;
+    let depth = 0;
+    while (cause && depth < 3) {
+      if (cause instanceof Error) {
+        parts.push(`cause: ${cause.name}: ${cause.message || "(tanpa pesan)"}`);
+        cause = (cause as Error & { cause?: unknown }).cause;
+      } else {
+        parts.push(`cause: ${String(cause)}`);
+        cause = undefined;
+      }
+      depth++;
+    }
+    return parts.join(" | ");
+  }
+  return String(err);
+}
+
 /* DDL dipecah per-statement: protocol prepared-statement node-postgres
    tidak mendukung multi-statement dalam satu query. */
 const DDL_STATEMENTS: string[] = [
@@ -127,7 +154,7 @@ export function ensureDb(): Promise<boolean> {
         await ensureReferenceData();
         return true;
       } catch (err) {
-        console.error("[db-bootstrap] gagal:", err);
+        console.error("[db-bootstrap] gagal:", describeError(err));
         globalForBootstrap.jkDbReady = undefined; // reset — panggilan berikutnya coba lagi
         return false;
       }

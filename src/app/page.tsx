@@ -12,6 +12,7 @@ import Footer from "@/components/Footer";
 import CsChat from "@/components/CsChat";
 import { SearchProvider } from "@/components/search-context";
 import { waAdminLink, toWaIntl, type DirectoryProvider } from "@/lib/data";
+import { describeError } from "@/lib/db-bootstrap";
 import { db } from "@/lib/db";
 import { ensureDb } from "@/lib/db-bootstrap";
 
@@ -102,7 +103,7 @@ async function getHomeData(): Promise<{
   } catch (error) {
     /* DB belum dikonfigurasi / tidak terjangkau → tampilkan situs kosong yang jujur,
        jangan 500. (Cek console Workers untuk detailnya.) */
-    console.error("Homepage DB error:", error);
+    console.error("Homepage DB error:", describeError(error));
     return { providers: [], catCounts: {} };
   }
 }
