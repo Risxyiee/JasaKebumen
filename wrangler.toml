@@ -37,6 +37,12 @@ simple = { limit = 15, period = 10 }
 #   -> ADMIN_USERNAME  (type: Secret)
 #   -> ADMIN_PASSWORD  (type: Secret, jangan pakai password lama yang sudah terekspos di git)
 #   -> DATABASE_URL    (type: Secret)
+#      Saat ini: Supabase (Postgres). Salin string "Session pooler" dari
+#      Dashboard Supabase -> Connect, lalu tambahkan ?sslmode=require di akhir:
+#        postgresql://postgres.<ref>:<PASSWORD>@aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require
+#      (Host db.<ref>.supabase.co / Direct = IPv6-only + CA privat — tidak
+#      cocok untuk Workers. Tabel & data referensi dibentuk otomatis oleh
+#      db-bootstrap saat request pertama, tidak perlu prisma db push.)
 # OpenNext otomatis meneruskan secrets ke process.env saat runtime.
 #
 # Variabel OPSIONAL (fitur aktif otomatis begitu diset + redeploy;

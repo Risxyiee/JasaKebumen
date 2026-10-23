@@ -116,6 +116,21 @@ const DDL_STATEMENTS: string[] = [
     "createdAt"    TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt"    TIMESTAMPTZ(3) NOT NULL
   )`,
+  /* KHUSUS SUPABASE — wajib: tabel baru di schema public otomatis diekspos
+     lewat Data API (REST /rest/v1) dengan kunci anon yang semipublik. Tanpa
+     RLS, siapa pun yang punya kunci anon bisa BACA/TULIS semua baris:
+     nomor WA penjual, hash password admin, token sesi, pesan chat.
+     RLS aktif + tanpa policy = anon/authenticated tidak melihat apa pun,
+     sedangkan aplikasi ini terhubung sebagai role pemilik tabel (postgres)
+     yang lewat dari RLS. Perilaku di provider lain (Aiven/Neon) tidak berubah.
+     Idempoten — aman dijalankan berulang tiap cold start. */
+  `ALTER TABLE "Category" ENABLE ROW LEVEL SECURITY`,
+  `ALTER TABLE "District" ENABLE ROW LEVEL SECURITY`,
+  `ALTER TABLE "Provider" ENABLE ROW LEVEL SECURITY`,
+  `ALTER TABLE "WaClick"  ENABLE ROW LEVEL SECURITY`,
+  `ALTER TABLE "Review"   ENABLE ROW LEVEL SECURITY`,
+  `ALTER TABLE "CsMessage" ENABLE ROW LEVEL SECURITY`,
+  `ALTER TABLE "AdminAuth" ENABLE ROW LEVEL SECURITY`,
 ];
 
 async function ensureSchema(): Promise<void> {
