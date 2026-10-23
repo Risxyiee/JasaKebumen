@@ -20,6 +20,17 @@ binding = "ASSETS"
 enabled = true
 head_sampling_rate = 1
 
+# Rate limiting binding Cloudflare (native, gratis, tanpa state di DB) —
+# pembatas burst per-IP untuk semua endpoint POST publik + login admin.
+# Plan Free: hanya 1 binding & period wajib 10 detik, jadi SATU konfigurasi
+# dipakai semua bucket (kunci = "bucket:ip", lihat src/lib/rate-limit.ts).
+# Jika binding tidak tersedia (dev lokal), lib-nya degrade terbuka.
+[[unsafe.bindings]]
+name = "RATE_LIMITER"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 15, period = 10 }
+
 # Kredensial TIDAK ditaruh di file ini (bisa terbaca publik lewat repo).
 # Set sebagai SECRETS di dashboard Cloudflare:
 #   Workers & Pages -> jasakebumen -> Settings -> Variables and Secrets
@@ -27,3 +38,9 @@ head_sampling_rate = 1
 #   -> ADMIN_PASSWORD  (type: Secret, jangan pakai password lama yang sudah terekspos di git)
 #   -> DATABASE_URL    (type: Secret)
 # OpenNext otomatis meneruskan secrets ke process.env saat runtime.
+#
+# Variabel OPSIONAL (fitur aktif otomatis begitu diset + redeploy;
+# situs tetap berjalan normal tanpanya — semua lib degrade terbuka):
+#   -> TURNSTILE_SITE_KEY         (type: Text)   widget anti-bot di /daftar & form ulasan
+#   -> TURNSTILE_SECRET_KEY       (type: Secret) verifikasi server Turnstile
+#   -> CLOUDFLARE_ANALYTICS_TOKEN (type: Text)   beacon Web Analytics (KPI pengunjung)

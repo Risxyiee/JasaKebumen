@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { ensureDb } from "@/lib/db-bootstrap";
 import { notifyNewCsMessage } from "@/lib/notify";
+import { allowRequest, tooMany } from "@/lib/rate-limit";
 
 /* Always render on demand — never run at build time */
 export const dynamic = "force-dynamic";
@@ -19,6 +20,11 @@ export const dynamic = "force-dynamic";
  */
 export async function POST(req: NextRequest) {
   try {
+    /* Rate limit per-IP — widget chat publik, rawan di-spam bot */
+    if (!(await allowRequest(req, "chat"))) {
+      return NextResponse.json(tooMany(), { status: 429 });
+    }
+
     const body = await req.json();
     const rawSession = String(body.sessionId || "");
     const sessionId = rawSession.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64);

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { ensureDb } from "@/lib/db-bootstrap";
 import { notifyNewReview } from "@/lib/notify";
+import { allowRequest, tooMany, clientIp } from "@/lib/rate-limit";
+import { verifyTurnstile, turnstileRejected } from "@/lib/turnstile";
 
 /* Always render on demand — never run at build time */
 export const dynamic = "force-dynamic";
@@ -13,7 +15,8 @@ export const dynamic = "force-dynamic";
  * "pending" dan baru tampil setelah admin meng-approve (moderasi manual,
  * sama seperti pendaftaran mitra).
  *
- * Anti-spam: honeypot field `website` (manusia tidak pernah mengisinya).
+ * Anti-spam 3 lapis: honeypot `website` → rate limit per-IP → Turnstile
+ * (aktif otomatis bila TURNSTILE_SECRET_KEY sudah diset di dashboard).
  */
 export async function POST(
   req: NextRequest,
@@ -27,6 +30,17 @@ export async function POST(
     /* Honeypot: bot mengisi field tersembunyi → balas sukses palsu tanpa DB */
     if (typeof website === "string" && website.trim() !== "") {
       return NextResponse.json({ ok: true }, { status: 201 });
+    }
+
+    /* Rate limit per-IP — burst 15/10 dtk per pengirim */
+    if (!(await allowRequest(req, "ulasan"))) {
+      return NextResponse.json(tooMany(), { status: 429 });
+    }
+
+    /* Turnstile — lapisan anti-bot kedua (skip bila SECRET belum diset) */
+    const ts = await verifyTurnstile(body.turnstileToken, clientIp(req));
+    if (!ts.ok) {
+      return NextResponse.json(turnstileRejected(), { status: 403 });
     }
 
     const dbReady = await ensureDb();

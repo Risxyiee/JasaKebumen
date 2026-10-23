@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/admin-auth";
 import { ensureDb } from "@/lib/db-bootstrap";
 import { notifyNewProvider } from "@/lib/notify";
+import { allowRequest, tooMany } from "@/lib/rate-limit";
+import { verifyTurnstile, turnstileRejected } from "@/lib/turnstile";
 
 /* Always render on demand — never run at build time */
 export const dynamic = "force-dynamic";
@@ -42,6 +44,17 @@ export async function POST(req: NextRequest) {
        Harus dicek SEBELUM apa pun akses DB, agar respons bot selalu identik. */
     if (typeof website === "string" && website.trim() !== "") {
       return NextResponse.json({ provider: null }, { status: 201 });
+    }
+
+    /* Rate limit per-IP (burst 15/10 dtk) — lapisan 1 anti-spam */
+    if (!(await allowRequest(req, "daftar"))) {
+      return NextResponse.json(tooMany(), { status: 429 });
+    }
+
+    /* Turnstile (PRD: reCAPTCHA) — lapisan 2; tidak aktif bila SECRET belum diset */
+    const ts = await verifyTurnstile(body.turnstileToken, req.headers.get("cf-connecting-ip") || "");
+    if (!ts.ok) {
+      return NextResponse.json(turnstileRejected(), { status: 403 });
     }
 
     /* Pastikan tabel & data referensi (kategori/kecamatan) siap —

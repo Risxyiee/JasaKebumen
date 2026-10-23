@@ -2,11 +2,14 @@
 
 import { useState, type FormEvent } from "react";
 import { Loader2, Star, Send, CheckCircle2 } from "lucide-react";
+import Turnstile from "@/components/Turnstile";
 
 /**
  * Form ulasan publik di halaman profil usaha.
  * Rating bintang 1–5 + nama + komentar → masuk sebagai "pending",
- * tayang setelah admin approve. Ada honeypot `website` anti-bot.
+ * tayang setelah admin approve. Anti-bot: honeypot `website` + Turnstile
+ * (widget hanya muncul bila TURNSTILE_SITE_KEY sudah diaktifkan) +
+ * rate limit per-IP di server.
  */
 export default function ReviewForm({ providerId }: { providerId: string }) {
   const [open, setOpen] = useState(false);
@@ -15,9 +18,25 @@ export default function ReviewForm({ providerId }: { providerId: string }) {
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState("");
   const [honeypot, setHoneypot] = useState("");
+  const [tsSiteKey, setTsSiteKey] = useState("");
+  const [tsToken, setTsToken] = useState("");
+  const [tsReset, setTsReset] = useState(0);
   const [sending, setSending] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
+
+  const openForm = async () => {
+    setOpen(true);
+    if (!tsSiteKey) {
+      /* Site key diminta saat form dibuka — tidak membebani halaman profil */
+      try {
+        const r = await fetch("/api/turnstile").then((x) => x.json());
+        if (typeof r?.siteKey === "string" && r.siteKey) setTsSiteKey(r.siteKey);
+      } catch {
+        /* gagal → form tetap terbuka tanpa widget (server degrade terbuka) */
+      }
+    }
+  };
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -31,13 +50,15 @@ export default function ReviewForm({ providerId }: { providerId: string }) {
       const res = await fetch(`/api/providers/${providerId}/reviews`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, rating, comment, website: honeypot }),
+        body: JSON.stringify({ name, rating, comment, website: honeypot, turnstileToken: tsToken }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setDone(true);
       } else {
         setError(data.error || "Gagal mengirim ulasan. Coba lagi.");
+        /* Token Turnstile sekali pakai — reset widget */
+        setTsReset((n) => n + 1);
       }
     } catch {
       setError("Koneksi bermasalah. Coba lagi.");
@@ -64,7 +85,7 @@ export default function ReviewForm({ providerId }: { providerId: string }) {
     return (
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={openForm}
         className="mt-6 inline-flex items-center gap-2 rounded-lg border border-green/30 px-4 py-2.5 text-sm font-semibold text-green transition hover:border-green hover:bg-green hover:text-white"
       >
         <Star className="h-4 w-4" /> Tulis ulasan
@@ -135,6 +156,10 @@ export default function ReviewForm({ providerId }: { providerId: string }) {
         placeholder="Ceritakan pengalamanmu: apakah hasilnya bagus, sopan, dan tepat waktu?"
         className="mt-3 w-full resize-none rounded-lg border border-line bg-white px-3.5 py-2.5 text-sm text-ink outline-none placeholder:text-faint transition focus:border-green focus:ring-2 focus:ring-green/15"
       />
+
+      {tsSiteKey && (
+        <Turnstile siteKey={tsSiteKey} onToken={setTsToken} resetSignal={tsReset} />
+      )}
 
       {error && (
         <p className="mt-2 text-sm text-red-600" role="alert">{error}</p>

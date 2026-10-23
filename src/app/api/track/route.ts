@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { ensureDb } from "@/lib/db-bootstrap";
+import { allowRequest } from "@/lib/rate-limit";
 
 /* Always render on demand — never run at build time */
 export const dynamic = "force-dynamic";
@@ -26,6 +27,13 @@ export async function POST(req: NextRequest) {
 
     if (!providerId) {
       return NextResponse.json({ ok: false }, { status: 400 });
+    }
+
+    /* Rate limit per-IP — melindungi KPI klik WA dari inflasi bot.
+       Tracking bersifat best-effort: 429 hanya membuat klik itu tidak
+dihitung, navigasi ke WhatsApp tetap berjalan normal. */
+    if (!(await allowRequest(req, "klik-wa"))) {
+      return NextResponse.json({ ok: false }, { status: 429 });
     }
 
     const ready = await ensureDb();

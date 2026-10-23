@@ -7,6 +7,7 @@ import {
   getDbAdmin,
   hashPassword,
 } from "@/lib/admin-auth";
+import { allowRequest, tooMany } from "@/lib/rate-limit";
 
 /* Always render on demand — never run at build time */
 export const dynamic = "force-dynamic";
@@ -17,6 +18,13 @@ export const dynamic = "force-dynamic";
  * yang diatur lewat wizard setup di /admin. Sukses → set cookie sesi.
  */
 export async function POST(req: NextRequest) {
+  /* Rate limit per-IP SEBELUM apa pun — memutus brute force kredensial.
+     Satu bucket untuk seluruh login: percobaan salahpun ikut menghabiskan
+     jatah, penyerang tidak bisa merotasi username secara bebas. */
+  if (!(await allowRequest(req, "login"))) {
+    return NextResponse.json(tooMany(), { status: 429 });
+  }
+
   const body = await req.json().catch(() => null);
   const username = typeof body?.username === "string" ? body.username.trim() : "";
   const password = typeof body?.password === "string" ? body.password : "";

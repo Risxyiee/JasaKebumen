@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { REF_CATEGORIES, REF_DISTRICTS } from "@/lib/reference";
+import Turnstile from "@/components/Turnstile";
 
 interface Category {
   id: string;
@@ -86,6 +87,12 @@ export default function DaftarPage() {
   /* Honeypot anti-spam: field tersembunyi — manusia tidak pernah mengisinya */
   const [honeypot, setHoneypot] = useState("");
 
+  /* Turnstile (anti-bot lapisan 2) — siteKey dari /api/turnstile; kosong
+     berarti belum diaktifkan di dashboard, widget tidak dirender. */
+  const [tsSiteKey, setTsSiteKey] = useState("");
+  const [tsToken, setTsToken] = useState("");
+  const [tsReset, setTsReset] = useState(0);
+
   /* Foto usaha: maks 3, tersimpan sebagai data URL hasil kompresi */
   const [photos, setPhotos] = useState<string[]>([]);
   const [photoBusy, setPhotoBusy] = useState(false);
@@ -99,9 +106,10 @@ export default function DaftarPage() {
       const results = await Promise.allSettled([
         fetch("/api/categories").then((r) => r.json()),
         fetch("/api/districts").then((r) => r.json()),
+        fetch("/api/turnstile").then((r) => r.json()),
       ]);
 
-      const [catRes, distRes] = results.map((r) =>
+      const [catRes, distRes, tsRes] = results.map((r) =>
         r.status === "fulfilled" ? r.value : null
       );
 
@@ -110,6 +118,7 @@ export default function DaftarPage() {
 
       setCategories(cats);
       setDistricts(dists);
+      if (typeof tsRes?.siteKey === "string" && tsRes.siteKey) setTsSiteKey(tsRes.siteKey);
       /* Gagal total (dua-duanya) → pakai fallback lokal, tapi beri tahu user */
       setLoadFailed(results.every((r) => r.status === "rejected"));
     } finally {
@@ -180,6 +189,7 @@ export default function DaftarPage() {
           whatsappNumber,
           website: honeypot,
           images: photos,
+          turnstileToken: tsToken,
         }),
       });
 
@@ -188,6 +198,9 @@ export default function DaftarPage() {
       if (!res.ok) {
         setErrorMsg(data.error || "Terjadi kesalahan.");
         setFormState("error");
+        /* Token Turnstile sekali pakai — reset widget supaya percobaan
+           berikutnya dapat token baru */
+        setTsReset((n) => n + 1);
         return;
       }
 
@@ -498,6 +511,11 @@ export default function DaftarPage() {
                   Pelanggan akan menghubungi Anda lewat WhatsApp.
                 </p>
               </div>
+
+              {/* Turnstile — verifikasi keamanan (tak tampil bila belum diaktifkan) */}
+              {tsSiteKey && (
+                <Turnstile siteKey={tsSiteKey} onToken={setTsToken} resetSignal={tsReset} />
+              )}
 
               {/* Error */}
               {formState === "error" && errorMsg && (

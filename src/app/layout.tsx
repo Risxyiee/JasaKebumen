@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
+import { analyticsToken } from "@/lib/analytics";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
@@ -32,11 +34,29 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#064E3B" };
 
+/* Semua halaman dirender saat request (bukan build) — WAJIB agar token
+   analytics & variabel dashboard lain terbaca saat runtime, bukan dibekukan
+   saat build. Situs kecil; biaya SSR di Workers bisa diabaikan. */
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  /* Cloudflare Web Analytics (opsional) — aktif begitu variabel
+     CLOUDFLARE_ANALYTICS_TOKEN diset di dashboard + redeploy.
+     Tanpa token: tidak ada script sama sekali (tanpa cookie, KPI PRD
+     tetap berjalan lewat penghitung klik WA). */
+  const beaconToken = analyticsToken();
+
   return (
     <html lang="id">
       <body className={`${inter.variable} ${fraunces.variable} ${jbmono.variable}`}>
         {children}
+        {beaconToken && (
+          <Script
+            strategy="afterInteractive"
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon={JSON.stringify({ token: beaconToken })}
+          />
+        )}
       </body>
     </html>
   );
