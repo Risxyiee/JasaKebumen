@@ -133,11 +133,13 @@ export default function InteractiveMap({
                   Direktori jasa &amp; UMKM <em className="italic text-amber-300">Kebumen</em>
                 </h1>
                 <p className="mt-1.5 hidden max-w-sm text-[13px] leading-relaxed text-white/65 md:block">
-                  Seret untuk melihat sekeliling, klik pin usaha untuk membuka
-                  detailnya — hubungi langsung, tanpa komisi.
+                  Seret untuk melihat sekeliling — lingkaran berangka adalah
+                  klaster usaha, klik untuk memperbesar. Hubungi langsung,
+                  tanpa komisi.
                 </p>
                 <p className="mt-1.5 text-[12px] leading-relaxed text-white/55 md:hidden">
-                  Geser dua jari untuk menjelajah · ketuk pin usaha.
+                  Geser dua jari untuk menjelajah · ketuk angka klaster untuk
+                  memperbesar, ketuk pin untuk detail.
                 </p>
               </div>
             </div>
