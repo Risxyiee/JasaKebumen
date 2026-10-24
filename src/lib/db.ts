@@ -90,7 +90,29 @@ function createClient(): PrismaClient {
   // node-postgres driver — jalan di Workers (nodejs_compat + outbound TCP)
   // maupun Node.js biasa. Hyperdrive string dipakai apa adanya (TLS diurus
   // Hyperdrive; JANGAN menambah sslmode pada string binding).
-  const adapter = new PrismaPg({ connectionString: url });
+  //
+  // Pool TUNING (penting utk pooler sesi Supabase):
+  //  - connectionTimeoutMillis: gagal cepat (10 dtk) saat pooler sibuk,
+  //    jangan menggantung selamanya (default 0) sampai request dibunuh CF.
+  //  - idleTimeoutMillis: tutup koneksi idle lebih cepat dr pemutusan
+  //    sisi pooler, supaya koneksi Lapuk tak menumpuk.
+  //  - max: trafik situs kecil; 4 koneksi/isolate cukup & hemat kuota
+  //    sesi pooler gratis.
+  //  - onPoolError: error koneksi idle WAJIB ada listener — tanpa itu
+  //    perilakunya diam/tidak terdefinisi; dengan ini tercatat di log CF.
+  const adapter = new PrismaPg(
+    {
+      connectionString: url,
+      max: 4,
+      idleTimeoutMillis: 25_000,
+      connectionTimeoutMillis: 10_000,
+    },
+    {
+      onPoolError: (err) => {
+        console.error("[db] pool error (koneksi idle dibuat ulang otomatis):", err.message);
+      },
+    },
+  );
   return new PrismaClient({ adapter });
 }
 
