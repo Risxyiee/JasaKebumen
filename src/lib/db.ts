@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client/wasm";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { cfEnv } from "./cf-env";
+import { FreshQueryPool } from "./fresh-pg-pool";
 
 /* ===== Resolusi koneksi DB untuk runtime Cloudflare Workers =====
 
@@ -40,13 +41,12 @@ import { cfEnv } from "./cf-env";
       socket lintas konteks → 1101 "I/O on behalf of a different request"
       ±30% request saat binding Hyperdrive aktif (dok:
       developers.cloudflare.com/hyperdrive/observability/troubleshooting).
-   Desain FINAL: SINGLETON yang TIDAK PERNAH di-disconnect + socket idle
-   diternak pendek (idleTimeoutMillis 1 dtk) + onPoolError terlog. Socket
-   milik request lama mati sendiri (diakhiri runtime saat konteks berakhir
-   → tercatat sbg onPoolError → pool membersihkan diri), dan query
-   berikutnya otomatis memakai socket baru pada konteks request yang
-   sedang jalan. Segala error yang lolos dari skema ini tertangkap try/catch
-   di route/lib (fallback) — tidak pernah 1101. */
+   Desain FINAL (terbukti di lab workerd asli — NOL uncaught): FreshQueryPool
+   (src/lib/fresh-pg-pool.ts) — setiap query memakai pg.Client SEGAR yang
+   di-end segera setelah selesai. Tidak ada socket idle, tidak ada zombie,
+   tidak ada reuse lintas-request. Biaya: 1 TCP connect per query (akan
+   menjadi sub-ms begitu Hyperdrive aktif). Singleton PrismaClient tetap
+   dipakai agar engine wasm tak di-init berulang. */
 
 function isSupabaseHost(hostname: string): boolean {
   return /(^|\.)supabase\.(com|co)$/i.test(hostname);
@@ -111,28 +111,22 @@ function createClient(): PrismaClient {
   // maupun Node.js biasa. Hyperdrive string dipakai apa adanya (TLS diurus
   // Hyperdrive; JANGAN menambah sslmode pada string binding).
   //
-  // Pool singleton (client hidup selama isolate; socket idle-nya yang
-  // diternak pendek):
-  //  - connectionTimeoutMillis: gagal cepat (10 dtk) saat pooler sibuk,
-  //    jangan menggantung selamanya (default 0) sampai request dibunuh CF.
-  //  - max: trafik situs kecil; 4 koneksi cukup & hemat kuota pooler.
-  //  - idleTimeoutMillis 1 dtk: SABUK PENGAMAN — socket yang dibuat pada
-  //    konteks request lama diakhiri runtime saat konteks berakhir
-  //    (terlihat sbg onPoolError), pool membersihkan diri, dan query
-  //    berikutnya memakai socket baru pada konteks request yang sedang
-  //    jalan → jendela pemakaian socket lintas-request nyaris nol.
-  //  - onPoolError: error koneksi idle WAJIB ada listener — tanpa itu
-  //    perilakunya diam/tidak terdefinisi; dengan ini tercatat di log CF.
+  // Pool anti-zombie: FreshQueryPool menimpa query()/connect() sehingga
+  // SETIAP query memakai pg.Client segar yang ditutup segera setelah selesai
+  // — tidak ada socket idle antar-request, tidak ada hang → tidak ada 1101.
+  // (Lihat src/lib/fresh-pg-pool.ts untuk latar lengkap + bukti lab.)
+  //  - connectionTimeoutMillis: gagal cepat (10 dtk) saat pooler sibuk.
+  //  - onPoolError: listener error level-pool WAJIB ada — error klien yang
+  //    tidak sedang mengeksekusi query diteruskan ke sini (tercatat di log).
+  const pool = new FreshQueryPool({
+    connectionString: url,
+    connectionTimeoutMillis: 10_000,
+  });
   const adapter = new PrismaPg(
-    {
-      connectionString: url,
-      max: 4,
-      idleTimeoutMillis: 1_000,
-      connectionTimeoutMillis: 10_000,
-    },
+    pool,
     {
       onPoolError: (err) => {
-        console.error("[db] pool error (koneksi idle dibuat ulang otomatis):", err.message);
+        console.error("[db] pool error (klien dibuat ulang otomatis):", err.message);
       },
     },
   );
