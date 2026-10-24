@@ -124,7 +124,7 @@ export default function InteractiveMap({
           {/* Kiri-atas: papan judul glass — hanya saat peta hidup
               (fallback punya headline sendiri di tengah) */}
           {MAPBOX_TOKEN && (
-            <div className="absolute left-4 top-4 max-w-[calc(100%-2rem)] md:left-8 md:top-8">
+            <div className="absolute left-4 top-20 max-w-[calc(100%-2rem)] md:left-8 md:top-24">
               <div className="pointer-events-auto rounded-2xl border border-white/15 bg-emerald-950/55 p-4 shadow-[0_16px_44px_-16px_rgba(0,0,0,.6)] backdrop-blur-xl md:p-5">
                 <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-amber-300/90">
                   <Move3d className="h-3.5 w-3.5" /> Tur virtual · Peta 3D
@@ -145,7 +145,7 @@ export default function InteractiveMap({
 
           {/* Kanan-atas: toggle Siang/Malam (hanya saat peta hidup) */}
           {MAPBOX_TOKEN && (
-            <div className="pointer-events-auto absolute right-4 top-4 md:right-8 md:top-8">
+            <div className="pointer-events-auto absolute right-4 top-20 md:right-8 md:top-24">
               <button
                 type="button"
                 onClick={() => setPreset((v) => (v === "dusk" ? "day" : "dusk"))}
