@@ -52,20 +52,18 @@ simple = { limit = 15, period = 10 }
 # query/hari): TLS ke Supabase diurus Hyperdrive dari jaringan Cloudflare,
 # Worker terhubung ke Hyperdrive secara lokal.
 #
-# AKTIF sejak 2026-10-24 (Task 22):
-#   1. Config dibuat lewat dashboard (Storage & Databases -> Hyperdrive),
-#      origin = Session pooler Supabase Tokyo :5432 + ?sslmode=require.
-#   2. Binding dideklarasikan di bawah — WAJIB di file ini; binding yang
-#      hanya dibuat lewat dashboard akan dihapus saat deploy berikutnya
-#      dari git.
-#   3. src/lib/db.ts otomatis memakai env.HYPERDRIVE.connectionString
-#      (tanpa sslmode — TLS diurus Hyperdrive). DATABASE_URL tetap menjadi
-#      fallback bila binding tidak tersedia.
-#   Verifikasi jalur efektif: login /admin lalu buka /api/db-diag
-#   (harus menampilkan sumber=hyperdrive).
-[[hyperdrive]]
-binding = "HYPERDRIVE"
-id = "816bf26344b349b290192cf03a475765"
+# NONAKTIF sementara (2026-10-24): setelah binding aktif (ID di bawah),
+# ±30% request DB gagal 1101 ("Worker threw a JavaScript exception") karena
+# OpenNext menyimpan context di slot GLOBAL (Symbol.for("__cloudflare-context__"))
+# yang tertimpa request konkuren → socket pg terpakai ulang lintas konteks
+# request ("Cannot perform I/O on behalf of a different request" — lihat
+# developers.cloudflare.com/hyperdrive/observability/troubleshooting).
+# Nyalakan KEMBALI hanya setelah isolasi per-request yang tahan konkurensi
+# terbukti (uji ketat ≥50 request tanpa 1101). Config Hyperdrive tetap ada
+# di dashboard dan TIDAK perlu dibuat ulang:
+# [[hyperdrive]]
+# binding = "HYPERDRIVE"
+# id = "816bf26344b349b290192cf03a475765"
 #
 # Variabel OPSIONAL (fitur aktif otomatis begitu diset + redeploy;
 # situs tetap berjalan normal tanpanya — semua lib degrade terbuka):

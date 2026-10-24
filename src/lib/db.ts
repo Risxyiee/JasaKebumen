@@ -120,7 +120,13 @@ function createClient(): PrismaClient {
     {
       connectionString: url,
       max: 4,
-      idleTimeoutMillis: 25_000,
+      // SABUK PENGAMAN: tutup socket idle dalam 1 detik. OpenNext menyimpan
+      // context di slot global yang bisa tertimpa request konkuren, sehingga
+      // satu client bisa teradopsi lebih dari satu request — socket yang
+      // bertahan lama di pool berisiko dipakai lintas konteks request
+      // ("Cannot perform I/O on behalf of a different request" → 1101).
+      // Dengan idle 1 dtk, socket nyaris mustahil bertahan antar-request.
+      idleTimeoutMillis: 1_000,
       connectionTimeoutMillis: 10_000,
     },
     {
