@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client/wasm";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { cfEnv } from "./cf-env";
+import { cfEnv, cfExecCtx } from "./cf-env";
 
 /* ===== Resolusi koneksi DB untuk runtime Cloudflare Workers =====
 
@@ -9,7 +9,7 @@ import { cfEnv } from "./cf-env";
    - `pg` di Workers memakai cloudflare:sockets (pg-cloudflare). `startTls()`
      milik workerd TIDAK MENERIMA opsi apa pun: verifikasi sertifikat server
      terhadap CA publik selalu dijalankan dan tidak bisa dimatikan — objek
-     ssl { rejectUnauthorized: false } pun DIABAIKAN (terbukti diuji).
+     ssl { rejectUnauthorized: false } pun DIABAIKON (terbukti diuji).
    - `sslmode=require` pada pg modern diperlakukan sebagai verify-full.
    - Sertifikat pooler Supabase ditandatangani CA PRIVAT Supabase, sehingga
      handshake TLS dari Workers SELALU gagal diam-diam; node-postgres hanya
@@ -26,7 +26,26 @@ import { cfEnv } from "./cf-env";
       100 ribu query/hari): Hyperdrive menjalankan TLS ke Supabase dari
       jaringan Cloudflare, dan Worker terhubung ke Hyperdrive secara lokal.
       Begitu binding HYPERDRIVE terpasang, aplikasi OTOMATIS memakainya —
-      tanpa perubahan kode lagi. */
+      tanpa perubahan kode lagi.
+
+   ===== SIKLUS HIDUP CLIENT (WAJIB — sumber error 1101, 2026-10-24) =====
+   Client Prisma (dan pool pg di dalamnya) TIDAK BOLEH dibagi antar-request
+   di Workers. Socket yang dibuat pada request A lalu dipakai ulang request
+   B memicu exception runtime workerd "Cannot perform I/O on behalf of a
+   different request" yang lolos di callback socket pg → error 1101
+   ("Worker threw a JavaScript exception") ±30% request setelah binding
+   Hyperdrive aktif. Ini terdokumentasi resmi:
+   - developers.cloudflare.com/hyperdrive/observability/troubleshooting
+     ("Create a new database client on every request instead of caching it
+     in a global variable. Hyperdrive's connection pooling already
+     eliminates the connection startup overhead.")
+   - prisma.io/docs/guides/deployment/cloudflare-workers
+     ("Do not share a Prisma client across requests in a Worker.")
+   Solusi: SATU client per request (WeakMap berkunci ExecutionContext),
+   ditutup via ctx.waitUntil($disconnect) setelah respons selesai. Koneksi
+   ke Supabase tetap hangat di sisi Hyperdrive, jadi request berikutnya
+   tidak membayar ulang TCP+TLS ke origin. Di luar Workers (next build /
+   dev Node) singleton biasa tetap dipakai. */
 
 function isSupabaseHost(hostname: string): boolean {
   return /(^|\.)supabase\.(com|co)$/i.test(hostname);
@@ -91,13 +110,10 @@ function createClient(): PrismaClient {
   // maupun Node.js biasa. Hyperdrive string dipakai apa adanya (TLS diurus
   // Hyperdrive; JANGAN menambah sslmode pada string binding).
   //
-  // Pool TUNING (penting utk pooler sesi Supabase):
+  // Pool per-request (client ini hidup selama SATU request saja):
   //  - connectionTimeoutMillis: gagal cepat (10 dtk) saat pooler sibuk,
   //    jangan menggantung selamanya (default 0) sampai request dibunuh CF.
-  //  - idleTimeoutMillis: tutup koneksi idle lebih cepat dr pemutusan
-  //    sisi pooler, supaya koneksi Lapuk tak menumpuk.
-  //  - max: trafik situs kecil; 4 koneksi/isolate cukup & hemat kuota
-  //    sesi pooler gratis.
+  //  - max: trafik situs kecil; 4 koneksi/request cukup & hemat kuota.
   //  - onPoolError: error koneksi idle WAJIB ada listener — tanpa itu
   //    perilakunya diam/tidak terdefinisi; dengan ini tercatat di log CF.
   const adapter = new PrismaPg(
@@ -116,22 +132,38 @@ function createClient(): PrismaClient {
   return new PrismaClient({ adapter });
 }
 
-function getDb(): PrismaClient {
-  if (cachedClient) return cachedClient;
-  if (globalForPrisma.prisma) {
-    cachedClient = globalForPrisma.prisma;
-    return cachedClient;
-  }
-  const real = createClient();
-  if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = real;
-  cachedClient = real;
-  return real;
-}
+/* Client per-request: WeakMap berkunci objek ExecutionContext — tiap request
+   Workers punya objek ctx unik, jadi kunci ini identik dengan batas request. */
+const clientsPerRequest = new WeakMap<object, PrismaClient>();
 
-const globalForPrisma = globalThis as unknown as {
-  prisma?: PrismaClient;
-};
-let cachedClient: PrismaClient | undefined;
+/* Client singleton HANYA untuk konteks non-Workers (next build, dev Node,
+   skrip lokal) — di sana tidak ada ExecutionContext dan tidak ada risiko
+   berbagi socket antar-request runtime workerd. */
+let singletonNonWorkers: PrismaClient | undefined;
+
+function getDb(): PrismaClient {
+  const rctx = cfExecCtx();
+  if (!rctx) {
+    if (!singletonNonWorkers) singletonNonWorkers = createClient();
+    return singletonNonWorkers;
+  }
+  const existing = clientsPerRequest.get(rctx);
+  if (existing) return existing;
+
+  const client = createClient();
+  clientsPerRequest.set(rctx, client);
+  // Tutup pool socket milik request ini SETELAH respons selesai. waitUntil
+  // menjaga isolate tetap hidup sampai penutupan beres; koneksi origin ke
+  // Supabase tetap hangat di sisi Hyperdrive.
+  if (typeof rctx.waitUntil === "function") {
+    try {
+      rctx.waitUntil(client.$disconnect().catch(() => undefined));
+    } catch {
+      /* waitUntil gagal didaftarkan — biarkan GC isolate yang membereskan */
+    }
+  }
+  return client;
+}
 
 /* Proxy: PrismaClient dibuat SAAT DIPAKAI PERTAMA KALI (pasti berada di dalam
    konteks request Workers), bukan saat modul dimuat — getCloudflareContext()

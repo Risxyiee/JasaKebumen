@@ -29,3 +29,22 @@ export function envString(name: string): string {
   const fromProcess = process.env[name];
   return typeof fromProcess === "string" ? fromProcess.trim() : "";
 }
+
+/**
+ * ExecutionContext milik request AKTIF (butuh `ctx.waitUntil`) — null saat
+ * build, dev Node, atau konteks tidak tersedia. Tiap request Workers punya
+ * objek ExecutionContext unik, sehingga cocok sebagai kunci identitas
+ * request (dipakai src/lib/db.ts utk client DB per-request).
+ */
+export function cfExecCtx(): {
+  waitUntil?: (promise: Promise<unknown>) => void;
+} | null {
+  try {
+    const ctx = getCloudflareContext() as unknown as {
+      ctx?: { waitUntil?: (promise: Promise<unknown>) => void };
+    };
+    return ctx?.ctx ?? null;
+  } catch {
+    return null;
+  }
+}
