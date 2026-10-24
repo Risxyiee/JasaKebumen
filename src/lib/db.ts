@@ -131,6 +131,19 @@ function normalizeForWorkers(rawUrl: string): string {
   }
 }
 
+/** Normalisasi string DATABASE_URL per runtime:
+ *  - Workers (workerd): TLS socket tidak bisa mem-verifikasi CA privat
+ *    Supabase → host Supabase dipaksa sslmode=disable (interim s.d.
+ *    Hyperdrive aktif); provider lain verify-CA/verify-full/tanpa-mode → require.
+ *  - Node (`next dev`/`next start`): engine native Prisma menangani TLS
+ *    sendiri (require = terenkripsi tanpa verifikasi chain — cocok untuk
+ *    CA privat Supabase). URL dari .env dipakai APA ADANYA; menurunkannya
+ *    ke disable justru membuang enkripsi di dev. */
+function normalizeForRuntime(rawUrl: string): string {
+  if (!isWorkersRuntime()) return rawUrl;
+  return normalizeForWorkers(rawUrl);
+}
+
 function hyperdriveUrl(): string | null {
   const hyper = cfEnv().HYPERDRIVE as { connectionString?: unknown } | undefined;
   const cs = hyper?.connectionString;
@@ -150,13 +163,13 @@ function resolveConn(): ResolvedConn {
 
   const raw = rawDatabaseUrl();
   if (raw && isPostgresUrl(raw)) {
-    return { source: "database_url", url: normalizeForWorkers(raw) };
+    return { source: "database_url", url: normalizeForRuntime(raw) };
   }
 
   /* Shell env absen / bukan postgres (mis. `file:...` bawaan platform) →
      hormati .env proyek (dev Node). */
   const fromFile = envFileDatabaseUrl();
-  if (fromFile) return { source: "env_file", url: normalizeForWorkers(fromFile) };
+  if (fromFile) return { source: "env_file", url: normalizeForRuntime(fromFile) };
 
   if (raw) {
     let scheme = "(tidak diketahui)";
