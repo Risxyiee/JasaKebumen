@@ -48,22 +48,24 @@ simple = { limit = 15, period = 10 }
 # Workers tidak bisa dimatikan, sedangkan sertifikat pooler Supabase memakai
 # CA privat Supabase → koneksi terenkripsi langsung SELALU gagal
 # ("Connection terminated unexpectedly"; terbukti diuji di workerd 2026-10-24).
-# src/lib/db.ts otomatis memakai sslmode=disable untuk host Supabase (interim,
-# tidak terenkripsi). Solusi terenkripsi penuh = Hyperdrive (tersedia di plan
-# Free, 100 ribu query/hari):
-#   1. Dashboard Cloudflare -> Storage & Databases -> Hyperdrive -> Create:
-#      Name: jasakebumen-db
-#      Connection string: postgresql://postgres.<ref>:<PASSWORD>@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres?sslmode=require
-#   2. Kirim ID Hyperdrive-nya ke assistant → blok di bawah diisi + deploy.
-#      (Binding WAJIB dideklarasikan di file ini — binding yang hanya dibuat
-#      lewat dashboard akan dihapus saat deploy berikutnya dari git.)
-# 3. Aplikasi otomatis pindah ke jalur terenkripsi begitu binding aktif
-#    (src/lib/db.ts mem-baca env.HYPERDRIVE.connectionString tanpa sslmode).
-# [[hyperdrive]]
-# binding = "HYPERDRIVE"
-# id = "<ID-HYPERDRIVE>"
-# localConnectionString = "postgresql://postgres:postgres@localhost:5432/postgres"
-# OpenNext otomatis meneruskan secrets ke process.env saat runtime.
+# Solusi terenkripsi penuh = Hyperdrive (tersedia di plan Free, 100 ribu
+# query/hari): TLS ke Supabase diurus Hyperdrive dari jaringan Cloudflare,
+# Worker terhubung ke Hyperdrive secara lokal.
+#
+# AKTIF sejak 2026-10-24 (Task 22):
+#   1. Config dibuat lewat dashboard (Storage & Databases -> Hyperdrive),
+#      origin = Session pooler Supabase Tokyo :5432 + ?sslmode=require.
+#   2. Binding dideklarasikan di bawah — WAJIB di file ini; binding yang
+#      hanya dibuat lewat dashboard akan dihapus saat deploy berikutnya
+#      dari git.
+#   3. src/lib/db.ts otomatis memakai env.HYPERDRIVE.connectionString
+#      (tanpa sslmode — TLS diurus Hyperdrive). DATABASE_URL tetap menjadi
+#      fallback bila binding tidak tersedia.
+#   Verifikasi jalur efektif: login /admin lalu buka /api/db-diag
+#   (harus menampilkan sumber=hyperdrive).
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "816bf26344b349b290192cf03a475765"
 #
 # Variabel OPSIONAL (fitur aktif otomatis begitu diset + redeploy;
 # situs tetap berjalan normal tanpanya — semua lib degrade terbuka):
