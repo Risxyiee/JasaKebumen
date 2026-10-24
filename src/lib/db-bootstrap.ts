@@ -10,7 +10,7 @@
  *
  * Semua fungsi TIDAK PERNAH melempar error — pemanggil tetap punya fallback.
  */
-import { db } from "@/lib/db";
+import { db, describeResolvedConn } from "@/lib/db";
 import { REF_CATEGORIES, REF_DISTRICTS } from "@/lib/reference";
 
 /**
@@ -191,7 +191,9 @@ export function ensureDb(): Promise<boolean> {
           "[db-bootstrap] gagal:",
           describeError(err),
           "|",
-          describeConn(process.env.DATABASE_URL),
+          describeResolvedConn(), // koneksi EFEKTIF (hyperdrive/database_url + sslmode pasca-normalisasi)
+          "|",
+          describeConn(process.env.DATABASE_URL), // isi mentah secret
         );
         globalForBootstrap.jkDbReady = undefined; // reset — panggilan berikutnya coba lagi
         return false;

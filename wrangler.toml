@@ -43,6 +43,26 @@ simple = { limit = 15, period = 10 }
 #      (Host db.<ref>.supabase.co / Direct = IPv6-only + CA privat — tidak
 #      cocok untuk Workers. Tabel & data referensi dibentuk otomatis oleh
 #      db-bootstrap saat request pertama, tidak perlu prisma db push.)
+#
+# PENTING — TLS Supabase dari Workers: verifikasi sertifikat pada socket TLS
+# Workers tidak bisa dimatikan, sedangkan sertifikat pooler Supabase memakai
+# CA privat Supabase → koneksi terenkripsi langsung SELALU gagal
+# ("Connection terminated unexpectedly"; terbukti diuji di workerd 2026-10-24).
+# src/lib/db.ts otomatis memakai sslmode=disable untuk host Supabase (interim,
+# tidak terenkripsi). Solusi terenkripsi penuh = Hyperdrive (tersedia di plan
+# Free, 100 ribu query/hari):
+#   1. Dashboard Cloudflare -> Storage & Databases -> Hyperdrive -> Create:
+#      Name: jasakebumen-db
+#      Connection string: postgresql://postgres.<ref>:<PASSWORD>@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres?sslmode=require
+#   2. Kirim ID Hyperdrive-nya ke assistant → blok di bawah diisi + deploy.
+#      (Binding WAJIB dideklarasikan di file ini — binding yang hanya dibuat
+#      lewat dashboard akan dihapus saat deploy berikutnya dari git.)
+# 3. Aplikasi otomatis pindah ke jalur terenkripsi begitu binding aktif
+#    (src/lib/db.ts mem-baca env.HYPERDRIVE.connectionString tanpa sslmode).
+# [[hyperdrive]]
+# binding = "HYPERDRIVE"
+# id = "<ID-HYPERDRIVE>"
+# localConnectionString = "postgresql://postgres:postgres@localhost:5432/postgres"
 # OpenNext otomatis meneruskan secrets ke process.env saat runtime.
 #
 # Variabel OPSIONAL (fitur aktif otomatis begitu diset + redeploy;
