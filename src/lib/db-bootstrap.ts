@@ -40,6 +40,24 @@ export function describeError(err: unknown): string {
   return String(err);
 }
 
+/**
+ * Info koneksi TERSANITASI (tanpa password) — dilampirkan pada log gagal
+ * agar masalah string DATABASE_URL bisa didiagnosis langsung dari log
+ * Cloudflare tanpa perlu bertanya-tanya: host/region salah, port salah,
+ * user salah, atau sslmode bermasalah semua langsung terlihat.
+ */
+export function describeConn(url: string | undefined): string {
+  if (!url) return "DATABASE_URL: (kosong)";
+  try {
+    const u = new URL(url);
+    if (!u.hostname) return "DATABASE_URL: (format tidak bisa diurai)";
+    const sslmode = u.searchParams.get("sslmode") ?? "(tidak diset)";
+    return `conn: host=${u.hostname} port=${u.port || "(default)"} user=${u.username} db=${u.pathname.replace(/^\//, "") || "(kosong)"} sslmode=${sslmode}`;
+  } catch {
+    return "DATABASE_URL: (format tidak bisa diurai)";
+  }
+}
+
 /* DDL dipecah per-statement: protocol prepared-statement node-postgres
    tidak mendukung multi-statement dalam satu query. */
 const DDL_STATEMENTS: string[] = [
@@ -169,7 +187,12 @@ export function ensureDb(): Promise<boolean> {
         await ensureReferenceData();
         return true;
       } catch (err) {
-        console.error("[db-bootstrap] gagal:", describeError(err));
+        console.error(
+          "[db-bootstrap] gagal:",
+          describeError(err),
+          "|",
+          describeConn(process.env.DATABASE_URL),
+        );
         globalForBootstrap.jkDbReady = undefined; // reset — panggilan berikutnya coba lagi
         return false;
       }
