@@ -50,12 +50,56 @@ export function describeConn(url: string | undefined): string {
   if (!url) return "DATABASE_URL: (kosong)";
   try {
     const u = new URL(url);
-    if (!u.hostname) return "DATABASE_URL: (format tidak bisa diurai)";
+    if (!u.hostname) {
+      const scheme = u.protocol.replace(/:$/, "") || "?";
+      return `DATABASE_URL: (bukan URL postgres — scheme "${scheme}"; butuh postgres://) ${u.pathname}`.trim();
+    }
     const sslmode = u.searchParams.get("sslmode") ?? "(tidak diset)";
     return `conn: host=${u.hostname} port=${u.port || "(default)"} user=${u.username} db=${u.pathname.replace(/^\//, "") || "(kosong)"} sslmode=${sslmode}`;
   } catch {
     return "DATABASE_URL: (format tidak bisa diurai)";
   }
+}
+
+/* Host yang jelas-jelas masih template (diambil dari contoh di .env.example) —
+   gagalnya BUKAN error operasional, hanya konfigurasi yang belum diisi. */
+const PLACEHOLDER_HOST_RE = /change[_-]?me|xxxxx|example\.(com|org)|\.invalid\b/i;
+
+let placeholderNoticeShown = false;
+
+/**
+ * Log kegagalan DB dengan tingkat keparahan yang TEPAT:
+ *  - warn ramah (sekali saja) bila DATABASE_URL masih placeholder — dev
+ *    overlay Next tidak perlu munculkan error merah untuk konfigurasi yang
+ *    memang belum diisi;
+ *  - error penuh (nama + pesan + rantai cause + info koneksi tersanitasi)
+ *    bila kegagalan nyata — ini yang butuh diagnosis di log Cloudflare.
+ * Dipakai bersama oleh db-bootstrap dan pemanggil lain (mis. page.tsx)
+ * agar format & tingkat log konsisten.
+ */
+export function logDbFailure(context: string, err: unknown): void {
+  const detail = describeError(err);
+  const connEff = describeResolvedConn();
+  if (PLACEHOLDER_HOST_RE.test(`${connEff} ${describeConn(process.env.DATABASE_URL)}`)) {
+    if (!placeholderNoticeShown) {
+      placeholderNoticeShown = true;
+      console.warn(
+        `[db] ${context}: DB belum dikonfigurasi — DATABASE_URL masih placeholder. ` +
+          `Isi kredensial PostgreSQL asli (baris DATABASE_URL di .env, tanpa CHANGE_ME) ` +
+          `lalu restart \`npm run dev\`. Situs tampil dengan data kosong sampai DB tersambung. ` +
+          `Detail: ${connEff}`,
+      );
+    }
+    return;
+  }
+  console.error(
+    `[db] ${context} gagal:`,
+    detail,
+    "|",
+    connEff, // koneksi EFEKTIF (hyperdrive/database_url/env_file + sslmode pasca-normalisasi)
+    "|",
+    describeConn(process.env.DATABASE_URL), // isi mentah secret
+  );
 }
 
 /* DDL dipecah per-statement: protocol prepared-statement node-postgres
@@ -244,14 +288,7 @@ export function ensureDb(): Promise<boolean> {
         await ensureReferenceData();
         return true;
       } catch (err) {
-        console.error(
-          "[db-bootstrap] gagal:",
-          describeError(err),
-          "|",
-          describeResolvedConn(), // koneksi EFEKTIF (hyperdrive/database_url + sslmode pasca-normalisasi)
-          "|",
-          describeConn(process.env.DATABASE_URL), // isi mentah secret
-        );
+        logDbFailure("db-bootstrap", err);
         globalForBootstrap.jkDbReady = undefined; // reset — panggilan berikutnya coba lagi
         return false;
       }

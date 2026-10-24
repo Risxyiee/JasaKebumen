@@ -9,7 +9,7 @@ import CsChat from "@/components/CsChat";
 import RevealObserver from "@/components/RevealObserver";
 import { SearchProvider } from "@/components/search-context";
 import { waAdminLink, toWaIntl, type DirectoryProvider } from "@/lib/data";
-import { describeError } from "@/lib/db-bootstrap";
+import { logDbFailure } from "@/lib/db-bootstrap";
 import { db } from "@/lib/db";
 import { ensureDb } from "@/lib/db-bootstrap";
 
@@ -100,8 +100,9 @@ async function getHomeData(): Promise<{
     };
   } catch (error) {
     /* DB belum dikonfigurasi / tidak terjangkau → tampilkan situs kosong yang jujur,
-       jangan 500. (Cek console Workers untuk detailnya.) */
-    console.error("Homepage DB error:", describeError(error));
+       jangan 500. (Cek console Workers untuk detailnya.) logDbFailure otomatis
+       menurunkan log jadi warn bila DATABASE_URL masih placeholder. */
+    logDbFailure("Homepage", error);
     return { providers: [], catCounts: {} };
   }
 }
