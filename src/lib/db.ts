@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client/wasm";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { cfEnv, cfExecCtx } from "./cf-env";
+import { cfEnv } from "./cf-env";
 
 /* ===== Resolusi koneksi DB untuk runtime Cloudflare Workers =====
 
@@ -28,24 +28,25 @@ import { cfEnv, cfExecCtx } from "./cf-env";
       Begitu binding HYPERDRIVE terpasang, aplikasi OTOMATIS memakainya —
       tanpa perubahan kode lagi.
 
-   ===== SIKLUS HIDUP CLIENT (WAJIB — sumber error 1101, 2026-10-24) =====
-   Client Prisma (dan pool pg di dalamnya) TIDAK BOLEH dibagi antar-request
-   di Workers. Socket yang dibuat pada request A lalu dipakai ulang request
-   B memicu exception runtime workerd "Cannot perform I/O on behalf of a
-   different request" yang lolos di callback socket pg → error 1101
-   ("Worker threw a JavaScript exception") ±30% request setelah binding
-   Hyperdrive aktif. Ini terdokumentasi resmi:
-   - developers.cloudflare.com/hyperdrive/observability/troubleshooting
-     ("Create a new database client on every request instead of caching it
-     in a global variable. Hyperdrive's connection pooling already
-     eliminates the connection startup overhead.")
-   - prisma.io/docs/guides/deployment/cloudflare-workers
-     ("Do not share a Prisma client across requests in a Worker.")
-   Solusi: SATU client per request (WeakMap berkunci ExecutionContext),
-   ditutup via ctx.waitUntil($disconnect) setelah respons selesai. Koneksi
-   ke Supabase tetap hangat di sisi Hyperdrive, jadi request berikutnya
-   tidak membayar ulang TCP+TLS ke origin. Di luar Workers (next build /
-   dev Node) singleton biasa tetap dipakai. */
+   ===== SIKLUS HIDUP CLIENT (WAJIB — pelajaran 2026-10-24) =====
+   Dua desain ekstrem sama-sama GAGAL di OpenNext+workerd, terbukti log:
+   a) Client singleton + $disconnect via ctx.waitUntil → "Cannot use a pool
+      after calling end on the pool": OpenNext menyimpan context di slot
+      global (Symbol.for("__cloudflare-context__")) yang objeknya TERPAKAI
+      ULANG antar-request, sehingga pool yang sudah di-end oleh request
+      sebelumnya masih diadopsi request berikutnya.
+   b) Client per-request berkunci ExecutionContext → kunci tercemar
+      mekanisme slot global yang sama (request konkuren menimpa slot) →
+      socket lintas konteks → 1101 "I/O on behalf of a different request"
+      ±30% request saat binding Hyperdrive aktif (dok:
+      developers.cloudflare.com/hyperdrive/observability/troubleshooting).
+   Desain FINAL: SINGLETON yang TIDAK PERNAH di-disconnect + socket idle
+   diternak pendek (idleTimeoutMillis 1 dtk) + onPoolError terlog. Socket
+   milik request lama mati sendiri (diakhiri runtime saat konteks berakhir
+   → tercatat sbg onPoolError → pool membersihkan diri), dan query
+   berikutnya otomatis memakai socket baru pada konteks request yang
+   sedang jalan. Segala error yang lolos dari skema ini tertangkap try/catch
+   di route/lib (fallback) — tidak pernah 1101. */
 
 function isSupabaseHost(hostname: string): boolean {
   return /(^|\.)supabase\.(com|co)$/i.test(hostname);
@@ -110,22 +111,22 @@ function createClient(): PrismaClient {
   // maupun Node.js biasa. Hyperdrive string dipakai apa adanya (TLS diurus
   // Hyperdrive; JANGAN menambah sslmode pada string binding).
   //
-  // Pool per-request (client ini hidup selama SATU request saja):
+  // Pool singleton (client hidup selama isolate; socket idle-nya yang
+  // diternak pendek):
   //  - connectionTimeoutMillis: gagal cepat (10 dtk) saat pooler sibuk,
   //    jangan menggantung selamanya (default 0) sampai request dibunuh CF.
-  //  - max: trafik situs kecil; 4 koneksi/request cukup & hemat kuota.
+  //  - max: trafik situs kecil; 4 koneksi cukup & hemat kuota pooler.
+  //  - idleTimeoutMillis 1 dtk: SABUK PENGAMAN — socket yang dibuat pada
+  //    konteks request lama diakhiri runtime saat konteks berakhir
+  //    (terlihat sbg onPoolError), pool membersihkan diri, dan query
+  //    berikutnya memakai socket baru pada konteks request yang sedang
+  //    jalan → jendela pemakaian socket lintas-request nyaris nol.
   //  - onPoolError: error koneksi idle WAJIB ada listener — tanpa itu
   //    perilakunya diam/tidak terdefinisi; dengan ini tercatat di log CF.
   const adapter = new PrismaPg(
     {
       connectionString: url,
       max: 4,
-      // SABUK PENGAMAN: tutup socket idle dalam 1 detik. OpenNext menyimpan
-      // context di slot global yang bisa tertimpa request konkuren, sehingga
-      // satu client bisa teradopsi lebih dari satu request — socket yang
-      // bertahan lama di pool berisiko dipakai lintas konteks request
-      // ("Cannot perform I/O on behalf of a different request" → 1101).
-      // Dengan idle 1 dtk, socket nyaris mustahil bertahan antar-request.
       idleTimeoutMillis: 1_000,
       connectionTimeoutMillis: 10_000,
     },
@@ -138,37 +139,14 @@ function createClient(): PrismaClient {
   return new PrismaClient({ adapter });
 }
 
-/* Client per-request: WeakMap berkunci objek ExecutionContext — tiap request
-   Workers punya objek ctx unik, jadi kunci ini identik dengan batas request. */
-const clientsPerRequest = new WeakMap<object, PrismaClient>();
-
-/* Client singleton HANYA untuk konteks non-Workers (next build, dev Node,
-   skrip lokal) — di sana tidak ada ExecutionContext dan tidak ada risiko
-   berbagi socket antar-request runtime workerd. */
-let singletonNonWorkers: PrismaClient | undefined;
+/* Singleton per isolate — SATU-satunya client; TIDAK PERNAH di-disconnect
+   (yang diternak pendek adalah socket idle-nya, bukan pool-nya — lihat
+   komentar "SIKLUS HIDUP CLIENT" di atas untuk pelajaran 2 desain gagal). */
+let cachedClient: PrismaClient | undefined;
 
 function getDb(): PrismaClient {
-  const rctx = cfExecCtx();
-  if (!rctx) {
-    if (!singletonNonWorkers) singletonNonWorkers = createClient();
-    return singletonNonWorkers;
-  }
-  const existing = clientsPerRequest.get(rctx);
-  if (existing) return existing;
-
-  const client = createClient();
-  clientsPerRequest.set(rctx, client);
-  // Tutup pool socket milik request ini SETELAH respons selesai. waitUntil
-  // menjaga isolate tetap hidup sampai penutupan beres; koneksi origin ke
-  // Supabase tetap hangat di sisi Hyperdrive.
-  if (typeof rctx.waitUntil === "function") {
-    try {
-      rctx.waitUntil(client.$disconnect().catch(() => undefined));
-    } catch {
-      /* waitUntil gagal didaftarkan — biarkan GC isolate yang membereskan */
-    }
-  }
-  return client;
+  if (!cachedClient) cachedClient = createClient();
+  return cachedClient;
 }
 
 /* Proxy: PrismaClient dibuat SAAT DIPAKAI PERTAMA KALI (pasti berada di dalam
