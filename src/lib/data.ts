@@ -143,6 +143,7 @@ export interface DirectoryProvider {
   reviews: number;
   price: string; // kosong = belum ada data tarif → baris tampil "hubungi"
   keywords: string;
+  desc?: string; // deskripsi singkat usaha (untuk kartu premium; opsional)
   wa: string; // format internasional tanpa "+", mis. 62812…
   msg: string;
   images?: string[]; // path foto usaha (maks 3), mis. /api/providers/<id>/images/0

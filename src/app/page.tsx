@@ -1,15 +1,12 @@
 import { ArrowUpRight, Asterisk } from "lucide-react";
 import Header from "@/components/Header";
-import Hero from "@/components/Hero";
-import Stats from "@/components/Stats";
-import Features from "@/components/Features";
-import CategoryGrid from "@/components/CategoryGrid";
-import ProviderDirectory from "@/components/ProviderDirectory";
+import DirectoryExperience from "@/components/DirectoryExperience";
 import HowItWorks from "@/components/HowItWorks";
 import Benefits from "@/components/Benefits";
 import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
 import CsChat from "@/components/CsChat";
+import RevealObserver from "@/components/RevealObserver";
 import { SearchProvider } from "@/components/search-context";
 import { waAdminLink, toWaIntl, type DirectoryProvider } from "@/lib/data";
 import { describeError } from "@/lib/db-bootstrap";
@@ -49,6 +46,7 @@ function toDirectoryProvider(
     reviews,
     price: "", // DB belum menyimpan tarif → baris menampilkan "hubungi"
     keywords: `${p.description} ${p.category.name} ${p.district.name}`.toLowerCase(),
+    desc: (p.description || "").slice(0, 140), // teks kartu premium (opsional)
     wa: toWaIntl(p.whatsappNumber),
     msg: `Halo ${p.name}, saya menemukan usaha Anda di JasaKebumen. Boleh tanya-tanya layanan Anda?`,
     images: (p.images || []).map((_, i) => `/api/providers/${p.id}/images/${i}`),
@@ -114,12 +112,11 @@ export default async function Page() {
   return (
     <SearchProvider>
       <Header />
+      <RevealObserver />
       <main className="min-h-screen">
-        <Hero />
-        <Stats mitra={providers.length} />
-        <Features providers={providers} />
-        <CategoryGrid counts={catCounts} />
-        <ProviderDirectory providers={providers} />
+        {/* Hero peta 3D + timeline kategori + grid direktori (state bersama) */}
+        <DirectoryExperience providers={providers} catCounts={catCounts} />
+
         <HowItWorks />
         <Benefits />
 
@@ -133,7 +130,7 @@ export default async function Page() {
 
               <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/50">
                 <Asterisk className="h-3.5 w-3.5 animate-[spin_14s_linear_infinite] text-amber-300" />
-                Untuk pelaku UMKM & usaha jasa
+                Untuk pelaku UMKM &amp; usaha jasa
               </p>
               <h2 className="mt-4 max-w-2xl font-serif text-3xl leading-tight md:text-[2.6rem]">
                 Punya usaha di Kebumen? <em className="italic text-amber-300">Dapatkan pelanggan baru.</em>

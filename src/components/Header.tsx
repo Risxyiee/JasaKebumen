@@ -6,9 +6,9 @@ import Link from "next/link";
 import Image from "next/image";
 
 const LINKS = [
-  { href: "#fitur", label: "Fitur" },
+  { href: "#peta", label: "Peta 3D" },
   { href: "#kategori", label: "Kategori" },
-  { href: "#penyedia", label: "Penyedia" },
+  { href: "#penyedia", label: "Direktori" },
   { href: "#cara", label: "Cara kerja" },
   { href: "#faq", label: "FAQ" },
 ];
@@ -49,7 +49,7 @@ export default function Header() {
     <>
       <div id="progress" className="fixed inset-x-0 top-0 z-[60] h-0.5 origin-left bg-amber-400" style={{ transform: `scaleX(${progress})` }} />
 
-      <header id="siteHeader" ref={headerRef} className="fixed inset-x-0 top-0 z-50 bg-paper/90 backdrop-blur-sm">
+      <header id="siteHeader" ref={headerRef} className="fixed inset-x-0 top-0 z-50 border-b border-white/30 bg-paper/70 backdrop-blur-xl transition-colors duration-300">
         <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
           <a href="#" className="flex items-center gap-2">
             <Image

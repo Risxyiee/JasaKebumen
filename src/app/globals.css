@@ -499,3 +499,42 @@ body::after {
   .f-seal { opacity: 1 !important; transform: rotate(-4deg) !important; }
   #stepFill { transform: scaleX(1) !important; opacity: .25; }
 }
+
+/* ===== InteractiveMap (Mapbox) — popup glass & utilitas ===== */
+
+/* Sembunyikan scrollbar timeline kategori (scroll tetap berfungsi) */
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* Kulit popup peta: bungkus mapbox dibikin transparan — kartu glass ada
+   di dalamnya (bg-emerald-950/80 + backdrop-blur dari komponen) */
+.map-popup-glass .mapboxgl-popup-content {
+  background: transparent;
+  padding: 0;
+  border-radius: 18px;
+  box-shadow: none;
+}
+.map-popup-glass .mapboxgl-popup-tip { border-top-color: rgba(6,78,59,.85) !important; }
+.map-popup-glass .mapboxgl-popup-close-button {
+  top: 6px; right: 6px;
+  width: 28px; height: 28px;
+  font-size: 16px; line-height: 26px;
+  color: rgba(255,255,255,.85);
+  border-radius: 9999px;
+  background: rgba(6,78,59,.7);
+  backdrop-filter: blur(8px);
+}
+.map-popup-glass .mapboxgl-popup-close-button:hover { background: rgba(6,78,59,.9); color: #fff; }
+
+/* Popup & marker tidak boleh melebihi lebar layar kecil */
+.mapboxgl-popup { max-width: min(280px, calc(100vw - 32px)) !important; }
+
+/* Hint kooperatif mapbox (dua jari) — samakan gayanya dengan tema */
+.mapboxgl-ctrl-cooperative-gestures {
+  font-family: var(--font-inter), system-ui, sans-serif !important;
+}
+
+/* Hormati preferensi reduce-motion untuk animasi peta intro */
+@media (prefers-reduced-motion: reduce) {
+  .mapboxgl-map { scroll-behavior: auto; }
+}
