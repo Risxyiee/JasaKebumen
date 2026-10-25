@@ -51,6 +51,10 @@ interface MapCoreProps {
   selectedId: string | null;
   onSelect: (id: string | null) => void;
   preset: MapPreset;
+  /** Token runtime (diteruskan server → client). Fallback: NEXT_PUBLIC
+   *  inline build-time. Dengan jalur runtime, set Secret di dashboard CF
+   *  langsung menghidupkan peta TANPA rebuild. */
+  mapboxToken?: string;
 }
 
 /** Resolusi kanvas pin (dikirim dengan pixelRatio 2 → tampil 42px). */
@@ -254,7 +258,7 @@ function PopupCard({
 /* --------------------------------- Peta --------------------------------- */
 
 export default function MapCore({
-  providers, selectedId, onSelect, preset,
+  providers, selectedId, onSelect, preset, mapboxToken,
 }: MapCoreProps) {
   const mapRef = useRef<MapRef>(null);
   const reduce = useReducedMotion();
@@ -536,7 +540,7 @@ export default function MapCore({
   return (
     <Map
       ref={mapRef}
-      mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+      mapboxAccessToken={mapboxToken ?? process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
       mapStyle="mapbox://styles/mapbox/standard"
       initialViewState={{
         longitude: MAP_CENTER.lng, latitude: MAP_CENTER.lat,

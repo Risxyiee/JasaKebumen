@@ -27,9 +27,13 @@ import ProviderCard from "./ProviderCard";
 export default function DirectoryExperience({
   providers = [],
   catCounts = {},
+  mapboxToken,
 }: {
   providers?: DirectoryProvider[];
   catCounts?: Record<string, number>;
+  /** Token Mapbox runtime (server → client). Tanpa ini, InteractiveMap
+   *  jatuh ke NEXT_PUBLIC inline build-time. */
+  mapboxToken?: string;
 }) {
   const { query, setQuery, district, setDistrict, reset } = useSearch();
   const [category, setCategory] = useState<string | null>(null);
@@ -69,6 +73,7 @@ export default function DirectoryExperience({
         providers={filtered}
         selectedId={selectedId}
         onSelect={setSelectedId}
+        mapboxToken={mapboxToken}
       />
 
       <CategoryTimeline

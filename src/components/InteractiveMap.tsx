@@ -10,8 +10,10 @@
  * - mobile (mis. iPhone XR): cooperativeGestures → satu jari menggulir
  *   halaman, dua jari menggerakkan/miringkan peta. Tidak ada scroll-trap.
  *
- * Token: NEXT_PUBLIC_MAPBOX_TOKEN (build-time). Tanpa token → fallback
- * glass yang tetap cantik, direktori di bawah tetap berfungsi penuh.
+ * Token: diteruskan server → client via prop `mapboxToken` (runtime secret CF
+ * — hidup tanpa rebuild) atau NEXT_PUBLIC_MAPBOX_TOKEN (inline saat build).
+ * Tanpa token → fallback glass yang tetap cantik, direktori di bawah tetap
+ * berfungsi penuh.
  */
 
 import dynamic from "next/dynamic";
@@ -32,8 +34,6 @@ const MapCore = dynamic(() => import("./MapCore"), {
     </div>
   ),
 });
-
-const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
 /* ------------------------------------------------------------------ */
 /* Fallback tanpa token Mapbox                                         */
@@ -86,12 +86,22 @@ export default function InteractiveMap({
   providers,
   selectedId,
   onSelect,
+  mapboxToken,
 }: {
   providers: DirectoryProvider[];
   selectedId: string | null;
   onSelect: (id: string | null) => void;
+  /** Jalur RUNTIME: server component membaca secret CF dan meneruskannya.
+   *  Menang atas NEXT_PUBLIC inline — keduanya dipakai, mana yang ada. */
+  mapboxToken?: string;
 }) {
   const [preset, setPreset] = useState<"day" | "dusk">("dusk");
+
+  /* Token efektif: runtime (prop) dulu, lalu inline build-time. Diisis ""
+     agar kondisi fallback tegas (undefined NEXT_PUBLIC → falsy juga, tapi
+     string kosong lebih eksplisit untuk pembanding di JSX). */
+  const token = mapboxToken || process.env.NEXT_PUBLIC_MAPBOX_TOKEN || "";
+  const hasToken = token.length > 0;
 
   const totalMitra = providers.length;
   const kecamatanTayang = useMemo(
@@ -102,12 +112,13 @@ export default function InteractiveMap({
   return (
     <section id="peta" aria-label="Peta interaktif mitra JasaKebumen" className="relative">
       <div className="relative h-[86svh] min-h-[560px] w-full overflow-hidden bg-emerald-950 md:h-[92svh]">
-        {MAPBOX_TOKEN ? (
+        {hasToken ? (
           <MapCore
             providers={providers}
             selectedId={selectedId}
             onSelect={onSelect}
             preset={preset}
+            mapboxToken={token}
           />
         ) : (
           <MapFallback total={totalMitra} kecamatan={kecamatanTayang} />
@@ -123,7 +134,7 @@ export default function InteractiveMap({
 
           {/* Kiri-atas: papan judul glass — hanya saat peta hidup
               (fallback punya headline sendiri di tengah) */}
-          {MAPBOX_TOKEN && (
+          {hasToken && (
             <div className="absolute left-4 top-20 max-w-[calc(100%-2rem)] md:left-8 md:top-24">
               <div className="pointer-events-auto rounded-2xl border border-white/15 bg-emerald-950/55 p-4 shadow-[0_16px_44px_-16px_rgba(0,0,0,.6)] backdrop-blur-xl md:p-5">
                 <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-amber-300/90">
@@ -146,7 +157,7 @@ export default function InteractiveMap({
           )}
 
           {/* Kanan-atas: toggle Siang/Malam (hanya saat peta hidup) */}
-          {MAPBOX_TOKEN && (
+          {hasToken && (
             <div className="pointer-events-auto absolute right-4 top-20 md:right-8 md:top-24">
               <button
                 type="button"
@@ -172,7 +183,7 @@ export default function InteractiveMap({
                 <b className="tabular-nums">{kecamatanTayang}</b>&nbsp;dari 26 kecamatan
               </span>
             </div>
-            {!MAPBOX_TOKEN && (
+            {!hasToken && (
               <span className="pointer-events-auto hidden rounded-full border border-amber-300/30 bg-amber-400/10 px-3 py-1.5 font-mono text-[10px] text-amber-200/80 backdrop-blur md:block">
                 owner: set NEXT_PUBLIC_MAPBOX_TOKEN untuk peta 3D
               </span>

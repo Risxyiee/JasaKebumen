@@ -71,6 +71,9 @@ simple = { limit = 15, period = 10 }
 #   -> TURNSTILE_SECRET_KEY       (type: Secret) verifikasi server Turnstile
 #   -> CLOUDFLARE_ANALYTICS_TOKEN (type: Text)   beacon Web Analytics (KPI pengunjung)
 #   -> NEXT_PUBLIC_MAPBOX_TOKEN  (type: Text)   peta 3D hero (Mapbox Standard).
-#      WAJIB ada saat BUILD (variabel NEXT_PUBLIC di-inline saat next build):
-#      set di Build Variables pipeline deploy / dashboard CF. Tanpa token:
-#      hero memakai fallback glass yang tetap berfungsi.
+#      Dua jalur (pilih salah satu):
+#      a) RUNTIME: set di sini sebagai variable/secret -> server component
+#         meneruskan token ke klien per request -> peta hidup TANPA rebuild.
+#      b) BUILD-TIME: set sebagai Build Variable pipeline deploy + redeploy
+#         (NEXT_PUBLIC di-inline saat next build). Tanpa keduanya: hero
+#         memakai fallback glass yang tetap berfungsi.

@@ -110,13 +110,20 @@ async function getHomeData(): Promise<{
 export default async function Page() {
   const { providers, catCounts } = await getHomeData();
 
+  /* Token Mapbox dibaca di RUNTIME server (secret/variable Cloudflare) dan
+     diteruskan sebagai prop — begitu diset di dashboard CF, peta 3D langsung
+     hidup TANPA rebuild. Jalur build-time (NEXT_PUBLIC inline) tetap berlaku
+     sebagai fallback di InteractiveMap. Token pk aman untuk klien
+     (publik-by-design). */
+  const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN || "";
+
   return (
     <SearchProvider>
       <Header />
       <RevealObserver />
       <main className="min-h-screen">
         {/* Hero peta 3D + timeline kategori + grid direktori (state bersama) */}
-        <DirectoryExperience providers={providers} catCounts={catCounts} />
+        <DirectoryExperience providers={providers} catCounts={catCounts} mapboxToken={mapboxToken} />
 
         <HowItWorks />
         <Benefits />
