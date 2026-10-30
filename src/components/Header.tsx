@@ -76,7 +76,7 @@ export default function Header() {
             ))}
             <Link
               href="/daftar"
-              className="rounded-lg bg-green px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-dark"
+              className="rounded-lg bg-green px-4 py-2 text-sm font-semibold text-black transition hover:bg-green-dark"
             >
               Daftar usaha
             </Link>
@@ -108,7 +108,7 @@ export default function Header() {
             <Link
               href="/daftar"
               onClick={() => setOpen(false)}
-              className="js-mnav mt-2 rounded-lg bg-green px-4 py-3 text-center font-semibold text-white"
+              className="js-mnav mt-2 rounded-lg bg-green px-4 py-3 text-center font-semibold text-black"
             >
               Daftar usaha
             </Link>

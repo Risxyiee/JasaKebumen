@@ -263,14 +263,14 @@ export default async function ProviderProfilePage({
               <section
                 id="harga"
                 aria-label="Informasi harga"
-                className="mt-6 rounded-xl border border-line bg-white p-5"
+                className="mt-6 rounded-xl border border-line bg-surface p-5"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <h2 className="flex items-center gap-2 font-serif text-lg text-ink">
                     {isFnB ? "Daftar harga menu" : "Informasi harga"}
                   </h2>
                   {priceLabel && (
-                    <span className="rounded-md bg-green px-2.5 py-1 font-mono text-xs font-semibold tabular-nums text-white">
+                    <span className="rounded-md bg-green px-2.5 py-1 font-mono text-xs font-semibold tabular-nums text-black">
                       {priceLabel}
                     </span>
                   )}
@@ -383,7 +383,7 @@ export default async function ProviderProfilePage({
             <div className="mt-7 grid gap-4 md:grid-cols-2">
               {provider.reviews.map((r, i) => (
                 <Reveal key={r.id} delay={Math.min(i, 5) * 0.05}>
-                  <article className="h-full rounded-xl border border-line bg-white p-5">
+                  <article className="h-full rounded-xl border border-line bg-surface p-5">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <span className="grid h-9 w-9 place-items-center rounded-full bg-green-tint text-xs font-bold text-green">
@@ -428,7 +428,7 @@ export default async function ProviderProfilePage({
                 <Link
                   key={r.id}
                   href={`/usaha/${r.id}`}
-                  className="group flex items-center gap-3 rounded-xl border border-line bg-white p-4 transition hover:border-green/30 hover:shadow-sm"
+                  className="group flex items-center gap-3 rounded-xl border border-line bg-surface p-4 transition hover:border-green/30 hover:shadow-sm"
                 >
                   {r.images.length > 0 ? (
                     // eslint-disable-next-line @next/next/no-img-element

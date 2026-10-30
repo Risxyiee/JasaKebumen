@@ -28,7 +28,7 @@ const CARI: Item[] = [
       <div className="vig grid place-items-center" aria-hidden>
         <div className="text-center">
           <p className="mb-1 font-mono text-[8px] uppercase tracking-[0.14em] text-faint">mulai dari</p>
-          <div className="mx-auto h-7 overflow-hidden rounded-md border border-line bg-white px-2 font-mono text-xs leading-7 text-green">
+          <div className="mx-auto h-7 overflow-hidden rounded-md border border-line bg-surface px-2 font-mono text-xs leading-7 text-green">
             <div className="rollCol"><span>Rp75.000</span><span>Rp15.000</span><span>Rp500.000</span><span>Rp75.000</span></div>
           </div>
         </div>
@@ -59,7 +59,7 @@ const CARI: Item[] = [
             <span className="dt" style={pd(".15s")} />
             <span className="dt" style={pd(".3s")} />
           </div>
-          <div className="chk absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-green px-2 py-0.5 font-mono text-[9px] font-bold text-white">✓ dibalas</div>
+          <div className="chk absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-green px-2 py-0.5 font-mono text-[9px] font-bold text-black">✓ dibalas</div>
         </div>
       </div>
     ),
@@ -72,12 +72,12 @@ const MITRA: Item[] = [
     desc: "Tidak ada biaya pendaftaran, tidak ada langganan. Profilmu tayang tanpa batas waktu.",
     vig: (
       <div className="vig" aria-hidden>
-        <div className="mcardA absolute inset-x-4 top-3 bottom-7 rounded-md border border-line bg-white p-2">
+        <div className="mcardA absolute inset-x-4 top-3 bottom-7 rounded-md border border-line bg-surface p-2">
           <div className="flex items-center gap-1.5"><span className="h-3 w-3 rounded-full bg-green/25" /><span className="h-1.5 w-9 rounded bg-line" /></div>
           <span className="mt-1.5 block h-1.5 w-12 rounded bg-line" />
           <span className="mt-1 block h-1.5 w-7 rounded bg-line" />
         </div>
-        <span className="stampA absolute bottom-2.5 right-1.5 rounded border-2 border-green bg-white px-1.5 py-0.5 font-mono text-[9px] font-bold tracking-wide text-green">TAYANG</span>
+        <span className="stampA absolute bottom-2.5 right-1.5 rounded border-2 border-green bg-surface px-1.5 py-0.5 font-mono text-[9px] font-bold tracking-wide text-green">TAYANG</span>
       </div>
     ),
   },
@@ -166,10 +166,10 @@ export default function Benefits() {
       const on = j === idx;
       b.setAttribute("aria-selected", on ? "true" : "false");
       if (on) {
-        b.classList.add("text-white");
+        b.classList.add("text-black");
         b.classList.remove("text-mute");
       } else {
-        b.classList.remove("text-white");
+        b.classList.remove("text-black");
         b.classList.add("text-mute");
       }
     });
@@ -195,10 +195,10 @@ export default function Benefits() {
       const on = j === idx;
       b.setAttribute("aria-selected", on ? "true" : "false");
       if (on) {
-        b.classList.add("text-white");
+        b.classList.add("text-black");
         b.classList.remove("text-mute");
       } else {
-        b.classList.remove("text-white");
+        b.classList.remove("text-black");
         b.classList.add("text-mute");
       }
     });
@@ -220,7 +220,7 @@ export default function Benefits() {
   }, []);
 
   return (
-    <section id="untung" ref={sectionRef} className="scroll-mt-20 border-t border-line bg-white">
+    <section id="untung" ref={sectionRef} className="scroll-mt-20 border-t border-line bg-surface">
       <div className="relative mx-auto max-w-6xl px-5 py-16 md:py-24">
         <span aria-hidden className="pointer-events-none absolute right-4 top-8 hidden select-none font-serif text-[9rem] leading-none text-green/[0.05] lg:block">05</span>
 

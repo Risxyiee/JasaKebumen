@@ -29,7 +29,7 @@ function WibClock() {
 
 function DioramaSkeleton() {
   return (
-    <div className="scene-card overflow-hidden rounded-2xl border border-line bg-white shadow-[0_24px_60px_-32px_rgba(10,10,11,0.24)]">
+    <div className="scene-card overflow-hidden rounded-2xl border border-line bg-surface shadow-[0_24px_60px_-32px_rgba(10,10,11,0.24)]">
       <div id="sceneWrap" className="relative h-[320px] sm:h-[400px] lg:h-[440px]">
         <canvas id="sceneCanvas" />
         <span className="scene-chip pointer-events-none absolute left-4 top-4 rounded-md border border-line bg-paper/90 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-mute">
@@ -90,7 +90,7 @@ export default function Hero() {
           </p>
 
           <form id="searchForm" className="rise mt-9 max-w-xl" style={{ animationDelay: ".5s" }} onSubmit={onSubmit} autoComplete="off">
-            <div className="flex flex-col gap-2 rounded-xl border border-line bg-white p-2 transition-colors focus-within:border-green/40 md:flex-row md:items-center">
+            <div className="flex flex-col gap-2 rounded-xl border border-line bg-surface p-2 transition-colors focus-within:border-green/40 md:flex-row md:items-center">
               <input
                 id="searchInput"
                 value={query}
@@ -119,7 +119,7 @@ export default function Hero() {
               </div>
               <button
                 type="submit"
-                className="magnet inline-flex items-center justify-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-green-dark"
+                className="magnet inline-flex items-center justify-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-black transition-colors hover:bg-green-dark"
               >
                 <Search className="h-4 w-4" /> Cari
               </button>

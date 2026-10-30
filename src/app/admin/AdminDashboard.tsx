@@ -249,7 +249,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
   return (
     <div className="min-h-screen bg-paper">
       {/* Header */}
-      <div className="border-b border-line bg-white">
+      <div className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2 text-faint transition hover:text-ink">
@@ -259,7 +259,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
             <span className="text-faint">·</span>
             <div className="flex items-center gap-2">
               <div className="flex h-7 w-7 items-center justify-center rounded-md bg-green">
-                <Shield className="h-3.5 w-3.5 text-white" />
+                <Shield className="h-3.5 w-3.5 text-black" />
               </div>
               <span className="font-serif text-lg font-semibold text-ink">Admin</span>
             </div>
@@ -299,8 +299,8 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
               onClick={() => setTab(t.key)}
               className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition ${
                 tab === t.key
-                  ? "bg-green text-white"
-                  : "border border-line bg-white text-mute hover:border-green/30 hover:text-green"
+                  ? "bg-green text-black"
+                  : "border border-line bg-surface text-mute hover:border-green/30 hover:text-green"
               }`}
             >
               {t.label}
@@ -319,9 +319,9 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
         {/* KPI Cards — metrik sukses sesuai PRD */}
         <div className="grid gap-4 sm:grid-cols-3">
           {([
-            { label: "Total pendaftar", value: kpi.total, icon: Users, accent: "border-line bg-white", iconBg: "bg-green-tint", iconColor: "text-green" },
-            { label: "Terverifikasi", value: kpi.verified, icon: BadgeCheck, accent: "border-line bg-white", iconBg: "bg-green-tint", iconColor: "text-green" },
-            { label: "Klik tombol WhatsApp (KPI)", value: kpi.waClicks, icon: MousePointerClick, accent: "border-green/20 bg-green-tint", iconBg: "bg-white", iconColor: "text-green" },
+            { label: "Total pendaftar", value: kpi.total, icon: Users, accent: "border-line bg-surface", iconBg: "bg-green-tint", iconColor: "text-green" },
+            { label: "Terverifikasi", value: kpi.verified, icon: BadgeCheck, accent: "border-line bg-surface", iconBg: "bg-green-tint", iconColor: "text-green" },
+            { label: "Klik tombol WhatsApp (KPI)", value: kpi.waClicks, icon: MousePointerClick, accent: "border-green/20 bg-green-tint", iconBg: "bg-surface", iconColor: "text-green" },
           ] as const).map((s) => (
             <div key={s.label} className={`rounded-xl border p-4 ${s.accent}`}>
               <div className="flex items-center gap-3">
@@ -369,8 +369,8 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                 onClick={() => setStatusFilter(f)}
                 className={`rounded-md border px-3 py-1 text-xs font-medium transition ${
                   statusFilter === f
-                    ? "border-green bg-green text-white"
-                    : "border-line bg-white text-mute hover:border-green/30 hover:text-green"
+                    ? "border-green bg-green text-black"
+                    : "border-line bg-surface text-mute hover:border-green/30 hover:text-green"
                 }`}
               >
                 {f === "all" ? "Semua" : STATUS_CONFIG[f].label}
@@ -384,7 +384,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari mitra…"
-              className="w-full rounded-lg border border-line bg-white py-2 pl-9 pr-4 text-sm text-ink outline-none placeholder:text-faint transition focus:border-green focus:ring-2 focus:ring-green/15 sm:w-64"
+              className="w-full rounded-lg border border-line bg-surface py-2 pl-9 pr-4 text-sm text-ink outline-none placeholder:text-faint transition focus:border-green focus:ring-2 focus:ring-green/15 sm:w-64"
             />
           </div>
         </div>
@@ -397,7 +397,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
               <span className="ml-3 text-mute">Memuat data mitra…</span>
             </div>
           ) : filteredProviders.length === 0 ? (
-            <div className="rounded-xl border border-line bg-white py-16 text-center">
+            <div className="rounded-xl border border-line bg-surface py-16 text-center">
               <Eye className="mx-auto h-10 w-10 text-faint" />
               <p className="mt-3 text-mute">Tidak ada mitra ditemukan.</p>
             </div>
@@ -411,7 +411,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                 return (
                   <div
                     key={p.id}
-                    className={`rounded-xl border bg-white p-5 transition-shadow hover:shadow-md ${
+                    className={`rounded-xl border bg-surface p-5 transition-shadow hover:shadow-md ${
                       p.status === "pending"
                         ? "border-amber-200 shadow-[0_0_0_1px_rgba(245,158,11,.08)]"
                         : "border-line"
@@ -529,8 +529,8 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                             }
                             className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-semibold transition disabled:opacity-50 ${
                               p.verified
-                                ? "bg-green text-white hover:bg-green-dark"
-                                : "border border-green/30 bg-white text-green hover:bg-green-tint"
+                                ? "bg-green text-black hover:bg-green-dark"
+                                : "border border-green/30 bg-surface text-green hover:bg-green-tint"
                             }`}
                           >
                             {isUpdating ? (
@@ -546,7 +546,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                             <button
                               onClick={() => updateStatus(p.id, "published")}
                               disabled={isUpdating}
-                              className="inline-flex items-center gap-1.5 rounded-lg bg-green px-4 py-2 text-xs font-semibold text-white transition hover:bg-green-dark disabled:opacity-50"
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-green px-4 py-2 text-xs font-semibold text-black transition hover:bg-green-dark disabled:opacity-50"
                             >
                               {isUpdating ? (
                                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -558,7 +558,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                             <button
                               onClick={() => updateStatus(p.id, "rejected")}
                               disabled={isUpdating}
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-4 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-surface px-4 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
                             >
                               <XCircle className="h-3.5 w-3.5" />
                               Reject
@@ -620,7 +620,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                 <span className="ml-3 text-mute">Memuat ulasan…</span>
               </div>
             ) : reviews.length === 0 ? (
-              <div className="rounded-xl border border-line bg-white py-16 text-center">
+              <div className="rounded-xl border border-line bg-surface py-16 text-center">
                 <Star className="mx-auto h-10 w-10 text-faint" />
                 <p className="mt-3 text-mute">Belum ada ulasan masuk.</p>
               </div>
@@ -634,7 +634,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                   return (
                     <div
                       key={r.id}
-                      className={`rounded-xl border bg-white p-5 transition-shadow hover:shadow-md ${
+                      className={`rounded-xl border bg-surface p-5 transition-shadow hover:shadow-md ${
                         r.status === "pending"
                           ? "border-amber-200 shadow-[0_0_0_1px_rgba(245,158,11,.08)]"
                           : "border-line"
@@ -681,7 +681,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                             <button
                               onClick={() => updateReviewStatus(r.id, "published")}
                               disabled={isUpdating}
-                              className="inline-flex items-center gap-1.5 rounded-lg bg-green px-4 py-2 text-xs font-semibold text-white transition hover:bg-green-dark disabled:opacity-50"
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-green px-4 py-2 text-xs font-semibold text-black transition hover:bg-green-dark disabled:opacity-50"
                             >
                               {isUpdating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
                               Approve
@@ -691,7 +691,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                             <button
                               onClick={() => updateReviewStatus(r.id, "rejected")}
                               disabled={isUpdating}
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-4 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-surface px-4 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:opacity-50"
                             >
                               <XCircle className="h-3.5 w-3.5" />
                               Reject
@@ -715,7 +715,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                 <span className="ml-3 text-mute">Memuat pesan…</span>
               </div>
             ) : csMsgs.length === 0 ? (
-              <div className="rounded-xl border border-line bg-white py-16 text-center">
+              <div className="rounded-xl border border-line bg-surface py-16 text-center">
                 <MessageCircle className="mx-auto h-10 w-10 text-faint" />
                 <p className="mt-3 text-mute">Belum ada pesan masuk.</p>
               </div>
@@ -730,7 +730,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                     return (
                       <div
                         key={m.id}
-                        className={`rounded-xl border bg-white p-5 transition-shadow hover:shadow-md ${
+                        className={`rounded-xl border bg-surface p-5 transition-shadow hover:shadow-md ${
                           m.handled ? "border-line" : "border-amber-200 shadow-[0_0_0_1px_rgba(245,158,11,.08)]"
                         }`}
                       >
@@ -762,7 +762,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                                 href={`https://wa.me/${waDigits}?text=${encodeURIComponent(`Halo ${m.name || ""}, saya admin JasaKebumen. Menjawab pesan Anda: "${m.text.slice(0, 60)}..."`)}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 rounded-lg bg-green px-4 py-2 text-xs font-semibold text-white transition hover:bg-green-dark"
+                                className="inline-flex items-center gap-1.5 rounded-lg bg-green px-4 py-2 text-xs font-semibold text-black transition hover:bg-green-dark"
                               >
                                 <MessageCircle className="h-3.5 w-3.5" />
                                 Balas WA

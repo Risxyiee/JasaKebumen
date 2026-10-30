@@ -113,7 +113,7 @@ export default async function KemasanDesainPage() {
           <div className="mt-10 grid gap-4 sm:grid-cols-2">
             {vendors.map((v, i) => (
               <Reveal key={v.id} delay={Math.min(i, 5) * 0.05}>
-                <article className="flex h-full flex-col rounded-2xl border border-line bg-white p-6">
+                <article className="flex h-full flex-col rounded-2xl border border-line bg-surface p-6">
                   <div className="flex items-start gap-3">
                     {v.images.length > 0 ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -159,7 +159,7 @@ export default async function KemasanDesainPage() {
                       providerId={v.id}
                       source="direktori"
                       label="Chat vendor"
-                      className="inline-flex items-center gap-2 rounded-lg border border-green/30 px-4 py-2 text-sm font-semibold text-green transition hover:border-green hover:bg-green hover:text-white"
+                      className="inline-flex items-center gap-2 rounded-lg border border-green/30 px-4 py-2 text-sm font-semibold text-green transition hover:border-green hover:bg-green hover:text-black"
                       href={`https://wa.me/${v.waNumber}?text=${encodeURIComponent(
                         `Halo ${v.name}, saya menemukan jasa Anda di Pojok Kemasan & Desain JasaKebumen. Boleh tanya-tanya?`
                       )}`}
@@ -177,7 +177,7 @@ export default async function KemasanDesainPage() {
           </div>
         ) : (
           <Reveal>
-            <div className="mt-10 rounded-2xl border border-dashed border-line bg-white py-14 text-center">
+            <div className="mt-10 rounded-2xl border border-dashed border-line bg-surface py-14 text-center">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-green-tint">
                 <Package className="h-7 w-7 text-green" />
               </div>
@@ -193,7 +193,7 @@ export default async function KemasanDesainPage() {
               <div className="mt-6 flex flex-wrap justify-center gap-3">
                 <Link
                   href="/daftar"
-                  className="inline-flex items-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-dark"
+                  className="inline-flex items-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-green-dark"
                 >
                   Daftarkan jasa Anda <PenTool className="h-4 w-4" />
                 </Link>
@@ -211,7 +211,7 @@ export default async function KemasanDesainPage() {
         {/* CTA bawah */}
         {vendors.length > 0 && (
           <Reveal>
-            <div className="mt-10 rounded-2xl border border-line bg-white p-6 text-center md:p-8">
+            <div className="mt-10 rounded-2xl border border-line bg-surface p-6 text-center md:p-8">
               <p className="font-serif text-xl text-ink">
                 Punya usaha kemasan atau desain?
               </p>
@@ -221,7 +221,7 @@ export default async function KemasanDesainPage() {
               </p>
               <Link
                 href="/daftar"
-                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-dark"
+                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-green-dark"
               >
                 Daftarkan jasa Anda — gratis <ArrowUpRight className="h-4 w-4" />
               </Link>

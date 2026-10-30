@@ -77,7 +77,7 @@ function ProviderRow({ p, i }: { p: DirectoryProvider; i: number }) {
             href={`https://wa.me/${p.wa}?text=${encodeURIComponent(p.msg)}`}
             target="_blank" rel="noopener noreferrer"
             onClick={() => trackWaClick(p.id, "direktori")}
-            className="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-green/30 px-4 py-2 text-sm font-semibold text-green transition hover:border-green hover:bg-green hover:text-white md:mt-0 md:justify-self-end"
+            className="mt-3 inline-flex items-center justify-center gap-2 rounded-lg border border-green/30 px-4 py-2 text-sm font-semibold text-green transition hover:border-green hover:bg-green hover:text-black md:mt-0 md:justify-self-end"
           >
             <MessageCircle className="h-4 w-4" /> WhatsApp
           </a>
@@ -105,7 +105,7 @@ export default function ProviderDirectory({ providers = [] }: { providers?: Dire
   ].filter(Boolean).join(" · ");
 
   return (
-    <section id="penyedia" className="scroll-mt-20 border-t border-line bg-white">
+    <section id="penyedia" className="scroll-mt-20 border-t border-line bg-surface">
       <div className="relative mx-auto max-w-6xl px-5 py-16 md:py-24">
         <span aria-hidden className="pointer-events-none absolute right-4 top-8 hidden select-none font-serif text-[9rem] leading-none text-green/[0.05] lg:block">03</span>
 
@@ -160,7 +160,7 @@ export default function ProviderDirectory({ providers = [] }: { providers?: Dire
           </p>
           <a
             href="/daftar"
-            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-dark"
+            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-green-dark"
           >
             Daftarkan usaha — gratis
           </a>
@@ -173,7 +173,7 @@ export default function ProviderDirectory({ providers = [] }: { providers?: Dire
             id="resetBtn2"
             onClick={reset}
             type="button"
-            className="mt-4 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-dark"
+            className="mt-4 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-green-dark"
           >
             Hapus filter
           </button>

@@ -23,7 +23,7 @@ interface SessionInfo {
 }
 
 const inputCls =
-  "w-full rounded-lg border border-line bg-white py-2.5 pl-10 pr-4 text-sm text-ink outline-none placeholder:text-faint transition focus:border-green focus:ring-2 focus:ring-green/15";
+  "w-full rounded-lg border border-line bg-surface py-2.5 pl-10 pr-4 text-sm text-ink outline-none placeholder:text-faint transition focus:border-green focus:ring-2 focus:ring-green/15";
 
 export default function AdminPage() {
   const [view, setView] = useState<View>("loading");
@@ -97,7 +97,7 @@ export default function AdminPage() {
       <div className="w-full max-w-md">
         <div className="mb-6 flex flex-col items-center text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-green">
-            <Shield className="h-6 w-6 text-white" />
+            <Shield className="h-6 w-6 text-black" />
           </div>
           <h1 className="mt-4 font-serif text-2xl font-semibold text-ink">Admin JasaKebumen</h1>
           <p className="mt-1 text-sm text-mute">
@@ -107,7 +107,7 @@ export default function AdminPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-line bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-line bg-surface p-6 shadow-sm">
           {view === "setup" ? (
             <SetupForm onDone={loadSession} onBack={() => setView("login")} />
           ) : (
@@ -203,7 +203,7 @@ function LoginForm({
       <button
         type="submit"
         disabled={busy}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-green px-6 py-3 text-sm font-semibold text-white transition hover:bg-green-dark disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-green px-6 py-3 text-sm font-semibold text-black transition hover:bg-green-dark disabled:cursor-not-allowed disabled:opacity-60"
       >
         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
         Masuk
@@ -345,7 +345,7 @@ function SetupForm({ onDone, onBack }: { onDone: () => Promise<void>; onBack: ()
       <button
         type="submit"
         disabled={busy}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-green px-6 py-3 text-sm font-semibold text-white transition hover:bg-green-dark disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-green px-6 py-3 text-sm font-semibold text-black transition hover:bg-green-dark disabled:cursor-not-allowed disabled:opacity-60"
       >
         {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shield className="h-4 w-4" />}
         Simpan &amp; Masuk

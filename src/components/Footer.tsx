@@ -4,7 +4,7 @@ import { waAdminLink } from "@/lib/data";
 
 export default function Footer() {
   return (
-    <footer className="bg-green-dark text-white">
+    <footer className="bg-green-dark text-black">
       <div className="mx-auto max-w-6xl px-5 pt-14">
         <div className="grid gap-10 md:grid-cols-4">
           <div className="md:col-span-2">

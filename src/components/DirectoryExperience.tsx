@@ -190,7 +190,7 @@ export default function DirectoryExperience({
               </p>
               <a
                 href="/daftar"
-                className="mt-5 inline-flex items-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-dark"
+                className="mt-5 inline-flex items-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-green-dark"
               >
                 Daftarkan usaha — gratis
               </a>
@@ -205,7 +205,7 @@ export default function DirectoryExperience({
               <button
                 type="button"
                 onClick={clearAll}
-                className="mt-4 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-dark"
+                className="mt-4 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-green-dark"
               >
                 Hapus semua filter
               </button>

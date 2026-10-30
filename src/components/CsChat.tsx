@@ -294,9 +294,9 @@ export default function CsChat() {
     <>
       {/* Panel chat */}
       {open && (
-        <div className="fixed bottom-20 right-4 z-50 flex h-[70vh] max-h-[560px] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-2xl shadow-black/20 sm:right-5">
+        <div className="fixed bottom-20 right-4 z-50 flex h-[70vh] max-h-[560px] w-[calc(100vw-2rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-2xl shadow-black/20 sm:right-5">
           {/* Header */}
-          <div className="flex items-center justify-between bg-green px-4 py-3 text-white">
+          <div className="flex items-center justify-between bg-green px-4 py-3 text-black">
             <div className="flex items-center gap-3">
               <span className="grid h-9 w-9 place-items-center rounded-full bg-white/15 font-serif text-sm font-bold">
                 J
@@ -329,8 +329,8 @@ export default function CsChat() {
                 <p
                   className={`max-w-[85%] whitespace-pre-line rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
                     m.role === "user"
-                      ? "rounded-br-md bg-green text-white"
-                      : "rounded-bl-md border border-line bg-white text-ink"
+                      ? "rounded-br-md bg-green text-black"
+                      : "rounded-bl-md border border-line bg-surface text-ink"
                   }`}
                 >
                   {m.text}
@@ -339,7 +339,7 @@ export default function CsChat() {
             ))}
             {sending && (
               <div className="flex justify-start">
-                <span className="inline-flex items-center gap-2 rounded-2xl rounded-bl-md border border-line bg-white px-3.5 py-2.5 text-xs text-mute">
+                <span className="inline-flex items-center gap-2 rounded-2xl rounded-bl-md border border-line bg-surface px-3.5 py-2.5 text-xs text-mute">
                   <Loader2 className="h-3.5 w-3.5 animate-spin" /> Mengirim…
                 </span>
               </div>
@@ -349,13 +349,13 @@ export default function CsChat() {
 
           {/* Quick replies */}
           {chips.length > 0 && (
-            <div className="flex flex-wrap gap-2 border-t border-line bg-white px-4 pt-3">
+            <div className="flex flex-wrap gap-2 border-t border-line bg-surface px-4 pt-3">
               {chips.map((c) => (
                 <button
                   key={c.label}
                   type="button"
                   onClick={() => pickChip(c)}
-                  className="rounded-full border border-green/30 px-3 py-1.5 text-xs font-medium text-green transition hover:bg-green hover:text-white"
+                  className="rounded-full border border-green/30 px-3 py-1.5 text-xs font-medium text-green transition hover:bg-green hover:text-black"
                 >
                   {c.label}
                 </button>
@@ -364,7 +364,7 @@ export default function CsChat() {
           )}
 
           {/* Input */}
-          <div className="flex items-center gap-2 border-t border-line bg-white px-3 py-3">
+          <div className="flex items-center gap-2 border-t border-line bg-surface px-3 py-3">
             <input
               type="text"
               value={input}
@@ -382,7 +382,7 @@ export default function CsChat() {
               onClick={() => handleUserText(input)}
               disabled={!input.trim() || sending}
               aria-label="Kirim"
-              className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-green text-white transition hover:bg-green-dark disabled:opacity-40"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-green text-black transition hover:bg-green-dark disabled:opacity-40"
             >
               <Send className="h-4 w-4" />
             </button>
@@ -395,7 +395,7 @@ export default function CsChat() {
         type="button"
         onClick={() => (open ? setOpen(false) : openChat())}
         aria-label={open ? "Tutup CS chat" : "Buka CS chat"}
-        className="fixed bottom-5 right-5 z-50 grid h-12 w-12 place-items-center rounded-full bg-green text-white shadow-lg shadow-black/15 ring-1 ring-white/20 transition hover:bg-green-dark"
+        className="fixed bottom-5 right-5 z-50 grid h-12 w-12 place-items-center rounded-full bg-green text-black shadow-lg shadow-black/15 ring-1 ring-white/20 transition hover:bg-green-dark"
       >
         {open ? <X className="h-5 w-5" /> : <MessageCircle className="h-5 w-5" />}
       </button>

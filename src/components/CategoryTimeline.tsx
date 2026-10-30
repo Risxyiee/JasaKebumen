@@ -112,11 +112,11 @@ export default function CategoryTimeline({
               className={[
                 "relative z-10 inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-[13px] font-semibold transition-colors",
                 active === null
-                  ? "border-transparent text-white"
-                  : "border-line bg-white/80 text-ink backdrop-blur hover:border-green/40",
+                  ? "border-transparent text-black"
+                  : "border-line bg-white/5 text-ink backdrop-blur hover:border-green/40",
               ].join(" ")}
             >
-              <LayoutGrid className={`h-3.5 w-3.5 ${active === null ? "text-amber-300" : "text-green"}`} />
+              <LayoutGrid className={`h-3.5 w-3.5 ${active === null ? "text-amber-600" : "text-green"}`} />
               Semua
             </span>
           </button>
@@ -146,15 +146,15 @@ export default function CategoryTimeline({
                   className={[
                     "relative z-10 inline-flex items-center gap-2.5 rounded-full border px-4 py-2.5 text-[13px] transition-colors",
                     isActive
-                      ? "border-transparent text-white"
-                      : "border-line bg-white/80 text-ink backdrop-blur hover:border-green/40",
+                      ? "border-transparent text-black"
+                      : "border-line bg-white/5 text-ink backdrop-blur hover:border-green/40",
                   ].join(" ")}
                 >
                   <span className="hidden font-mono text-[10px] tracking-[0.14em] lg:inline">
-                    <span className={isActive ? "text-amber-300" : "text-faint"}>{c.n}</span>
+                    <span className={isActive ? "text-amber-600" : "text-faint"}>{c.n}</span>
                   </span>
                   {createElement(iconForCategory(c.label), {
-                    className: `h-4 w-4 ${isActive ? "text-amber-300" : "text-green"}`,
+                    className: `h-4 w-4 ${isActive ? "text-amber-600" : "text-green"}`,
                   })}
                   <span className={`whitespace-nowrap ${count === 0 && !isActive ? "opacity-45" : ""}`}>
                     {c.label}

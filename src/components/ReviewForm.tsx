@@ -86,7 +86,7 @@ export default function ReviewForm({ providerId }: { providerId: string }) {
       <button
         type="button"
         onClick={openForm}
-        className="mt-6 inline-flex items-center gap-2 rounded-lg border border-green/30 px-4 py-2.5 text-sm font-semibold text-green transition hover:border-green hover:bg-green hover:text-white"
+        className="mt-6 inline-flex items-center gap-2 rounded-lg border border-green/30 px-4 py-2.5 text-sm font-semibold text-green transition hover:border-green hover:bg-green hover:text-black"
       >
         <Star className="h-4 w-4" /> Tulis ulasan
       </button>
@@ -94,7 +94,7 @@ export default function ReviewForm({ providerId }: { providerId: string }) {
   }
 
   return (
-    <form onSubmit={submit} className="mt-6 rounded-xl border border-line bg-white p-5">
+    <form onSubmit={submit} className="mt-6 rounded-xl border border-line bg-surface p-5">
       <p className="font-serif text-lg text-ink">Bagaimana pengalamanmu?</p>
       <p className="mt-1 text-xs text-mute">
         Ulasan hanya untuk pelanggan yang benar-benar pernah dilayani.
@@ -132,7 +132,7 @@ export default function ReviewForm({ providerId }: { providerId: string }) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Namamu"
-          className="rounded-lg border border-line bg-white px-3.5 py-2.5 text-sm text-ink outline-none placeholder:text-faint transition focus:border-green focus:ring-2 focus:ring-green/15"
+          className="rounded-lg border border-line bg-surface px-3.5 py-2.5 text-sm text-ink outline-none placeholder:text-faint transition focus:border-green focus:ring-2 focus:ring-green/15"
         />
         {/* Honeypot — tersembunyi dari manusia */}
         <input
@@ -154,7 +154,7 @@ export default function ReviewForm({ providerId }: { providerId: string }) {
         value={comment}
         onChange={(e) => setComment(e.target.value)}
         placeholder="Ceritakan pengalamanmu: apakah hasilnya bagus, sopan, dan tepat waktu?"
-        className="mt-3 w-full resize-none rounded-lg border border-line bg-white px-3.5 py-2.5 text-sm text-ink outline-none placeholder:text-faint transition focus:border-green focus:ring-2 focus:ring-green/15"
+        className="mt-3 w-full resize-none rounded-lg border border-line bg-surface px-3.5 py-2.5 text-sm text-ink outline-none placeholder:text-faint transition focus:border-green focus:ring-2 focus:ring-green/15"
       />
 
       {tsSiteKey && (
@@ -169,7 +169,7 @@ export default function ReviewForm({ providerId }: { providerId: string }) {
         <button
           type="submit"
           disabled={sending}
-          className="inline-flex items-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-dark disabled:opacity-50"
+          className="inline-flex items-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-green-dark disabled:opacity-50"
         >
           {sending ? (
             <Loader2 className="h-4 w-4 animate-spin" />

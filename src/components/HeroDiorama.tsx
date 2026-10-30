@@ -434,13 +434,13 @@ export default function HeroDiorama() {
   return (
     <div
       className={`overflow-hidden rounded-2xl border shadow-[0_24px_60px_-32px_rgba(10,10,11,0.24)] transition-colors duration-500 ${
-        night ? "border-green-dark bg-green-dark" : "border-line bg-white"
+        night ? "border-green-dark bg-green-dark" : "border-line bg-surface"
       }`}
     >
       <div ref={wrapRef} className="relative h-[320px] sm:h-[400px] lg:h-[440px]">
         <span
           className={`pointer-events-none absolute left-4 top-4 z-10 rounded-md border px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] transition-colors duration-500 ${
-            night ? "border-white/15 bg-green-dark/70 text-white/60" : "border-line bg-paper/90 text-mute"
+            night ? "border-white/15 bg-green-dark/70 text-black/60" : "border-line bg-paper/90 text-mute"
           }`}
         >
           Diorama mitra · 3D

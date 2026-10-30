@@ -277,7 +277,7 @@ export default function DaftarPage() {
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Link
               href="/"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-line bg-white px-5 py-2.5 text-sm font-medium text-ink transition hover:bg-line"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-line bg-surface px-5 py-2.5 text-sm font-medium text-ink transition hover:bg-line"
             >
               Kembali ke Beranda
             </Link>
@@ -297,7 +297,7 @@ export default function DaftarPage() {
                 setPriceMax("");
                 setPriceNote("");
               }}
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-dark"
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-black transition hover:bg-green-dark"
             >
               Daftar Mitra Lain
             </Link>
@@ -310,7 +310,7 @@ export default function DaftarPage() {
   return (
     <div className="min-h-screen bg-paper">
       {/* Header */}
-      <div className="border-b border-line bg-white">
+      <div className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-5 py-5">
           <Link href="/" className="flex items-center gap-2 text-green transition hover:opacity-80">
             <Image
@@ -342,7 +342,7 @@ export default function DaftarPage() {
         </div>
 
         {/* Form Card */}
-        <div className="rounded-2xl border border-line bg-white p-6 shadow-sm md:p-8">
+        <div className="rounded-2xl border border-line bg-surface p-6 shadow-sm md:p-8">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-6 w-6 animate-spin text-faint" />
@@ -374,7 +374,7 @@ export default function DaftarPage() {
                   <button
                     type="button"
                     onClick={loadReference}
-                    className="rounded-md border border-amber-300 bg-white px-3 py-1 text-xs font-semibold text-amber-800 transition hover:bg-amber-100"
+                    className="rounded-md border border-amber-300 bg-surface px-3 py-1 text-xs font-semibold text-amber-800 transition hover:bg-amber-100"
                   >
                     Coba muat ulang
                   </button>
@@ -612,7 +612,7 @@ export default function DaftarPage() {
                     <div className="mt-2.5 space-y-2">
                       {photos.map((_, i) => (
                         <div key={`caption-${i}`} className="flex items-center gap-2.5">
-                          <span className="shrink-0 rounded border border-amber-200 bg-white px-1.5 py-1 font-mono text-[10px] font-semibold text-amber-700">
+                          <span className="shrink-0 rounded border border-amber-200 bg-surface px-1.5 py-1 font-mono text-[10px] font-semibold text-amber-700">
                             Foto {i + 1}
                           </span>
                           <input
@@ -625,7 +625,7 @@ export default function DaftarPage() {
                               )
                             }
                             placeholder={`Contoh: ${["Ayam geprek — Rp 13.000", "Getuk lapis — Rp 10.000", "Es degan — Rp 8.000"][i % 3]}`}
-                            className="w-full rounded-lg border border-line bg-white px-3.5 py-2 text-sm text-ink outline-none placeholder:text-faint transition focus:border-green focus:ring-2 focus:ring-green/15"
+                            className="w-full rounded-lg border border-line bg-surface px-3.5 py-2 text-sm text-ink outline-none placeholder:text-faint transition focus:border-green focus:ring-2 focus:ring-green/15"
                           />
                         </div>
                       ))}
@@ -699,7 +699,7 @@ export default function DaftarPage() {
               <button
                 type="submit"
                 disabled={formState === "submitting"}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-green px-6 py-3 text-sm font-semibold text-white transition hover:bg-green-dark disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-green px-6 py-3 text-sm font-semibold text-black transition hover:bg-green-dark disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {formState === "submitting" ? (
                   <>
@@ -735,7 +735,7 @@ export default function DaftarPage() {
             { icon: CheckCircle2, label: "Dikurasi", desc: "Tim kami verifikasi data" },
             { icon: MessageCircle, label: "WhatsApp", desc: "Pelanggan hubungi langsung" },
           ].map((item) => (
-            <div key={item.label} className="flex items-start gap-3 rounded-xl border border-line bg-white p-4">
+            <div key={item.label} className="flex items-start gap-3 rounded-xl border border-line bg-surface p-4">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-green-tint">
                 <item.icon className="h-4 w-4 text-green" />
               </div>

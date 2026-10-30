@@ -30,7 +30,7 @@ export default function WaChatButton({
       aria-label="Chat pemilik usaha via WhatsApp"
       className={
         className ??
-        "inline-flex items-center gap-2 rounded-lg bg-green px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-green-dark"
+        "inline-flex items-center gap-2 rounded-lg bg-green px-6 py-3 text-sm font-semibold text-black shadow-sm transition hover:bg-green-dark"
       }
     >
       <MessageCircle className="h-4 w-4" /> {label}

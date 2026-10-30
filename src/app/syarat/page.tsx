@@ -126,7 +126,7 @@ export default function SyaratPage() {
   return (
     <div className="min-h-screen bg-paper">
       {/* Header */}
-      <div className="border-b border-line bg-white">
+      <div className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-3xl items-center gap-3 px-5 py-5">
           <Link href="/" className="flex items-center gap-2 text-green transition hover:opacity-80">
             <Image
@@ -202,7 +202,7 @@ export default function SyaratPage() {
         </article>
 
         {/* CTA */}
-        <div className="mt-12 rounded-2xl border border-line bg-white p-6 text-center shadow-sm">
+        <div className="mt-12 rounded-2xl border border-line bg-surface p-6 text-center shadow-sm">
           <h2 className="font-serif text-lg font-semibold text-ink">Siap bergabung sebagai mitra?</h2>
           <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-mute">
             Dengan mendaftar, Anda dianggap telah menyetujui seluruh ketentuan di halaman ini.
@@ -210,7 +210,7 @@ export default function SyaratPage() {
           </p>
           <Link
             href="/daftar"
-            className="mt-5 inline-flex items-center justify-center rounded-lg bg-green px-6 py-3 text-sm font-semibold text-white transition hover:bg-green-dark"
+            className="mt-5 inline-flex items-center justify-center rounded-lg bg-green px-6 py-3 text-sm font-semibold text-black transition hover:bg-green-dark"
           >
             Daftarkan Usaha Anda
           </Link>

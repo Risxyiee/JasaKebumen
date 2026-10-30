@@ -82,11 +82,11 @@ export default function CategoryGrid({ counts = {} }: { counts?: Record<string, 
                   onClick={() => pick(c.q)}
                   onMouseMove={onMove}
                   onMouseLeave={onLeave}
-                  className="tilt group h-full w-full rounded-xl border border-line bg-white text-left transition-colors duration-300 hover:border-green/40 hover:shadow-[0_20px_48px_-24px_rgba(10,10,11,0.26)]"
+                  className="tilt group h-full w-full rounded-xl border border-line bg-surface text-left transition-colors duration-300 hover:border-green/40 hover:shadow-[0_20px_48px_-24px_rgba(10,10,11,0.26)]"
                 >
                   {c.wide ? (
                     <div className="flex items-center gap-5 p-5">
-                      <span data-depth="18" className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-green-tint text-green transition-colors duration-300 group-hover:bg-amber-50 group-hover:text-amber-600">
+                      <span data-depth="18" className="grid h-12 w-12 shrink-0 place-items-center rounded-lg bg-green-tint text-green transition-colors duration-300 group-hover:bg-neutral-800 group-hover:text-amber-600">
                         <Icon className="h-5 w-5" />
                       </span>
                       <div className="min-w-0 flex-1">
@@ -102,7 +102,7 @@ export default function CategoryGrid({ counts = {} }: { counts?: Record<string, 
                   ) : (
                     <div className="p-5">
                       <div className="flex items-start justify-between">
-                        <span data-depth="18" className="grid h-11 w-11 place-items-center rounded-lg bg-green-tint text-green transition-colors duration-300 group-hover:bg-amber-50 group-hover:text-amber-600">
+                        <span data-depth="18" className="grid h-11 w-11 place-items-center rounded-lg bg-green-tint text-green transition-colors duration-300 group-hover:bg-neutral-800 group-hover:text-amber-600">
                           <Icon className="h-5 w-5" />
                         </span>
                         <span className="font-mono text-[11px] text-faint">{c.n}</span>

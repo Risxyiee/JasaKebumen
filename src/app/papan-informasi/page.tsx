@@ -126,7 +126,7 @@ export default function PapanInformasiPage() {
         <div className="mt-10 space-y-5">
           {PROGRAMS.map((p, i) => (
             <Reveal key={p.title} delay={Math.min(i, 5) * 0.05}>
-              <article className="rounded-2xl border border-line bg-white p-6 md:p-8">
+              <article className="rounded-2xl border border-line bg-surface p-6 md:p-8">
                 <div className="flex flex-col gap-5 md:flex-row">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-green-tint">
                     <p.icon className="h-6 w-6 text-green" />
@@ -175,20 +175,20 @@ export default function PapanInformasiPage() {
           </p>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl bg-green p-6 text-white">
+            <div className="rounded-2xl bg-green p-6 text-black">
               <h3 className="font-serif text-xl">Punya usaha di Kebumen?</h3>
-              <p className="mt-2 text-sm leading-relaxed text-white/75">
+              <p className="mt-2 text-sm leading-relaxed text-black/70">
                 Daftarkan usahamu ke direktori — gratis, dikurasi tim, dan
                 pembeli menghubungi WhatsApp-mu langsung tanpa komisi.
               </p>
               <Link
                 href="/daftar"
-                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-green transition hover:bg-amber-50"
+                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-surface px-4 py-2.5 text-sm font-semibold text-green transition hover:bg-neutral-800"
               >
                 Daftarkan usaha <ArrowUpRight className="h-4 w-4" />
               </Link>
             </div>
-            <div className="rounded-2xl border border-line bg-white p-6">
+            <div className="rounded-2xl border border-line bg-surface p-6">
               <h3 className="flex items-center gap-2 font-serif text-xl text-ink">
                 <Package className="h-5 w-5 text-green" /> Pojok Kemasan &amp; Desain
               </h3>
@@ -198,7 +198,7 @@ export default function PapanInformasiPage() {
               </p>
               <Link
                 href="/kemasan-desain"
-                className="mt-4 inline-flex items-center gap-2 rounded-lg border border-green/30 px-4 py-2.5 text-sm font-semibold text-green transition hover:bg-green hover:text-white"
+                className="mt-4 inline-flex items-center gap-2 rounded-lg border border-green/30 px-4 py-2.5 text-sm font-semibold text-green transition hover:bg-green hover:text-black"
               >
                 Buka Pojok Kemasan <ArrowUpRight className="h-4 w-4" />
               </Link>

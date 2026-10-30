@@ -133,19 +133,19 @@ export default async function Page() {
         {/* CTA section */}
         <section id="daftar" className="scroll-mt-20 border-t border-line">
           <div className="mx-auto max-w-6xl px-5 py-16 md:py-24">
-            <div className="relative overflow-hidden rounded-2xl bg-green px-6 py-12 text-white md:p-16" data-reveal>
-              <span aria-hidden className="pointer-events-none absolute -bottom-9 right-2 select-none font-serif italic leading-none text-white/[0.06] [font-size:9rem] md:[font-size:11rem]">
+            <div className="relative overflow-hidden rounded-2xl bg-green px-6 py-12 text-black md:p-16" data-reveal>
+              <span aria-hidden className="pointer-events-none absolute -bottom-9 right-2 select-none font-serif italic leading-none text-black/[0.05] [font-size:9rem] md:[font-size:11rem]">
                 gratis
               </span>
 
-              <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-white/50">
-                <Asterisk className="h-3.5 w-3.5 animate-[spin_14s_linear_infinite] text-amber-300" />
+              <p className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.18em] text-black/45">
+                <Asterisk className="h-3.5 w-3.5 animate-[spin_14s_linear_infinite] text-amber-600" />
                 Untuk pelaku UMKM &amp; usaha jasa
               </p>
               <h2 className="mt-4 max-w-2xl font-serif text-3xl leading-tight md:text-[2.6rem]">
-                Punya usaha di Kebumen? <em className="italic text-amber-300">Dapatkan pelanggan baru.</em>
+                Punya usaha di Kebumen? <em className="italic text-amber-600">Dapatkan pelanggan baru.</em>
               </h2>
-              <p className="mt-4 max-w-xl leading-relaxed text-white/70">
+              <p className="mt-4 max-w-xl leading-relaxed text-black/65">
                 Daftarkan usahamu, tim kami kurasi dan verifikasi, lalu profilmu tayang di direktori.
                 Pembeli menghubungi WhatsApp-mu langsung — tanpa komisi per transaksi.
               </p>
@@ -153,18 +153,18 @@ export default async function Page() {
                 <a
                   href={waAdminLink("Halo Admin JasaKebumen, saya ingin mendaftarkan usaha.")}
                   target="_blank" rel="noopener noreferrer"
-                  className="magnet inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-semibold text-green transition-colors hover:bg-amber-50"
+                  className="magnet inline-flex items-center gap-2 rounded-lg bg-surface px-5 py-3 text-sm font-semibold text-green transition-colors hover:bg-neutral-800"
                 >
                   Daftarkan usaha — gratis <ArrowUpRight className="h-4 w-4" />
                 </a>
                 <div className="flex items-center gap-3">
                   <div className="flex -space-x-2">
-                    <span className="grid h-8 w-8 place-items-center rounded-full bg-white/15 text-[11px] font-bold ring-2 ring-green">AS</span>
-                    <span className="grid h-8 w-8 place-items-center rounded-full bg-white/25 text-[11px] font-bold ring-2 ring-green">GJ</span>
-                    <span className="grid h-8 w-8 place-items-center rounded-full bg-white/35 text-[11px] font-bold ring-2 ring-green">RL</span>
-                    <span className="grid h-8 w-8 place-items-center rounded-full bg-amber-400 text-[11px] font-bold text-green-dark ring-2 ring-green">+{Math.max(providers.length, 1)}</span>
+                    <span className="grid h-8 w-8 place-items-center rounded-full bg-black/10 text-[11px] font-bold ring-2 ring-black/15">AS</span>
+                    <span className="grid h-8 w-8 place-items-center rounded-full bg-black/15 text-[11px] font-bold ring-2 ring-black/15">GJ</span>
+                    <span className="grid h-8 w-8 place-items-center rounded-full bg-black/20 text-[11px] font-bold ring-2 ring-black/15">RL</span>
+                    <span className="grid h-8 w-8 place-items-center rounded-full bg-amber-400 text-[11px] font-bold text-black ring-2 ring-black/15">+{Math.max(providers.length, 1)}</span>
                   </div>
-                  <span className="font-mono text-xs text-white/50">mitra bergabung di JasaKebumen</span>
+                  <span className="font-mono text-xs text-black/45">mitra bergabung di JasaKebumen</span>
                 </div>
               </div>
             </div>

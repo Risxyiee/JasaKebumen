@@ -147,7 +147,7 @@ export default function HowItWorks() {
   }, []);
 
   return (
-    <section id="cara" className="scroll-mt-20 border-t border-line bg-green-dark text-white">
+    <section id="cara" className="scroll-mt-20 border-t border-line bg-green-dark text-black">
       <div ref={sectionRef} className="relative mx-auto max-w-6xl px-5 py-16 md:py-24">
         <span aria-hidden className="pointer-events-none absolute right-4 top-8 hidden select-none font-serif text-[9rem] leading-none text-white/[0.04] lg:block">04</span>
 
@@ -185,7 +185,7 @@ export default function HowItWorks() {
 
           <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
             <div className="cw-stage">
-              <span className="pointer-events-none absolute left-4 top-4 z-10 rounded-md border border-white/15 bg-green-dark/70 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-white/50">Demo · berjalan sendiri</span>
+              <span className="pointer-events-none absolute left-4 top-4 z-10 rounded-md border border-white/15 bg-green-dark/70 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-black/50">Demo · berjalan sendiri</span>
 
               {/* Panel 1: Cari */}
               <div ref={(el) => { panelRefs.current[0] = el; }} className="cw-panel" aria-hidden="true">

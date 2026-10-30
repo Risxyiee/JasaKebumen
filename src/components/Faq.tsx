@@ -16,7 +16,7 @@ export default function Faq() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="scroll-mt-20 border-t border-line bg-white">
+    <section id="faq" className="scroll-mt-20 border-t border-line bg-surface">
       <div className="relative mx-auto grid max-w-6xl gap-10 px-5 py-16 md:grid-cols-[1fr_1.5fr] md:py-24">
         <Reveal>
           <p className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-faint">

@@ -54,7 +54,7 @@ export default function Features({ providers = [] }: { providers?: DirectoryProv
   }, [inView]);
 
   return (
-    <section id="fitur" ref={secRef} className="scroll-mt-20 bg-green-dark text-white">
+    <section id="fitur" ref={secRef} className="scroll-mt-20 bg-green-dark text-black">
       <div className="relative mx-auto max-w-6xl px-5 py-16 md:py-24">
         <span aria-hidden className="pointer-events-none absolute right-4 top-8 hidden select-none font-serif text-[9rem] leading-none text-white/[0.04] lg:block">01</span>
 
@@ -110,7 +110,7 @@ export default function Features({ providers = [] }: { providers?: DirectoryProv
               <div className="mt-4 space-y-2 text-sm">
                 <div className="cb cb-1 max-w-[85%] rounded-2xl rounded-bl-sm bg-white/10 px-3.5 py-2">Bang, AC saya bocor. Bisa dicek hari ini?</div>
                 <div className="cb cb-2 max-w-[85%] rounded-2xl rounded-bl-sm bg-white/10 px-3.5 py-2">Bisa. Jam 9 pagi sampai rumah ya.</div>
-                <div className="cb cb-3 ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-green px-3.5 py-2 text-white">Siap bang, ditunggu.</div>
+                <div className="cb cb-3 ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-green px-3.5 py-2 text-black">Siap bang, ditunggu.</div>
               </div>
               <p className="mt-4 text-sm leading-relaxed text-white/50">
                 Nego harga dan jadwal langsung dengan mitra. Kami tidak di tengah, tidak ambil potongan.
