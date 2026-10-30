@@ -306,7 +306,7 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
               {t.label}
               {t.count > 0 && (
                 <span className={`grid h-5 min-w-5 place-items-center rounded-full px-1 text-[11px] font-bold ${
-                  tab === t.key ? "bg-white/20 text-white" : "bg-amber-100 text-amber-700"
+                  tab === t.key ? "bg-black/10 text-black" : "bg-white/10 text-mute"
                 }`}>
                   {t.count}
                 </span>

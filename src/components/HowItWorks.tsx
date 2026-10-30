@@ -66,10 +66,10 @@ export default function HowItWorks() {
       b.setAttribute("aria-selected", on ? "true" : "false");
       if (on) {
         b.classList.add("text-green-dark");
-        b.classList.remove("text-white/60");
+        b.classList.remove("text-black/60");
       } else {
         b.classList.remove("text-green-dark");
-        b.classList.add("text-white/60");
+        b.classList.add("text-black/60");
       }
     });
 
@@ -149,14 +149,14 @@ export default function HowItWorks() {
   return (
     <section id="cara" className="scroll-mt-20 border-t border-line bg-green-dark text-black">
       <div ref={sectionRef} className="relative mx-auto max-w-6xl px-5 py-16 md:py-24">
-        <span aria-hidden className="pointer-events-none absolute right-4 top-8 hidden select-none font-serif text-[9rem] leading-none text-white/[0.04] lg:block">04</span>
+        <span aria-hidden className="pointer-events-none absolute right-4 top-8 hidden select-none font-serif text-[9rem] leading-none text-black/[0.04] lg:block">04</span>
 
         <Reveal>
-          <p className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-white/40">
+          <p className="flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.18em] text-black/40">
             <Asterisk className="h-3 w-3 text-amber-300" />04 — Cara kerja
           </p>
           <h2 className="mt-3 font-serif text-3xl md:text-4xl">Tiga langkah, selesai.</h2>
-          <p className="mt-3 max-w-md text-sm leading-relaxed text-white/55">
+          <p className="mt-3 max-w-md text-sm leading-relaxed text-black/55">
             Tiga demo yang berjalan sendiri — berpindah otomatis, atau klik tabnya kalau mau pilih.
           </p>
         </Reveal>
@@ -171,13 +171,13 @@ export default function HowItWorks() {
                   ref={(el) => { tabRefs.current[i] = el; }}
                   type="button"
                   onClick={() => showPanel(i, true)}
-                  className="stab relative z-10 rounded-lg px-4 py-2.5 text-sm font-semibold text-white/60 transition-colors"
+                  className="stab relative z-10 rounded-lg px-4 py-2.5 text-sm font-semibold text-black/60 transition-colors"
                 >
                   {label}
                 </button>
               ))}
             </div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-white/35">Otomatis · klik tab untuk pilih</p>
+            <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-black/35">Otomatis · klik tab untuk pilih</p>
           </div>
           <div className="mt-3 h-0.5 max-w-md overflow-hidden rounded-full bg-white/10">
             <span ref={fillRef} id="stepFill" className="block h-full origin-left scale-x-0 bg-amber-400" />
@@ -296,7 +296,7 @@ export default function HowItWorks() {
               >
                 <p className="font-mono text-xs text-amber-300/80">{col.n}</p>
                 <h3 className="mt-2.5 text-lg font-semibold tracking-tight">{col.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/60">{col.desc}</p>
+                <p className="mt-2 text-sm leading-relaxed text-black/60">{col.desc}</p>
               </div>
             ))}
           </div>
