@@ -228,13 +228,13 @@ body::after {
 /* ===== Fitur: stage mini ===== */
 .stage {
   position: relative; height: 56px; width: 80px; flex-shrink: 0; overflow: hidden;
-  border-radius: 10px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px; background: rgba(0,0,0, 0.06); border: 1px solid rgba(0,0,0, 0.12);
 }
 .idc { position: absolute; left: 10px; top: 14px; width: 44px; height: 28px; border-radius: 5px;
-  background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.18); }
-.idc .iav { position: absolute; left: 4px; top: 5px; width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.4); }
-.idc .il1 { position: absolute; left: 17px; top: 8px; width: 17px; height: 2.5px; border-radius: 2px; background: rgba(255,255,255,.35); }
-.idc .il2 { position: absolute; left: 17px; top: 14px; width: 12px; height: 2.5px; border-radius: 2px; background: rgba(255,255,255,.22); }
+  background: rgba(0,0,0,.14); border: 1px solid rgba(0,0,0,.18); }
+.idc .iav { position: absolute; left: 4px; top: 5px; width: 9px; height: 9px; border-radius: 50%; background: rgba(0,0,0,.4); }
+.idc .il1 { position: absolute; left: 17px; top: 8px; width: 17px; height: 2.5px; border-radius: 2px; background: rgba(0,0,0,.35); }
+.idc .il2 { position: absolute; left: 17px; top: 14px; width: 12px; height: 2.5px; border-radius: 2px; background: rgba(0,0,0,.22); }
 .iscan { position: absolute; left: 10px; width: 44px; top: 27px; height: 2px; background: #fbbf24; opacity: .7;
   animation: iscanK 3s ease-in-out infinite; }
 @keyframes iscanK {
@@ -247,7 +247,7 @@ body::after {
 @keyframes ickK { 0%, 42% { transform: scale(0); opacity: 0; } 52%, 86% { transform: scale(1); opacity: 1; } 94%, 100% { transform: scale(0); opacity: 0; } }
 
 .tagn { position: absolute; left: 50%; top: 5px; margin-left: -1px; width: 2px; height: 7px;
-  border-radius: 1px; background: rgba(255,255,255,.35); }
+  border-radius: 1px; background: rgba(0,0,0,.35); }
 .tagp { position: absolute; left: 50%; top: 12px; margin-left: -13px; width: 26px; height: 16px;
   border-radius: 4px; background: #fbbf24; color: #080809;
   font: 700 8px/16px "JetBrains Mono", monospace; text-align: center;
@@ -255,8 +255,8 @@ body::after {
 @keyframes tagK { 0%, 100% { transform: rotate(-9deg); } 50% { transform: rotate(9deg); } }
 
 .mmap { position: absolute; inset: 8px 10px; border-radius: 6px;
-  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.14); }
-.mmap i { position: absolute; background: rgba(255,255,255,.18); border-radius: 1px; }
+  background: rgba(0,0,0,.1); border: 1px solid rgba(0,0,0,.14); }
+.mmap i { position: absolute; background: rgba(0,0,0,.18); border-radius: 1px; }
 .mmap .r1 { left: 4px; right: 4px; top: 9px; height: 1.5px; }
 .mmap .r2 { left: 4px; right: 4px; bottom: 9px; height: 1.5px; }
 .mmap .v1 { top: 4px; bottom: 4px; left: 14px; width: 1.5px; }
@@ -266,19 +266,19 @@ body::after {
   animation: mpK 3.6s ease infinite; animation-delay: var(--d); }
 .mp.near { --lit: #F59E0B; --halo: rgba(245, 158, 11, .22); }
 @keyframes mpK {
-  0%, 8% { background: rgba(255,255,255,.28); box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+  0%, 8% { background: rgba(0,0,0,.28); box-shadow: 0 0 0 0 rgba(0,0,0,0); }
   14%, 80% { background: var(--lit); box-shadow: 0 0 0 2.5px var(--halo); }
-  88%, 100% { background: rgba(255,255,255,.28); box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+  88%, 100% { background: rgba(0,0,0,.28); box-shadow: 0 0 0 0 rgba(0,0,0,0); }
 }
 
 .brw { position: absolute; left: 9px; top: 10px; width: 62px; height: 36px; border-radius: 6px;
-  background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.18); overflow: hidden; }
-.brw .bbar { height: 10px; background: rgba(255,255,255,.12); display: flex; align-items: center; gap: 2.5px; padding: 0 4px; }
-.brw .bbar b { width: 3.5px; height: 3.5px; border-radius: 50%; background: rgba(255,255,255,.35); }
-.brw .u { flex: 1; height: 5px; margin-left: 2px; border-radius: 2px; background: rgba(255,255,255,.22); position: relative; overflow: hidden; }
+  background: rgba(0,0,0,.13); border: 1px solid rgba(0,0,0,.18); overflow: hidden; }
+.brw .bbar { height: 10px; background: rgba(0,0,0,.12); display: flex; align-items: center; gap: 2.5px; padding: 0 4px; }
+.brw .bbar b { width: 3.5px; height: 3.5px; border-radius: 50%; background: rgba(0,0,0,.35); }
+.brw .u { flex: 1; height: 5px; margin-left: 2px; border-radius: 2px; background: rgba(0,0,0,.22); position: relative; overflow: hidden; }
 .brw .u::after { content: ""; position: absolute; left: 2px; top: 1.5px; width: 1px; height: 2px;
   background: #fbbf24; animation: blink 1s steps(1) infinite; }
-.brw .bl { position: absolute; left: 5px; height: 2.5px; border-radius: 2px; background: rgba(255,255,255,.3);
+.brw .bl { position: absolute; left: 5px; height: 2.5px; border-radius: 2px; background: rgba(0,0,0,.3);
   animation: blK 3.4s ease infinite; }
 .bl1 { top: 16px; width: 34px; } .bl2 { top: 22px; width: 24px; animation-delay: .25s; }
 .bl3 { top: 28px; width: 29px; animation-delay: .5s; }
@@ -286,7 +286,7 @@ body::after {
 
 /* ===== Keuntungan: vignette ===== */
 .vig { position: relative; height: 96px; width: 96px; flex-shrink: 0; border-radius: 12px;
-  background: #fff; border: 1px solid #E7E4DE; overflow: hidden; }
+  background: #141416; border: 1px solid #27272A; overflow: hidden; }
 
 .vc { position: absolute; top: 8px; left: 50%; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%;
   background: #f59e0b; box-shadow: inset 0 -2px 0 rgba(0,0,0,.14);
@@ -308,13 +308,13 @@ body::after {
 }
 
 .kdot { width: 13px; height: 13px; border-radius: 50%; flex-shrink: 0; position: relative;
-  border: 1.5px solid #0B0B0C; animation: kfillK 4.8s ease-in-out infinite; animation-delay: var(--d); }
+  border: 1.5px solid #F5F5F4; animation: kfillK 4.8s ease-in-out infinite; animation-delay: var(--d); }
 .kdot::after { content: "✓"; position: absolute; inset: 0; display: grid; place-items: center;
-  color: #fff; font-size: 8px; font-weight: 700; animation: kpopK 4.8s cubic-bezier(.34, 1.56, .64, 1) infinite; animation-delay: var(--d); }
+  color: #0A0A0B; font-size: 8px; font-weight: 700; animation: kpopK 4.8s cubic-bezier(.34, 1.56, .64, 1) infinite; animation-delay: var(--d); }
 @keyframes kfillK {
-  0%, 6% { background: transparent; border-color: #dad5c8; }
-  14%, 86% { background: #0B0B0C; border-color: #0B0B0C; }
-  94%, 100% { background: transparent; border-color: #dad5c8; }
+  0%, 6% { background: transparent; border-color: #27272A; }
+  14%, 86% { background: #F5F5F4; border-color: #F5F5F4; }
+  94%, 100% { background: transparent; border-color: #27272A; }
 }
 @keyframes kpopK { 0%, 8% { transform: scale(0); opacity: 0; } 16%, 86% { transform: scale(1); opacity: 1; } 94%, 100% { transform: scale(0); opacity: 0; } }
 

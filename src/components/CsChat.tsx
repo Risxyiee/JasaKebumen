@@ -303,7 +303,7 @@ export default function CsChat() {
               </span>
               <div>
                 <p className="text-sm font-semibold leading-tight">CS JasaKebumen</p>
-                <p className="flex items-center gap-1.5 text-[11px] text-white/70">
+                <p className="flex items-center gap-1.5 text-[11px] text-black/65">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
                   Online · jawab instan
                 </p>
