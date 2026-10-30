@@ -131,6 +131,50 @@ export const CATS: Category[] = [
 export const initials = (name: string) =>
   name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 
+/* ---------- Keterangan harga (tampilan menyesuaikan kategori usaha) ----------
+   - Kuliner/F&B : harga sesuai foto (caption tiap foto = menu + harga)
+                   + daftar harga menu (priceNote) + harga mulai.
+   - Produk      : rentang harga (mulai–sampai).
+   - Jasa        : harga mulai + keterangan tarif (per unit/jam).
+   Helper di bawah dipakai bersama oleh kartu direktori & halaman profil. */
+
+export const formatRupiah = (n: number): string => `Rp ${n.toLocaleString("id-ID")}`;
+
+/** Label harga untuk kartu & baris direktori:
+    min+maks → "Rp 10.000–25.000" · hanya min → "mulai Rp 10.000" · kosong → "". */
+export const formatPriceLabel = (min?: number | null, max?: number | null): string => {
+  const lo = typeof min === "number" && min > 0 ? min : null;
+  const hi = typeof max === "number" && max > 0 ? max : null;
+  if (lo && hi && hi > lo) return `${formatRupiah(lo)}–${formatRupiah(hi).replace("Rp ", "")}`;
+  if (lo) return `mulai ${formatRupiah(lo)}`;
+  if (hi) return formatRupiah(hi);
+  return "";
+};
+
+export interface PriceLine {
+  label: string;
+  price: string; // "" bila baris tidak memuat angka harga
+}
+
+/** Ubah keterangan harga multi-baris ("Getuk lapis — Rp 10.000") menjadi
+    pasangan nama–harga agar tampil rapi sebagai daftar di profil usaha.
+    Baris tanpa harga tetap tampil sebagai teks biasa (price: ""). */
+export const parsePriceLines = (note: string): PriceLine[] =>
+  (note || "")
+    .split(/\r?\n/)
+    .map((l) => l.trim().replace(/^[-•*]\s*/, ""))
+    .filter(Boolean)
+    .slice(0, 30)
+    .map((line) => {
+      // "Nama — Rp 13.000" / "Nama: Rp 13.000" / "Nama - Rp 13.000"
+      const m = line.match(/^(.+?)\s*(?:[—–:]|\s-\s)\s*(Rp\.?\s?[\d.,]+.*)$/i);
+      if (m) return { label: m[1].trim(), price: m[2].trim() };
+      // "Nama Rp 13.000" (tanpa pemisah)
+      const m2 = line.match(/^(.{3,}?)\s+(Rp\.?\s?[\d.,]+.*)$/i);
+      if (m2) return { label: m2[1].trim(), price: m2[2].trim() };
+      return { label: line, price: "" };
+    });
+
 /* ---------- Mapping Provider dari database → bentuk tampilan direktori ---------- */
 
 export interface DirectoryProvider {
@@ -141,7 +185,7 @@ export interface DirectoryProvider {
   verified: boolean;
   rating: number | null;
   reviews: number;
-  price: string; // kosong = belum ada data tarif → baris tampil "hubungi"
+  price: string; // label siap tampil, mis. "mulai Rp 10.000" — kosong = belum ada tarif → tampil "hubungi"
   keywords: string;
   desc?: string; // deskripsi singkat usaha (untuk kartu premium; opsional)
   wa: string; // format internasional tanpa "+", mis. 62812…

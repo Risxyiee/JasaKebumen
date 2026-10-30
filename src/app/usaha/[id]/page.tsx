@@ -19,7 +19,7 @@ import ReviewForm from "@/components/ReviewForm";
 import ShareButton from "@/components/ShareButton";
 import WaChatButton from "@/components/WaChatButton";
 import Reveal from "@/components/Reveal";
-import { initials, toWaIntl } from "@/lib/data";
+import { initials, toWaIntl, formatPriceLabel, formatRupiah, parsePriceLines } from "@/lib/data";
 import { db } from "@/lib/db";
 import { ensureDb } from "@/lib/db-bootstrap";
 
@@ -35,7 +35,7 @@ async function getProvider(id: string) {
     return await db.provider.findFirst({
       where: { id, status: "published" },
       include: {
-        category: { select: { name: true } },
+        category: { select: { name: true, slug: true } },
         district: { select: { name: true } },
         reviews: {
           where: { status: "published" },
@@ -134,6 +134,15 @@ export default async function ProviderProfilePage({
   const waMsg = `Halo ${provider.name}, saya menemukan usaha Anda di JasaKebumen. Boleh tanya-tanya layanan Anda?`;
   const profileUrl = `${SITE}/usaha/${provider.id}`;
 
+  /* ----- Keterangan harga (tampilan menyesuaikan kategori usaha) -----
+     Kuliner/F&B: harga sesuai foto — caption tiap foto = menu + harga.
+     Lainnya: rentang/tarif + daftar rinci dari priceNote. */
+  const isFnB = provider.category.slug === "kuliner";
+  const priceLabel = formatPriceLabel(provider.priceMin, provider.priceMax);
+  const captions = (provider.imageCaptions || []).slice(0, provider.images.length);
+  const priceLines = parsePriceLines(provider.priceNote);
+  const hasPriceInfo = Boolean(priceLabel || provider.priceNote || captions.some((c) => c));
+
   /* JSON-LD LocalBusiness — catatan: nomor WhatsApp SENGAJA tidak disertakan
      sebagai `telephone` (keputusan privasi; nomor hanya lewat tombol WhatsApp). */
   const jsonLd = {
@@ -156,6 +165,7 @@ export default async function ProviderProfilePage({
       addressCountry: "ID",
     },
     areaServed: { "@type": "AdministrativeArea", name: "Kabupaten Kebumen" },
+    ...(priceLabel ? { priceRange: priceLabel.replace(/^mulai /, "") } : {}),
     ...(count > 0
       ? {
           aggregateRating: {
@@ -197,6 +207,7 @@ export default async function ProviderProfilePage({
               images={provider.images.map((_, i) => `/api/providers/${provider.id}/images/${i}`)}
               name={provider.name}
               initialsText={initials(provider.name)}
+              captions={captions}
             />
           </div>
 
@@ -244,6 +255,75 @@ export default async function ProviderProfilePage({
               <p className="mt-5 whitespace-pre-line leading-relaxed text-mute">
                 {provider.description}
               </p>
+            )}
+
+            {/* Informasi harga — selalu ada bila mitra mengisinya (wajib saat daftar);
+                kuliner menampilkan menu+harga sesuai foto, kategori lain rentang/tarif */}
+            {hasPriceInfo && (
+              <section
+                id="harga"
+                aria-label="Informasi harga"
+                className="mt-6 rounded-xl border border-line bg-white p-5"
+              >
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <h2 className="flex items-center gap-2 font-serif text-lg text-ink">
+                    {isFnB ? "Daftar harga menu" : "Informasi harga"}
+                  </h2>
+                  {priceLabel && (
+                    <span className="rounded-md bg-green px-2.5 py-1 font-mono text-xs font-semibold tabular-nums text-white">
+                      {priceLabel}
+                    </span>
+                  )}
+                </div>
+
+                {/* F&B: menu + harga sesuai tiap foto */}
+                {captions.some((c) => c) && (
+                  <div className="mt-4">
+                    <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-faint">
+                      Sesuai foto
+                    </p>
+                    <ul className="mt-2 space-y-1.5">
+                      {captions.map(
+                        (c, i) =>
+                          c && (
+                            <li key={`cap-${i}`} className="flex items-baseline gap-2 text-sm">
+                              <span className="shrink-0 rounded border border-line bg-paper px-1.5 py-0.5 font-mono text-[10px] font-semibold text-mute">
+                                Foto {i + 1}
+                              </span>
+                              <span className="font-medium text-ink">{c}</span>
+                            </li>
+                          )
+                      )}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Daftar harga rinci (priceNote) — label kiri, harga kanan */}
+                {priceLines.length > 0 && (
+                  <ul className="mt-4 space-y-1.5">
+                    {priceLines.map((l, i) => (
+                      <li key={`price-${i}`} className="flex items-baseline justify-between gap-3 text-sm">
+                        <span className="min-w-0 text-mute">{l.label}</span>
+                        {l.price && (
+                          <span className="shrink-0 font-mono font-semibold tabular-nums text-ink">
+                            {l.price}
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {priceLabel && provider.priceMin && !provider.priceMax && (
+                  <p className="mt-3 text-xs text-faint">
+                    Harga termurah {formatRupiah(provider.priceMin)} — tarif final menyesuaikan
+                    layanan/pesanan Anda.
+                  </p>
+                )}
+                <p className="mt-3 border-t border-line pt-3 text-xs text-faint">
+                  Harga dari pemilik usaha. Konfirmasi ketersediaan &amp; harga final via WhatsApp.
+                </p>
+              </section>
             )}
 
             {/* Alamat toko/workshop (PRD: profil UMKM memuat alamat fisik) */}

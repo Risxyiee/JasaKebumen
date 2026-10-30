@@ -65,7 +65,12 @@ function ProviderRow({ p, i }: { p: DirectoryProvider; i: number }) {
             ) : (
               <span className="text-amber-600">Mitra baru</span>
             )}
-            {p.price && <span><span className="text-faint">mulai</span> {p.price}</span>}
+            {/* Label harga lengkap dari data usaha; tanpa data → ajak hubungi */}
+            {p.price ? (
+              <span className="font-medium text-ink">{p.price}</span>
+            ) : (
+              <span className="text-faint">hubungi</span>
+            )}
           </div>
 
           <a

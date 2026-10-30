@@ -116,7 +116,8 @@ export default function ProviderCard({
         <p className="flex items-center gap-1 text-xs text-mute">
           <MapPin className="h-3 w-3 shrink-0 text-green/60" />
           Kec. {p.district}
-          {p.price && <span className="text-faint"> · mulai {p.price}</span>}
+          {/* Label harga lengkap dari data usaha: "mulai Rp X" / "Rp X–Y" */}
+          {p.price && <span className="text-faint"> · {p.price}</span>}
         </p>
 
         {p.desc && (

@@ -15,6 +15,37 @@ const MAX_IMAGES = 3;
 const MAX_IMAGE_CHARS = 700_000;
 const IMAGE_RE = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/;
 
+/* Batas harga rupiah (PRD: keterangan harga wajib): 1 – 100 juta */
+const MAX_PRICE = 100_000_000;
+
+function sanitizePrice(input: unknown): number | null {
+  const raw = typeof input === "string" ? input.replace(/[^0-9]/g, "") : input;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < 1) return null;
+  return Math.min(Math.round(n), MAX_PRICE);
+}
+
+/* Keterangan per foto — indeks sejajar foto; dibersihkan & dibatasi 90 karakter */
+function sanitizeCaptions(input: unknown, count: number): string[] {
+  if (!Array.isArray(input)) return [];
+  return input
+    .slice(0, count)
+    .map((c) => String(c ?? "").trim().replace(/\s+/g, " ").slice(0, 90));
+}
+
+/* Daftar harga/tarif rinci — satu baris satu item, maks 30 baris × 1000 karakter */
+function sanitizePriceNote(input: unknown): string {
+  if (typeof input !== "string") return "";
+  return input
+    .replace(/\r\n?/g, "\n")
+    .split("\n")
+    .map((l) => l.trim().replace(/^[-•*]\s*/, ""))
+    .filter(Boolean)
+    .slice(0, 30)
+    .join("\n")
+    .slice(0, 1000);
+}
+
 function sanitizeImages(input: unknown): { images: string[]; error?: string } {
   if (input == null) return { images: [] };
   if (!Array.isArray(input)) return { images: [], error: "Format foto tidak valid." };
@@ -105,6 +136,33 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    /* ----- Keterangan harga (wajib; tampilan menyesuaikan kategori) ----- */
+    const priceMin = sanitizePrice(body.priceMin);
+    if (!priceMin) {
+      return NextResponse.json(
+        { error: "Harga mulai dari wajib diisi — angka dalam rupiah, tanpa titik." },
+        { status: 400 }
+      );
+    }
+    const priceMax = sanitizePrice(body.priceMax);
+    if (priceMax && priceMax <= priceMin) {
+      return NextResponse.json(
+        { error: "Harga tertinggi harus lebih besar dari harga termurah." },
+        { status: 400 }
+      );
+    }
+    const priceNote = sanitizePriceNote(body.priceNote);
+    const imageCaptions = sanitizeCaptions(body.imageCaptions, images.length);
+
+    /* F&B (kuliner): harga harus sesuai foto — tiap foto wajib diberi
+       keterangan menu + harganya agar pembeli tidak perlu bertanya. */
+    if (category.slug === "kuliner" && images.length > 0 && imageCaptions.some((c) => !c)) {
+      return NextResponse.json(
+        { error: "Kategori kuliner: setiap foto wajib diberi keterangan menu beserta harganya." },
+        { status: 400 }
+      );
+    }
+
     const provider = await db.provider.create({
       data: {
         name: cleanName,
@@ -114,6 +172,10 @@ export async function POST(req: NextRequest) {
         address: cleanAddress,
         whatsappNumber: cleaned,
         images,
+        priceMin,
+        priceMax,
+        priceNote,
+        imageCaptions,
         status: "pending",
       },
       include: { category: true, district: true },

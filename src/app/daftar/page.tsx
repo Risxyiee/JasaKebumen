@@ -15,6 +15,7 @@ import {
   MapPin,
   Tag,
   TriangleAlert,
+  Wallet,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -84,6 +85,14 @@ export default function DaftarPage() {
   const [description, setDescription] = useState("");
   const [address, setAddress] = useState(""); // alamat toko/workshop (opsional) — PRD: profil UMKM
   const [whatsappNumber, setWhatsappNumber] = useState("");
+
+  /* Jenis kategori menentukan bentuk isian harga (sesuai permintaan:
+     "tergantung kategori"). Kuliner = F&B → harga sesuai foto. */
+  const selectedCat = categories.find((c) => c.id === categoryId);
+  const isFnB = selectedCat?.slug === "kuliner";
+  const isProduct = ["fashion-batik", "kerajinan", "kemasan-packaging"].includes(
+    selectedCat?.slug || ""
+  );
   /* Honeypot anti-spam: field tersembunyi — manusia tidak pernah mengisinya */
   const [honeypot, setHoneypot] = useState("");
 
@@ -98,6 +107,14 @@ export default function DaftarPage() {
   const [photoBusy, setPhotoBusy] = useState(false);
   const [photoError, setPhotoError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  /* Keterangan harga — WAJIB (PRD: pembeli tahu harga sebelum menghubungi).
+     Tampilan menyesuaikan kategori: kuliner/F&B = menu+harga per foto;
+     produk = rentang harga; jasa = tarif mulai + keterangan per layanan. */
+  const [priceMin, setPriceMin] = useState(""); // angka mentah, ditampilkan terformat
+  const [priceMax, setPriceMax] = useState("");
+  const [priceNote, setPriceNote] = useState("");
+  const [captions, setCaptions] = useState<string[]>([]); // sejajar dgn photos (F&B)
 
   const loadReference = useCallback(async () => {
     setLoading(true);
@@ -160,7 +177,11 @@ export default function DaftarPage() {
           setPhotoError("Format foto tidak didukung browser. Gunakan JPG/PNG.");
         }
       }
-      if (added.length) setPhotos((prev) => [...prev, ...added].slice(0, MAX_PHOTOS));
+      if (added.length) {
+        setPhotos((prev) => [...prev, ...added].slice(0, MAX_PHOTOS));
+        /* Keterangan foto (F&B) harus sejajar dengan daftar foto */
+        setCaptions((prev) => [...prev, ...added.map(() => "")].slice(0, MAX_PHOTOS));
+      }
     } finally {
       setPhotoBusy(false);
     }
@@ -168,6 +189,7 @@ export default function DaftarPage() {
 
   const removePhoto = (idx: number) => {
     setPhotos((prev) => prev.filter((_, i) => i !== idx));
+    setCaptions((prev) => prev.filter((_, i) => i !== idx));
     setPhotoError("");
   };
 
@@ -175,6 +197,28 @@ export default function DaftarPage() {
     e.preventDefault();
     setFormState("submitting");
     setErrorMsg("");
+
+    /* Validasi keterangan harga (wajib) — cermin dari validasi server */
+    const priceMinNum = Number(priceMin);
+    if (!priceMin || !Number.isFinite(priceMinNum) || priceMinNum < 1) {
+      setErrorMsg("Harga wajib diisi — tulis angka rupiah tanpa titik, misal 10000.");
+      setFormState("error");
+      document.getElementById("harga")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (priceMax && Number(priceMax) <= priceMinNum) {
+      setErrorMsg("Harga tertinggi harus lebih besar dari harga termurah.");
+      setFormState("error");
+      document.getElementById("harga")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    /* F&B: harga harus sesuai foto — tiap foto wajib berketerangan menu + harga */
+    if (isFnB && photos.length > 0 && photos.some((_, i) => !(captions[i] || "").trim())) {
+      setErrorMsg("Kategori kuliner: isi keterangan menu + harga untuk setiap foto.");
+      setFormState("error");
+      document.getElementById("harga")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
 
     try {
       const res = await fetch("/api/providers", {
@@ -189,6 +233,10 @@ export default function DaftarPage() {
           whatsappNumber,
           website: honeypot,
           images: photos,
+          priceMin: priceMinNum,
+          priceMax: priceMax ? Number(priceMax) : undefined,
+          priceNote,
+          imageCaptions: photos.map((_, i) => (captions[i] || "").trim()),
           turnstileToken: tsToken,
         }),
       });
@@ -244,6 +292,10 @@ export default function DaftarPage() {
                 setAddress("");
                 setWhatsappNumber("");
                 setPhotos([]);
+                setCaptions([]);
+                setPriceMin("");
+                setPriceMax("");
+                setPriceNote("");
               }}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-green px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-green-dark"
             >
@@ -484,8 +536,127 @@ export default function DaftarPage() {
                 />
                 {photoError && <p className="mt-1.5 text-xs text-red-600">{photoError}</p>}
                 <p className="mt-1 text-xs text-faint">
-                  JPG/PNG/WebP. Foto otomatis dikompresi — pilih foto kerja terbaik Anda.
+                  {isFnB
+                    ? "JPG/PNG/WebP. Setelah foto terunggah, wajib isi keterangan menu + harga untuk tiap foto di bawah."
+                    : "JPG/PNG/WebP. Foto otomatis dikompresi — pilih foto kerja terbaik Anda."}
                 </p>
+              </div>
+
+              {/* Informasi harga — WAJIB; bentuk isian menyesuaikan kategori
+                  (kuliner: menu+harga sesuai foto · produk: rentang · jasa: tarif) */}
+              <div id="harga" className="scroll-mt-24">
+                <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-ink">
+                  <Wallet className="h-4 w-4 text-faint" /> Informasi harga{" "}
+                  <span className="font-normal text-red-500">*</span>
+                </label>
+                <p className="mb-3 text-xs text-faint">
+                  Harga tampil di daftar usaha &amp; profil — calon pembeli tahu tarif sebelum
+                  menghubungi.
+                  {isFnB && " Khusus kuliner: tiap foto diberi keterangan menu + harganya sesuai foto."}
+                </p>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="priceMin" className="mb-1.5 block text-sm font-medium text-ink">
+                      {isFnB
+                        ? "Harga menu termurah"
+                        : isProduct
+                          ? "Harga termurah"
+                          : "Tarif mulai dari"}{" "}
+                      <span className="font-normal text-faint">(Rp)</span>
+                    </label>
+                    <div className="mt-1 flex items-center gap-2">
+                      <span className="shrink-0 rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-faint">
+                        Rp
+                      </span>
+                      <input
+                        id="priceMin"
+                        type="text"
+                        inputMode="numeric"
+                        required
+                        value={priceMin ? Number(priceMin).toLocaleString("id-ID") : ""}
+                        onChange={(e) => setPriceMin(e.target.value.replace(/[^0-9]/g, "").slice(0, 9))}
+                        placeholder={isFnB || isProduct ? "10.000" : "75.000"}
+                        className="w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-sm text-ink outline-none placeholder:text-faint transition focus:border-green focus:ring-2 focus:ring-green/15"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="priceMax" className="mb-1.5 block text-sm font-medium text-ink">
+                      Harga tertinggi <span className="font-normal text-faint">(Rp, opsional)</span>
+                    </label>
+                    <div className="mt-1 flex items-center gap-2">
+                      <span className="shrink-0 rounded-lg border border-line bg-paper px-3 py-2.5 text-sm text-faint">
+                        Rp
+                      </span>
+                      <input
+                        id="priceMax"
+                        type="text"
+                        inputMode="numeric"
+                        value={priceMax ? Number(priceMax).toLocaleString("id-ID") : ""}
+                        onChange={(e) => setPriceMax(e.target.value.replace(/[^0-9]/g, "").slice(0, 9))}
+                        placeholder={isFnB || isProduct ? "25.000" : "500.000"}
+                        className="w-full rounded-lg border border-line bg-paper px-4 py-2.5 text-sm text-ink outline-none placeholder:text-faint transition focus:border-green focus:ring-2 focus:ring-green/15"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Khusus F&B — keterangan menu per foto (harga sesuai fotonya) */}
+                {isFnB && photos.length > 0 && (
+                  <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50/70 p-4">
+                    <p className="flex items-center gap-1.5 text-xs font-semibold text-amber-900">
+                      <ImageIcon className="h-3.5 w-3.5" />
+                      Menu pada tiap foto — wajib, harga sesuai fotonya
+                    </p>
+                    <div className="mt-2.5 space-y-2">
+                      {photos.map((_, i) => (
+                        <div key={`caption-${i}`} className="flex items-center gap-2.5">
+                          <span className="shrink-0 rounded border border-amber-200 bg-white px-1.5 py-1 font-mono text-[10px] font-semibold text-amber-700">
+                            Foto {i + 1}
+                          </span>
+                          <input
+                            type="text"
+                            value={captions[i] || ""}
+                            maxLength={90}
+                            onChange={(e) =>
+                              setCaptions((prev) =>
+                                prev.map((c, j) => (j === i ? e.target.value : c))
+                              )
+                            }
+                            placeholder={`Contoh: ${["Ayam geprek — Rp 13.000", "Getuk lapis — Rp 10.000", "Es degan — Rp 8.000"][i % 3]}`}
+                            className="w-full rounded-lg border border-line bg-white px-3.5 py-2 text-sm text-ink outline-none placeholder:text-faint transition focus:border-green focus:ring-2 focus:ring-green/15"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Daftar harga rinci (opsional) — contoh menyesuaikan kategori */}
+                <div className="mt-4">
+                  <label htmlFor="priceNote" className="mb-1.5 block text-sm font-medium text-ink">
+                    {isFnB ? "Daftar harga menu lengkap" : "Keterangan tarif"}{" "}
+                    <span className="font-normal text-faint">(opsional)</span>
+                  </label>
+                  <textarea
+                    id="priceNote"
+                    rows={3}
+                    value={priceNote}
+                    onChange={(e) => setPriceNote(e.target.value)}
+                    placeholder={
+                      isFnB
+                        ? "Satu menu satu baris:\nGetuk lapis — Rp 10.000\nLanting balut — Rp 15.000\nEs degan — Rp 8.000"
+                        : isProduct
+                          ? "Satu produk satu baris:\nBatik tulis pria — Rp 185.000\nSelendang — Rp 75.000"
+                          : "Satu layanan satu baris:\nCuci AC 1 PK — Rp 75.000/unit\nIsi freon — Rp 150.000"
+                    }
+                    className="mt-1 w-full resize-none rounded-lg border border-line bg-paper px-4 py-2.5 text-sm text-ink outline-none placeholder:text-faint transition focus:border-green focus:ring-2 focus:ring-green/15"
+                  />
+                  <p className="mt-1 text-xs text-faint">
+                    Satu baris satu item — tampil sebagai daftar rapi di profil usaha Anda.
+                  </p>
+                </div>
               </div>
 
               {/* WhatsApp */}

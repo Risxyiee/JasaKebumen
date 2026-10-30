@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import CsChat from "@/components/CsChat";
 import RevealObserver from "@/components/RevealObserver";
 import { SearchProvider } from "@/components/search-context";
-import { waAdminLink, toWaIntl, type DirectoryProvider } from "@/lib/data";
+import { waAdminLink, toWaIntl, formatPriceLabel, type DirectoryProvider } from "@/lib/data";
 import { logDbFailure } from "@/lib/db-bootstrap";
 import { db } from "@/lib/db";
 import { ensureDb } from "@/lib/db-bootstrap";
@@ -24,6 +24,8 @@ type ProviderRow = {
   whatsappNumber: string;
   images: string[];
   verified: boolean;
+  priceMin: number | null;
+  priceMax: number | null;
   category: { name: string };
   district: { name: string };
 };
@@ -44,7 +46,7 @@ function toDirectoryProvider(
     verified: p.verified, // badge Terverifikasi — hanya usaha yang sudah dicek langsung admin
     rating: reviews > 0 ? Math.round(avgRating! * 10) / 10 : null,
     reviews,
-    price: "", // DB belum menyimpan tarif → baris menampilkan "hubungi"
+    price: formatPriceLabel(p.priceMin, p.priceMax), // "mulai Rp X" / "Rp X–Y" — kosong = tampil "hubungi"
     keywords: `${p.description} ${p.category.name} ${p.district.name}`.toLowerCase(),
     desc: (p.description || "").slice(0, 140), // teks kartu premium (opsional)
     wa: toWaIntl(p.whatsappNumber),

@@ -43,6 +43,10 @@ interface Provider {
   address: string;
   imageUrl: string | null;
   images: string[];
+  priceMin: number | null;
+  priceMax: number | null;
+  priceNote: string;
+  imageCaptions: string[];
   status: string;
   verified: boolean;
   waClicks: number;
@@ -444,6 +448,31 @@ export default function AdminDashboard({ onLogout }: { onLogout: () => void }) {
                           <p className="mt-3 line-clamp-2 text-sm text-mute leading-relaxed">
                             {p.description}
                           </p>
+                        )}
+
+                        {/* Keterangan harga — dibaca admin saat kurasi
+                            (wajib di pendaftaran; usaha lama bisa kosong) */}
+                        {(p.priceMin || p.priceMax || p.priceNote ||
+                          (p.imageCaptions || []).some((c) => c)) && (
+                          <div className="mt-2 rounded-lg border border-line bg-paper px-3 py-2 text-xs">
+                            {(p.priceMin || p.priceMax) && (
+                              <p className="font-mono font-semibold tabular-nums text-ink">
+                                {p.priceMin ? `Rp ${p.priceMin.toLocaleString("id-ID")}` : "—"}
+                                {p.priceMax && p.priceMax !== p.priceMin
+                                  ? ` – Rp ${p.priceMax.toLocaleString("id-ID")}`
+                                  : ""}
+                              </p>
+                            )}
+                            {(p.imageCaptions || []).some((c) => c) && (
+                              <p className="mt-1 text-mute">
+                                <span className="font-semibold">Menu/foto:</span>{" "}
+                                {p.imageCaptions.filter(Boolean).join(" · ")}
+                              </p>
+                            )}
+                            {p.priceNote && (
+                              <p className="mt-1 whitespace-pre-line text-mute">{p.priceNote}</p>
+                            )}
+                          </div>
                         )}
 
                         {/* Foto usaha — dilayani endpoint terlindungi (cookie admin) */}

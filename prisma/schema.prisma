@@ -37,6 +37,16 @@ model Provider {
   images         String[] @default([]) // foto usaha (maks 3, data URL) — dilayani via /api/providers/[id]/images/[n]
   status         String   @default("pending") // pending | published | rejected
   verified       Boolean  @default(false) // badge Terverifikasi — diatur manual oleh admin setelah usaha dicek langsung
+  /* Keterangan harga — wajib diisi saat pendaftaran, tampilannya menyesuaikan
+     kategori (PRD: pembeli tahu harga sebelum menghubungi):
+     - priceMin/priceMax → rentang tarif rupiah (kartu, baris direktori, profil)
+     - priceNote         → daftar menu/tarif rinci per baris ("Getuk lapis — Rp 10.000")
+     - imageCaptions     → keterangan per foto, indeks sejajar `images`;
+       khusus kuliner (F&B) berisi menu+harga yang sesuai dengan fotonya. */
+  priceMin       Int?
+  priceMax       Int?
+  priceNote      String   @default("")
+  imageCaptions  String[] @default([])
   waClicks       Int      @default(0) // KPI PRD: jumlah klik tombol "Chat WhatsApp" pada usaha ini
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt

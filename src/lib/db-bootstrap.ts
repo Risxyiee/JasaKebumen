@@ -135,6 +135,11 @@ const DDL_STATEMENTS: string[] = [
   `ALTER TABLE "Provider" ADD COLUMN IF NOT EXISTS "verified" BOOLEAN NOT NULL DEFAULT false`,
   `ALTER TABLE "Provider" ADD COLUMN IF NOT EXISTS "address" TEXT NOT NULL DEFAULT ''`,
   `ALTER TABLE "Provider" ADD COLUMN IF NOT EXISTS "waClicks" INTEGER NOT NULL DEFAULT 0`,
+  /* Keterangan harga sesuai kategori (kuliner/F&B: menu + harga per foto) */
+  `ALTER TABLE "Provider" ADD COLUMN IF NOT EXISTS "priceMin" INTEGER`,
+  `ALTER TABLE "Provider" ADD COLUMN IF NOT EXISTS "priceMax" INTEGER`,
+  `ALTER TABLE "Provider" ADD COLUMN IF NOT EXISTS "priceNote" TEXT NOT NULL DEFAULT ''`,
+  `ALTER TABLE "Provider" ADD COLUMN IF NOT EXISTS "imageCaptions" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[]`,
   `CREATE TABLE IF NOT EXISTS "WaClick" (
     "id"         TEXT PRIMARY KEY,
     "providerId" TEXT NOT NULL REFERENCES "Provider"("id") ON DELETE CASCADE,
@@ -223,7 +228,15 @@ const PROBE_SQL = `SELECT
   EXISTS (SELECT 1 FROM information_schema.columns
           WHERE table_name = 'Provider' AND column_name = 'address')   AS col_address,
   EXISTS (SELECT 1 FROM information_schema.columns
-          WHERE table_name = 'Provider' AND column_name = 'waClicks')  AS col_waclicks`;
+          WHERE table_name = 'Provider' AND column_name = 'waClicks')  AS col_waclicks,
+  EXISTS (SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'Provider' AND column_name = 'priceMin')  AS col_pricemin,
+  EXISTS (SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'Provider' AND column_name = 'priceMax')  AS col_pricemax,
+  EXISTS (SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'Provider' AND column_name = 'priceNote') AS col_pricenote,
+  EXISTS (SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'Provider' AND column_name = 'imageCaptions') AS col_imgcaps`;
 
 type ProbeRow = {
   cat_tbl: boolean;
@@ -239,6 +252,10 @@ type ProbeRow = {
   col_verified: boolean;
   col_address: boolean;
   col_waclicks: boolean;
+  col_pricemin: boolean;
+  col_pricemax: boolean;
+  col_pricenote: boolean;
+  col_imgcaps: boolean;
 };
 
 async function schemaAndRefDataReady(): Promise<boolean> {
@@ -248,6 +265,7 @@ async function schemaAndRefDataReady(): Promise<boolean> {
   return (
     r.cat_tbl && r.dist_tbl && r.prov_tbl && r.wa_tbl && r.rev_tbl && r.cs_tbl && r.adm_tbl &&
     r.col_images && r.col_verified && r.col_address && r.col_waclicks &&
+    r.col_pricemin && r.col_pricemax && r.col_pricenote && r.col_imgcaps &&
     Number(r.cats) === REF_CATEGORIES.length &&
     Number(r.dists) === REF_DISTRICTS.length
   );
