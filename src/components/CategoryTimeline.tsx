@@ -104,7 +104,7 @@ export default function CategoryTimeline({
             {active === null && (
               <motion.span
                 layoutId="cat-active"
-                className="absolute inset-0 rounded-full bg-green shadow-[0_10px_24px_-10px_rgba(6,78,59,.7)]"
+                className="absolute inset-0 rounded-full bg-green shadow-[0_10px_24px_-10px_rgba(10,10,11,0.59)]"
                 transition={{ type: "spring", stiffness: 480, damping: 38 }}
               />
             )}
@@ -138,7 +138,7 @@ export default function CategoryTimeline({
                 {isActive && (
                   <motion.span
                     layoutId="cat-active"
-                    className="absolute inset-0 rounded-full bg-green shadow-[0_10px_24px_-10px_rgba(6,78,59,.7)]"
+                    className="absolute inset-0 rounded-full bg-green shadow-[0_10px_24px_-10px_rgba(10,10,11,0.59)]"
                     transition={{ type: "spring", stiffness: 480, damping: 38 }}
                   />
                 )}

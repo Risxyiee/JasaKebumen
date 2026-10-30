@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport: Viewport = { themeColor: "#064E3B" };
+export const viewport: Viewport = { themeColor: "#0B0B0C" };
 
 /* Semua halaman dirender saat request (bukan build) — WAJIB agar token
    analytics & variabel dashboard lain terbaca saat runtime, bukan dibekukan

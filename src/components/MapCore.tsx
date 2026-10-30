@@ -151,8 +151,8 @@ async function addPinImages(map: MbMap): Promise<void> {
   const push = (key: string, Icon: LucideIcon, active: boolean) =>
     jobs.push(
       rasterizePin(Icon, active
-        ? { fill: "#F59E0B", ring: "rgba(255,255,255,.95)", icon: "#022C22" }
-        : { fill: "#0B4A38", ring: "rgba(255,255,255,.95)", icon: "#FCD34D" }
+        ? { fill: "#F59E0B", ring: "rgba(255,255,255,.95)", icon: "#060607" }
+        : { fill: "#141416", ring: "rgba(255,255,255,.95)", icon: "#FCD34D" }
       ).then((d) => add(key, d))
     );
 
@@ -372,7 +372,7 @@ export default function MapCore({
           "fill-extrusion-color": [
             "interpolate", ["linear"],
             ["coalesce", ["get", "render_height"], ["get", "height"], 12],
-            0, "#0d5c44", 60, "#127054", 160, "#1c8a69",
+            0, "#1A1A1D", 60, "#127054", 160, "#1c8a69",
           ],
           "fill-extrusion-height": [
             "interpolate", ["linear"], ["zoom"],
@@ -411,7 +411,7 @@ export default function MapCore({
       paint: {
         "circle-color": [
           "step", ["get", "point_count"],
-          "rgba(6, 78, 59, 0.55)", 10, "rgba(6, 78, 59, 0.68)", 40, "rgba(6, 78, 59, 0.82)",
+          "rgba(10,10,11,0.47)", 10, "rgba(10,10,11,0.58)", 40, "rgba(10,10,11,0.60)",
         ],
         "circle-radius": [
           "step", ["get", "point_count"], 17, 10, 23, 40, 30,

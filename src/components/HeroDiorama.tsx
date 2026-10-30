@@ -433,7 +433,7 @@ export default function HeroDiorama() {
 
   return (
     <div
-      className={`overflow-hidden rounded-2xl border shadow-[0_24px_60px_-32px_rgba(6,78,59,.28)] transition-colors duration-500 ${
+      className={`overflow-hidden rounded-2xl border shadow-[0_24px_60px_-32px_rgba(10,10,11,0.24)] transition-colors duration-500 ${
         night ? "border-green-dark bg-green-dark" : "border-line bg-white"
       }`}
     >

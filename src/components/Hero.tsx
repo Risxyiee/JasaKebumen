@@ -29,7 +29,7 @@ function WibClock() {
 
 function DioramaSkeleton() {
   return (
-    <div className="scene-card overflow-hidden rounded-2xl border border-line bg-white shadow-[0_24px_60px_-32px_rgba(6,78,59,.28)]">
+    <div className="scene-card overflow-hidden rounded-2xl border border-line bg-white shadow-[0_24px_60px_-32px_rgba(10,10,11,0.24)]">
       <div id="sceneWrap" className="relative h-[320px] sm:h-[400px] lg:h-[440px]">
         <canvas id="sceneCanvas" />
         <span className="scene-chip pointer-events-none absolute left-4 top-4 rounded-md border border-line bg-paper/90 px-2 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-mute">

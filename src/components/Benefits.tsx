@@ -260,7 +260,7 @@ export default function Benefits() {
         {/* Panel pencari */}
         <div id="panel-cari" ref={panelCariRef} className={`mt-10 grid gap-3 sm:grid-cols-2 ${tab !== "cari" ? "hidden" : ""}`}>
           {CARI.map((it) => (
-            <div key={it.title} className="group flex items-start gap-5 rounded-xl border border-line bg-paper p-5 transition duration-300 hover:-translate-y-0.5 hover:border-green/40 hover:shadow-[0_18px_44px_-22px_rgba(6,78,59,.28)]">
+            <div key={it.title} className="group flex items-start gap-5 rounded-xl border border-line bg-paper p-5 transition duration-300 hover:-translate-y-0.5 hover:border-green/40 hover:shadow-[0_18px_44px_-22px_rgba(10,10,11,0.24)]">
               {it.vig}
               <div className="min-w-0">
                 <h3 className="font-semibold tracking-tight transition-colors group-hover:text-green">{it.title}</h3>
@@ -273,7 +273,7 @@ export default function Benefits() {
         {/* Panel mitra */}
         <div id="panel-mitra" ref={panelMitraRef} className={`mt-10 grid gap-3 sm:grid-cols-2 ${tab !== "mitra" ? "hidden" : ""}`}>
           {MITRA.map((it) => (
-            <div key={it.title} className="group flex items-start gap-5 rounded-xl border border-line bg-paper p-5 transition duration-300 hover:-translate-y-0.5 hover:border-green/40 hover:shadow-[0_18px_44px_-22px_rgba(6,78,59,.28)]">
+            <div key={it.title} className="group flex items-start gap-5 rounded-xl border border-line bg-paper p-5 transition duration-300 hover:-translate-y-0.5 hover:border-green/40 hover:shadow-[0_18px_44px_-22px_rgba(10,10,11,0.24)]">
               {it.vig}
               <div className="min-w-0">
                 <h3 className="font-semibold tracking-tight transition-colors group-hover:text-green">{it.title}</h3>

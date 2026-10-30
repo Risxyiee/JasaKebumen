@@ -82,7 +82,7 @@ export default function CategoryGrid({ counts = {} }: { counts?: Record<string, 
                   onClick={() => pick(c.q)}
                   onMouseMove={onMove}
                   onMouseLeave={onLeave}
-                  className="tilt group h-full w-full rounded-xl border border-line bg-white text-left transition-colors duration-300 hover:border-green/40 hover:shadow-[0_20px_48px_-24px_rgba(6,78,59,.3)]"
+                  className="tilt group h-full w-full rounded-xl border border-line bg-white text-left transition-colors duration-300 hover:border-green/40 hover:shadow-[0_20px_48px_-24px_rgba(10,10,11,0.26)]"
                 >
                   {c.wide ? (
                     <div className="flex items-center gap-5 p-5">

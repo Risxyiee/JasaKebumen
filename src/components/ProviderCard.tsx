@@ -44,7 +44,7 @@ export default function ProviderCard({
       viewport={{ once: true, margin: "0px 0px -30px 0px" }}
       transition={{ duration: 0.45, delay: Math.min(index, 6) * 0.05, ease: [0.22, 1, 0.36, 1] }}
       whileHover={reduce ? undefined : { y: -6 }}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-[0_2px_10px_-4px_rgba(28,25,23,.08)] transition-shadow duration-300 hover:shadow-[0_24px_48px_-18px_rgba(6,78,59,.35)]"
+      className="group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-[0_2px_10px_-4px_rgba(28,25,23,.08)] transition-shadow duration-300 hover:shadow-[0_24px_48px_-18px_rgba(10,10,11,0.30)]"
     >
       {/* ---------- Thumbnail ---------- */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-green-tint">
