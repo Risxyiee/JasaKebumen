@@ -52,18 +52,23 @@ simple = { limit = 15, period = 10 }
 # query/hari): TLS ke Supabase diurus Hyperdrive dari jaringan Cloudflare,
 # Worker terhubung ke Hyperdrive secara lokal.
 #
-# NONAKTIF sementara (2026-10-24): setelah binding aktif (ID di bawah),
-# ±30% request DB gagal 1101 ("Worker threw a JavaScript exception") karena
-# OpenNext menyimpan context di slot GLOBAL (Symbol.for("__cloudflare-context__"))
-# yang tertimpa request konkuren → socket pg terpakai ulang lintas konteks
-# request ("Cannot perform I/O on behalf of a different request" — lihat
-# developers.cloudflare.com/hyperdrive/observability/troubleshooting).
-# Nyalakan KEMBALI hanya setelah isolasi per-request yang tahan konkurensi
-# terbukti (uji ketat ≥50 request tanpa 1101). Config Hyperdrive tetap ada
-# di dashboard dan TIDAK perlu dibuat ulang:
-# [[hyperdrive]]
-# binding = "HYPERDRIVE"
-# id = "816bf26344b349b290192cf03a475765"
+# DIAKTIFKAN KEMBALI (2026-10-25) — dua alasan:
+# 1) Isolasi per-request tahan konkurensi SUDAH terbukti: FreshQueryPool
+#    (src/lib/fresh-pg-pool.ts, commit c4631d7) — SETIAP query memakai
+#    pg.Client segar (connect->query->end dalam 1 konteks request); lab
+#    sekuensial+paralel+transaksi = NOL uncaught. Socket idle lintas-request
+#    (penyebab 1101) sudah tidak ada.
+# 2) Jalur interim sslmode=disable (plaintext ke pooler Supabase) terbukti
+#    TIDAK STABIL di produksi: log 2026-10-25 POST /api/providers ->
+#    "Connection terminated unexpectedly" di tengah transaksi create
+#    (probe SELECT via ensureDb() masih lolos — putus acak pada koneksi
+#    berikutnya). Hyperdrive menghentikan kelas masalah ini: TLS penuh
+#    diurus jaringan Cloudflare, Worker connect ke proxy lokal (sub-ms),
+#    tidak menyentuh CA privat Supabase sama sekali.
+# Config Hyperdrive tetap ada di dashboard dan TIDAK perlu dibuat ulang:
+[[hyperdrive]]
+binding = "HYPERDRIVE"
+id = "816bf26344b349b290192cf03a475765"
 #
 # Variabel OPSIONAL (fitur aktif otomatis begitu diset + redeploy;
 # situs tetap berjalan normal tanpanya — semua lib degrade terbuka):
